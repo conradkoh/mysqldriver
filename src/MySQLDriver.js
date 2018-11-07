@@ -6,6 +6,8 @@ const ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
 const ALIAS_IS_NULLABLE = "IS_NULLABLE";
 const ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
 
+const ALIAS_TABLE_NAME = 'TABLE_NAME';
+
 class MySQLDriver {
     constructor(host, user, password, database, port) {
         this.host = host;
@@ -24,6 +26,7 @@ class MySQLDriver {
      * Insert records into the database
      * @param {string} table_name The name of the table to insert the records into
      * @param {object} record The record to be insert into the database
+     * @return {object}
      */
     async insertRecord(table_name, record) {
         let self = this;
@@ -34,6 +37,7 @@ class MySQLDriver {
      * Get records from a table that match the where criteria
      * @param {string} table_name
      * @param {object} where The search criteria to do a match
+     * @return {Array}
      */
     async getRecords(table_name, where) {
         let self = this;
@@ -44,6 +48,7 @@ class MySQLDriver {
      * @param {string} table_name 
      * @param {object} properties The properties to be updated
      * @param {object} where THe criteria to search
+     * @return {object}
      */
     async updateRecords(table_name, properties, where) {
         let self = this;
@@ -54,10 +59,18 @@ class MySQLDriver {
      * Delete records from a table that match there where criteria
      * @param {string} table_name 
      * @param {object} where 
+     * @return {object}
      */
     async deleteRecords(table_name, where) {
         return await self._deleteRecordRaw(table_name, where);
     }
+
+    /**
+     * Get a record via an sql query
+     * @param {string} sql 
+     * @param {Array} values 
+     * @return {object}
+     */
     async getRecordSql(sql, values) {
         let self = this;
         let records = self.getRecordsSql(sql, values);
@@ -72,14 +85,31 @@ class MySQLDriver {
     }
     /**
      * Gets records from the database via a provided sql statement
-     * @param {*} sql 
-     * @param {*} values 
+     * @param {string} sql 
+     * @param {Array} values 
+     * @return {Array}
      */
     async getRecordsSql(sql, values) {
         let self = this;
         let records = await self.query(sql, values);
         return records;
     }
+
+    /**
+     * Gets all tables in the current database
+     * @return {Array}
+     */
+    async getTableNames() {
+        const self = this;
+        const table_names = await self._getTableNames(self.database);
+        return table_names;
+
+    }
+    /**
+     * Get the table information from the information schema
+     * @param {string} table_name 
+     * @return {Array}
+     */
     async getTableInfo(table_name) {
         let self = this;
         let info = await self._getTableInfo(self.database, table_name);
@@ -89,6 +119,7 @@ class MySQLDriver {
      * Query the database connection asynchronously
      * @param {*} query 
      * @param {Array} values 
+     * @return {Array}
      */
     async query(query, values = []) {
         let self = this;
@@ -111,6 +142,54 @@ class MySQLDriver {
             })
         })
     }
+
+    /**
+     * Gets the schema of the database as an array of table schema objects
+     * @returns {Array}
+     */
+    async getJSSchema() {
+        const self = this;
+        const tables = await self.getTableNames();
+        const schema = tables.map(
+            async (table_name) => {
+                let table_schema = await self.tableGetJSSchema(table_name);
+                return table_schema;
+            }
+        )
+        return await Promise.all(schema);
+    }
+    /**
+     * 
+     * @param {string} table_name 
+     * @return {{ fields: Object }}
+     */
+    async tableGetJSSchema(table_name) {
+        const self = this;
+        const columns = await self.getTableInfo(table_name);
+        let schema = {
+            table_name: table_name,
+            fields: undefined
+        };
+        let fields = {};
+        columns.map(
+            column => {
+                let field = {
+                    column_name: column[ALIAS_COLUMN_NAME],
+                    data_type: column[ALIAS_DATA_TYPE],
+                    key: column[ALIAS_COLUMN_KEY],
+                    max_length: column[ALIAS_CHARACTER_MAXIMUM_LENGTH],
+                    is_nullable: column[ALIAS_IS_NULLABLE],
+                    default_value: column[ALIAS_COLUMN_DEFAULT]
+                };
+                fields[field.column_name] = field;
+            }
+        )
+        schema.fields = fields;
+        return schema;
+
+
+    }
+
     /**
      * Query the database
      * @param {*} query 
@@ -140,7 +219,7 @@ class MySQLDriver {
     //INTERNAL FUNCTIONS
     /**
      * Get the field
-     * @param {*} database_name 
+     * @param {string} database_name 
      * @param {Array} table_name 
      */
     async _getTableInfo(database_name, table_name) {
@@ -156,10 +235,19 @@ class MySQLDriver {
             WHERE \`TABLE_NAME\` = ? AND \`TABLE_SCHEMA\` = ?`, [table_name, database_name]);
     }
 
+    /**
+     * Gets all table names in a given database
+     * @param {*} database_name 
+     * @returns {Array}
+     */
     async _getTableNames(database_name) {
         let self = this;
-        return await self.query(`SELECT TABLE_NAME 
+        const tables = await self.query(`SELECT TABLE_NAME 
             FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ?`, [database_name]);
+        const table_names = tables.map(
+            table => table[ALIAS_TABLE_NAME]
+        )
+        return table_names;
     }
     /**
      * Checks the record against the database schema and removes any irrelevant fields for insertion
@@ -299,4 +387,5 @@ class MySQLDriver {
         );
     }
 }
+
 module.exports = MySQLDriver;
