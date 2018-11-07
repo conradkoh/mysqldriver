@@ -145,7 +145,7 @@ class MySQLDriver {
 
     /**
      * Gets the schema of the database as an array of table schema objects
-     * @returns {Array}
+     * @returns {Array<{table_name: string, fields: Array<{column_name: string, data_type: string, key: string, max_length: string, is_nullable: string, default_value: string}>}>}
      */
     async getJSSchema() {
         const self = this;
@@ -170,7 +170,7 @@ class MySQLDriver {
             table_name: table_name,
             fields: undefined
         };
-        let fields = {};
+        let fields = [];
         columns.map(
             column => {
                 let field = {
@@ -181,7 +181,7 @@ class MySQLDriver {
                     is_nullable: column[ALIAS_IS_NULLABLE],
                     default_value: column[ALIAS_COLUMN_DEFAULT]
                 };
-                fields[field.column_name] = field;
+                fields.push(field);
             }
         )
         schema.fields = fields;
