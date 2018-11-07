@@ -30,7 +30,7 @@ class MySQLDriver {
      */
     async insertRecord(table_name, record) {
         let self = this;
-        let clean_record = await self._prepareRecord(self.database, record);
+        let clean_record = await self._prepareRecord(self.database, table_name, record);
         return await self._insertRecordRaw(table_name, clean_record);
     }
     /**
@@ -43,6 +43,25 @@ class MySQLDriver {
         let self = this;
         return await self._selectRecordRaw(table_name, where);
     }
+
+    /**
+     * Get record from a table that match the where criteria
+     * @param {string} table_name
+     * @param {object} where The search criteria to do a match
+     * @return {*}
+     */
+    async getRecord(table_name, where) {
+        let self = this;
+        const result = await self._selectRecordRaw(table_name, where);
+        if (result.length > 1) {
+            throw new Error(`MySQLDriver.getRecord: More than one record found.`);
+        }
+        if (result.length === 0) {
+            return undefined;
+        }
+        return result[0];
+    }
+
     /**
      * Update records in a given table
      * @param {string} table_name 
