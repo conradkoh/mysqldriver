@@ -134,6 +134,17 @@ class MySQLDriver {
         let info = await self._getTableInfo(self.database, table_name);
         return info;
     }
+
+    /**
+     * Get the field names for a given table
+     * @param {string} table_name 
+     * @returns {Array}
+     */
+    async getTableFieldNames(table_name) {
+        let self = this;
+        let info = await self._getTableInfo(self.database, table_name);
+        return info.map(field_info => field_info.COLUMN_NAME);
+    }
     /**
      * Query the database connection asynchronously
      * @param {*} query 
@@ -239,7 +250,8 @@ class MySQLDriver {
     /**
      * Get the field
      * @param {string} database_name 
-     * @param {Array} table_name 
+     * @param {string} table_name 
+     * @returns {Array<{COLUMN_NAME: string, DATA_TYPE: string, COLUMN_KEY: string, CHARACTER_MAXIMUM_LENGTH: number,IS_NULLABLE: int, COLUMN_DEFAULT: any }>}
      */
     async _getTableInfo(database_name, table_name) {
         let self = this;
