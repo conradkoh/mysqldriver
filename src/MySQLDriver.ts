@@ -1,4 +1,5 @@
-var MySQL = require("mysql");
+import * as MySQL from "mysql";
+// var MySQL = require("mysql");
 const ALIAS_COLUMN_NAME = "COLUMN_NAME";
 const ALIAS_DATA_TYPE = "DATA_TYPE";
 const ALIAS_COLUMN_KEY = "COLUMN_KEY";
@@ -9,7 +10,13 @@ const ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
 const ALIAS_TABLE_NAME = 'TABLE_NAME';
 
 class MySQLDriver {
-    constructor(host, user, password, database, port) {
+    host: string
+    user: string
+    database: string
+    port: number
+    connection: MySQL.Connection
+
+    constructor(host: string, user:string, password:string, database:string, port:number) {
         this.host = host;
         this.user = user;
         this.database = database;
@@ -28,7 +35,7 @@ class MySQLDriver {
      * @param {object} record The record to be insert into the database
      * @return {object}
      */
-    async insertRecord(table_name, record) {
+    async insertRecord(table_name:string, record:any) {
         let self = this;
         let clean_record = await self._prepareRecord(self.database, table_name, record);
         return await self._insertRecordRaw(table_name, clean_record);
@@ -39,7 +46,7 @@ class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {Array}
      */
-    async getRecords(table_name, where) {
+    async getRecords(table_name:string, where:any) {
         let self = this;
         return await self._selectRecordRaw(table_name, where);
     }
@@ -50,7 +57,7 @@ class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    async getRecord(table_name, where) {
+    async getRecord(table_name:string, where:any) {
         let self = this;
         const result = await self._selectRecordRaw(table_name, where);
         if (result.length > 1) {
@@ -69,7 +76,7 @@ class MySQLDriver {
      * @param {object} where THe criteria to search
      * @return {object}
      */
-    async updateRecords(table_name, properties, where) {
+    async updateRecords(table_name:string, properties:any, where:any) {
         let self = this;
         let clean_properties = await self._prepareRecord(self.database, table_name, properties);
         return await self._updateRecordsRaw(table_name, clean_properties, where);
@@ -80,7 +87,8 @@ class MySQLDriver {
      * @param {object} where 
      * @return {object}
      */
-    async deleteRecords(table_name, where) {
+    async deleteRecords(table_name:string, where:any) {
+        let self = this;
         return await self._deleteRecordRaw(table_name, where);
     }
 
@@ -90,14 +98,14 @@ class MySQLDriver {
      * @param {Array} values 
      * @return {object}
      */
-    async getRecordSql(sql, values) {
+    async getRecordSql(sql:string, values:Array<any>) : Promise<Array<any>> {
         let self = this;
-        let records = self.getRecordsSql(sql, values);
+        let records = await self.getRecordsSql(sql, values);
         if (records.length > 1) {
             throw new Error(`MySQLDriver.getRecordSql: More than one record found for value.`);
         }
         if (records.length === 0) {
-            return null;
+            return [];
         }
 
         return records[0];
@@ -108,7 +116,7 @@ class MySQLDriver {
      * @param {Array} values 
      * @return {Array}
      */
-    async getRecordsSql(sql, values) {
+    async getRecordsSql(sql:string, values:Array<any>) : Promise<Array<any>>{
         let self = this;
         let records = await self.query(sql, values);
         return records;
@@ -129,7 +137,7 @@ class MySQLDriver {
      * @param {string} table_name 
      * @return {Array}
      */
-    async getTableInfo(table_name) {
+    async getTableInfo(table_name:string) {
         let self = this;
         let info = await self._getTableInfo(self.database, table_name);
         return info;
@@ -140,7 +148,7 @@ class MySQLDriver {
      * @param {string} table_name 
      * @returns {Array}
      */
-    async getTableFieldNames(table_name) {
+    async getTableFieldNames(table_name:string) {
         let self = this;
         let info = await self._getTableInfo(self.database, table_name);
         return info.map(field_info => field_info.COLUMN_NAME);
@@ -151,13 +159,13 @@ class MySQLDriver {
      * @param {Array} values 
      * @return {Array}
      */
-    async query(query, values = []) {
+    async query(query:string, values:Array<any> = []) : Promise<Array<any>>{
         let self = this;
         this._checkValues(values);
-        return new Promise((resolve, reject) => {
-            self._query(query, values, function (err, rows) {
+        return new Promise<Array<any>>((resolve, reject) => {
+            self._query(query, values, function (err:any, rows: Array<any>) {
                 if (err) {
-                    let error = new Error(`MySQLDriver: query: SQL query error.`);
+                    let error:any = new Error(`MySQLDriver: query: SQL query error.`);
                     let data = {
                         err,
                         query,
@@ -181,7 +189,7 @@ class MySQLDriver {
         const self = this;
         const tables = await self.getTableNames();
         const schema = tables.map(
-            async (table_name) => {
+            async (table_name:string) => {
                 let table_schema = await self.tableGetJSSchema(table_name);
                 return table_schema;
             }
@@ -193,16 +201,16 @@ class MySQLDriver {
      * @param {string} table_name 
      * @return {{ fields: Object }}
      */
-    async tableGetJSSchema(table_name) {
+    async tableGetJSSchema(table_name:string) {
         const self = this;
         const columns = await self.getTableInfo(table_name);
-        let schema = {
+        let schema: any = {
             table_name: table_name,
             fields: undefined
         };
-        let fields = [];
+        let fields: Array<any> = [];
         columns.map(
-            column => {
+            (column:any) => {
                 let field = {
                     column_name: column[ALIAS_COLUMN_NAME],
                     data_type: column[ALIAS_DATA_TYPE],
@@ -226,11 +234,11 @@ class MySQLDriver {
      * @param {*} values 
      * @param {*} callback 
      */
-    _query(query, values, callback) {
+    _query(query: string, values: Array<string>, callback: Function) {
         let self = this;
         self.connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
-            callback(err, rows, this.sql);
+            callback(err, rows);
         });
     }
     async closeConnection() {
@@ -253,7 +261,7 @@ class MySQLDriver {
      * @param {string} table_name 
      * @returns {Array<{COLUMN_NAME: string, DATA_TYPE: string, COLUMN_KEY: string, CHARACTER_MAXIMUM_LENGTH: number,IS_NULLABLE: int, COLUMN_DEFAULT: any }>}
      */
-    async _getTableInfo(database_name, table_name) {
+    async _getTableInfo(database_name:string, table_name:string) {
         let self = this;
         return await self.query(`SELECT 
             \`COLUMN_NAME\` as '${ALIAS_COLUMN_NAME}', 
@@ -271,9 +279,9 @@ class MySQLDriver {
      * @param {*} database_name 
      * @returns {Array}
      */
-    async _getTableNames(database_name) {
+    async _getTableNames(database_name:string) {
         let self = this;
-        const tables = await self.query(`SELECT TABLE_NAME 
+        const tables:Array<any> = await self.query(`SELECT TABLE_NAME 
             FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ?`, [database_name]);
         const table_names = tables.map(
             table => table[ALIAS_TABLE_NAME]
@@ -286,16 +294,16 @@ class MySQLDriver {
      * @param {*} table_name 
      * @param {*} record_raw 
      */
-    async _prepareRecord(database_name, table_name, record_raw) {
+    async _prepareRecord(database_name:string, table_name:string, record_raw: any) {
         let self = this;
-        if (!typeof table_name === 'string') {
-            let error = new Error(`MySQLDriver in function _prepareRecord: Provided table name is not a string.`);
+        if (!(typeof table_name === 'string')) {
+            let error: any = new Error(`MySQLDriver in function _prepareRecord: Provided table name is not a string.`);
             error.table_name = table_name;
             error.record_raw = record_raw;
             throw error;
         }
-        let prepared_record = {};
-        let table_info = await self._getTableInfo(database_name, table_name);
+        let prepared_record:any = {};
+        let table_info: Array<any> = await self._getTableInfo(database_name, table_name);
         table_info.map(field => {
             let key = field[ALIAS_COLUMN_NAME];
             if (key in record_raw) { //Only add items that have been specified in the record
@@ -310,10 +318,10 @@ class MySQLDriver {
      * @param {string} table_name The name of the table to insert the records into
      * @param {object} record The record to be insert into the database
      */
-    async _insertRecordRaw(table_name, record) {
+    async _insertRecordRaw(table_name:string, record:any) {
         let self = this;
         const insert_sql = `INSERT INTO \`${table_name}\``;
-        let params = [];
+        let params: Array<string> = [];
         const keys_sql = Object.keys(record).map(key => {
             let escaped_key = key.replace(/`/g, key);
             let value = record[key];
@@ -335,17 +343,17 @@ class MySQLDriver {
      * @param {object} properties The properties to be updated
      * @param {object} where THe criteria to search
      */
-    async _updateRecordsRaw(table_name, properties, where) {
+    async _updateRecordsRaw(table_name:string, properties:any, where:any) {
         let self = this;
         if (!where || Object.keys(where).length < 1) {
-            var error = new Error(`MySQLDriver: Cannot update record without where clause.`);
+            var error: any = new Error(`MySQLDriver: Cannot update record without where clause.`);
             error.table_name = table_name;
             error.properties = properties;
             error.where = where;
             throw error;
         }
         const update_sql = `UPDATE \`${table_name}\``;
-        let params = [];
+        let params: Array<string> = [];
         const properties_sql = Object.keys(properties).map(key => {
             var property = properties[key];
             params.push(property);
@@ -367,10 +375,10 @@ class MySQLDriver {
      * @param {string} table_name 
      * @param {object} where 
      */
-    async _selectRecordRaw(table_name, where = {}) {
+    async _selectRecordRaw(table_name:string, where:any = {}) {
         let self = this;
         const select_sql = `SELECT * FROM \`${table_name}\``;
-        let params = [];
+        let params: Array<any> = [];
         if (Object.keys(where).length === 0) {
             //Handles the case where there is no where clause
             return await self.query(`${select_sql}`);
@@ -391,12 +399,12 @@ class MySQLDriver {
      * @param {*} table_name 
      * @param {*} where 
      */
-    async _deleteRecordRaw(table_name, where) {
+    async _deleteRecordRaw(table_name:string, where:any) {
         let self = this;
         const select_sql = `DELETE FROM \`${table_name}\``;
-        let params = [];
-        const where_sql = Object.keys(where).map(key => {
-            let value = where[key];
+        let params:Array<string> = [];
+        const where_sql = Object.keys(where).map((key) => {
+            let value: string = where[key];
             params.push(value);
             return `\`${key}\` = ?`;
         }).reduce((last, cur, index) => {
@@ -408,7 +416,7 @@ class MySQLDriver {
      * Checks an array of values and ensures that it is not undefined
      * @param {Array<string>} values 
      */
-    async _checkValues(values) {
+    async _checkValues(values: Array<string>) {
         values.map(
             value => {
                 if (value === undefined) {
@@ -419,4 +427,4 @@ class MySQLDriver {
     }
 }
 
-module.exports = MySQLDriver;
+export = MySQLDriver;

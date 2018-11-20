@@ -1,8 +1,8 @@
 {
   "name": "mysqldriver",
-  "version": "1.0.7",
+  "version": "2.0.8",
   "description": "",
-  "main": "index.js",
+  "main": "dist/MySQLDriver.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,5 +14,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/conradkoh/mysqldriver"
+  },
+  "devDependencies": {
+    "@types/mysql": "^2.15.5"
   }
 }
