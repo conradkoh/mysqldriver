@@ -1,4 +1,5 @@
 import * as MySQL from "mysql";
+import { create } from "domain";
 // var MySQL = require("mysql");
 const ALIAS_COLUMN_NAME = "COLUMN_NAME";
 const ALIAS_DATA_TYPE = "DATA_TYPE";
@@ -12,6 +13,7 @@ const ALIAS_TABLE_NAME = 'TABLE_NAME';
 class MySQLDriver {
     host: string
     user: string
+    password: string
     database: string
     port: number
     connection: MySQL.Connection
@@ -19,9 +21,14 @@ class MySQLDriver {
     constructor(host: string, user:string, password:string, database:string, port:number) {
         this.host = host;
         this.user = user;
+        this.password = password;
         this.database = database;
         this.port = port;
-        this.connection = MySQL.createConnection({
+        this.connection = this.createConnection();
+    }
+    createConnection() {
+        const {host, user, password, database, port} = this;
+        return MySQL.createConnection({
             host,
             user,
             password,
@@ -236,6 +243,11 @@ class MySQLDriver {
      */
     _query(query: string, values: Array<string>, callback: Function) {
         let self = this;
+        //Check if connection is healthy
+        if(self.connection.state === 'disconnected') {
+            self.connection = self.createConnection();
+        }
+        //Make the request
         self.connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
             callback(err, rows);

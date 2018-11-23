@@ -54,16 +54,21 @@ var MySQLDriver = /** @class */ (function () {
     function MySQLDriver(host, user, password, database, port) {
         this.host = host;
         this.user = user;
+        this.password = password;
         this.database = database;
         this.port = port;
-        this.connection = MySQL.createConnection({
+        this.connection = this.createConnection();
+    }
+    MySQLDriver.prototype.createConnection = function () {
+        var _a = this, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
+        return MySQL.createConnection({
             host: host,
             user: user,
             password: password,
             database: database,
             port: port
         });
-    }
+    };
     /**
      * Insert records into the database
      * @param {string} table_name The name of the table to insert the records into
@@ -392,6 +397,11 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype._query = function (query, values, callback) {
         var self = this;
+        //Check if connection is healthy
+        if (self.connection.state === 'disconnected') {
+            self.connection = self.createConnection();
+        }
+        //Make the request
         self.connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
             callback(err, rows);

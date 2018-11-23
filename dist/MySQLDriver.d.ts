@@ -2,10 +2,12 @@ import * as MySQL from "mysql";
 declare class MySQLDriver {
     host: string;
     user: string;
+    password: string;
     database: string;
     port: number;
     connection: MySQL.Connection;
     constructor(host: string, user: string, password: string, database: string, port: number);
+    createConnection(): MySQL.Connection;
     /**
      * Insert records into the database
      * @param {string} table_name The name of the table to insert the records into
