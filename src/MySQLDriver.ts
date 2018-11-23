@@ -41,7 +41,7 @@ class MySQLDriver {
             port
         });
     }
-    generateID() {
+    generateId() {
         return UUIDv4();
     }
     /**

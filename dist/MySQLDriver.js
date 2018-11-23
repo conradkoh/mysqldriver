@@ -76,7 +76,7 @@ var MySQLDriver = /** @class */ (function () {
             port: port
         });
     };
-    MySQLDriver.prototype.generateID = function () {
+    MySQLDriver.prototype.generateId = function () {
         return v4_1.default();
     };
     /**

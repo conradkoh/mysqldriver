@@ -11,7 +11,7 @@ declare class MySQLDriver {
      * Create a new connection to the database
      */
     createConnection(): MySQL.Connection;
-    generateID(): string;
+    generateId(): string;
     /**
      * Insert records into the database
      * @param {string} table_name The name of the table to insert the records into
