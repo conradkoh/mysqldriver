@@ -7,7 +7,11 @@ declare class MySQLDriver {
     port: number;
     connection: MySQL.Connection;
     constructor(host: string, user: string, password: string, database: string, port: number);
+    /**
+     * Create a new connection to the database
+     */
     createConnection(): MySQL.Connection;
+    generateID(): string;
     /**
      * Insert records into the database
      * @param {string} table_name The name of the table to insert the records into

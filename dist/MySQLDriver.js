@@ -41,7 +41,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var MySQL = __importStar(require("mysql"));
+var v4_1 = __importDefault(require("uuid/v4"));
 // var MySQL = require("mysql");
 var ALIAS_COLUMN_NAME = "COLUMN_NAME";
 var ALIAS_DATA_TYPE = "DATA_TYPE";
@@ -59,6 +63,9 @@ var MySQLDriver = /** @class */ (function () {
         this.port = port;
         this.connection = this.createConnection();
     }
+    /**
+     * Create a new connection to the database
+     */
     MySQLDriver.prototype.createConnection = function () {
         var _a = this, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
         return MySQL.createConnection({
@@ -68,6 +75,9 @@ var MySQLDriver = /** @class */ (function () {
             database: database,
             port: port
         });
+    };
+    MySQLDriver.prototype.generateID = function () {
+        return v4_1.default();
     };
     /**
      * Insert records into the database

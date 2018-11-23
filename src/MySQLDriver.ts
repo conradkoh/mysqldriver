@@ -1,4 +1,5 @@
 import * as MySQL from "mysql";
+import UUIDv4 from "uuid/v4";
 import { create } from "domain";
 // var MySQL = require("mysql");
 const ALIAS_COLUMN_NAME = "COLUMN_NAME";
@@ -26,6 +27,10 @@ class MySQLDriver {
         this.port = port;
         this.connection = this.createConnection();
     }
+
+    /**
+     * Create a new connection to the database
+     */
     createConnection() {
         const {host, user, password, database, port} = this;
         return MySQL.createConnection({
@@ -35,6 +40,9 @@ class MySQLDriver {
             database,
             port
         });
+    }
+    generateID() {
+        return UUIDv4();
     }
     /**
      * Insert records into the database
