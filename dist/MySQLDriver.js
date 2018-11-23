@@ -481,7 +481,7 @@ var MySQLDriver = /** @class */ (function () {
                         table_info = _a.sent();
                         table_info.map(function (field) {
                             var key = field[ALIAS_COLUMN_NAME];
-                            if (key in record_raw) { //Only add items that have been specified in the record
+                            if (key in record_raw && (record_raw[key] !== undefined)) { //Only add items that have been specified in the record, and are not undefined in value
                                 var value = record_raw[key];
                                 prepared_record[key] = value;
                             }

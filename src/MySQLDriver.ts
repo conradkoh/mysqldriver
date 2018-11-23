@@ -306,7 +306,7 @@ class MySQLDriver {
         let table_info: Array<any> = await self._getTableInfo(database_name, table_name);
         table_info.map(field => {
             let key = field[ALIAS_COLUMN_NAME];
-            if (key in record_raw) { //Only add items that have been specified in the record
+            if (key in record_raw && (record_raw[key] !== undefined)) { //Only add items that have been specified in the record, and are not undefined in value
                 let value = record_raw[key];
                 prepared_record[key] = value;
             }
