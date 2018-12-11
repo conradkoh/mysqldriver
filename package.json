@@ -1,6 +1,6 @@
 {
   "name": "mysqldriver",
-  "version": "2.0.12",
+  "version": "3.0.0",
   "description": "",
   "main": "dist/MySQLDriver.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fs-extra": "^7.0.1",
     "mysql": "^2.16.0",
     "uuid": "^3.3.2"
   },

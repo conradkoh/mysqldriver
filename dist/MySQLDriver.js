@@ -46,7 +46,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var MySQL = __importStar(require("mysql"));
 var v4_1 = __importDefault(require("uuid/v4"));
-// var MySQL = require("mysql");
 var ALIAS_COLUMN_NAME = "COLUMN_NAME";
 var ALIAS_DATA_TYPE = "DATA_TYPE";
 var ALIAS_COLUMN_KEY = "COLUMN_KEY";
@@ -55,19 +54,16 @@ var ALIAS_IS_NULLABLE = "IS_NULLABLE";
 var ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
 var ALIAS_TABLE_NAME = 'TABLE_NAME';
 var MySQLDriver = /** @class */ (function () {
-    function MySQLDriver(host, user, password, database, port) {
-        this.host = host;
-        this.user = user;
-        this.password = password;
-        this.database = database;
-        this.port = port;
+    function MySQLDriver(config) {
+        this.config = config;
+        this.config.port = config.port || 3306;
         this.connection = this.createConnection();
     }
     /**
      * Create a new connection to the database
      */
     MySQLDriver.prototype.createConnection = function () {
-        var _a = this, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
+        var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
         return MySQL.createConnection({
             host: host,
             user: user,
@@ -87,12 +83,13 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.insertRecord = function (table_name, record) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, clean_record;
+            var self, database, clean_record;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._prepareRecord(self.database, table_name, record)];
+                        database = self.config.database;
+                        return [4 /*yield*/, self._prepareRecord(database, table_name, record)];
                     case 1:
                         clean_record = _a.sent();
                         return [4 /*yield*/, self._insertRecordRaw(table_name, clean_record)];
@@ -156,12 +153,13 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.updateRecords = function (table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, clean_properties;
+            var self, database, clean_properties;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._prepareRecord(self.database, table_name, properties)];
+                        database = self.config.database;
+                        return [4 /*yield*/, self._prepareRecord(database, table_name, properties)];
                     case 1:
                         clean_properties = _a.sent();
                         return [4 /*yield*/, self._updateRecordsRaw(table_name, clean_properties, where)];
@@ -243,12 +241,13 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.getTableNames = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var self, table_names;
+            var self, database, table_names;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._getTableNames(self.database)];
+                        database = self.config.database;
+                        return [4 /*yield*/, self._getTableNames(database)];
                     case 1:
                         table_names = _a.sent();
                         return [2 /*return*/, table_names];
@@ -259,16 +258,17 @@ var MySQLDriver = /** @class */ (function () {
     /**
      * Get the table information from the information schema
      * @param {string} table_name
-     * @return {Array}
+     * @return {Array<ISQLTableColumn>}
      */
     MySQLDriver.prototype.getTableInfo = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, info;
+            var self, database, info;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._getTableInfo(self.database, table_name)];
+                        database = self.config.database;
+                        return [4 /*yield*/, self._getTableInfo(database, table_name)];
                     case 1:
                         info = _a.sent();
                         return [2 /*return*/, info];
@@ -283,12 +283,13 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.getTableFieldNames = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, info;
+            var self, database, info;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._getTableInfo(self.database, table_name)];
+                        database = self.config.database;
+                        return [4 /*yield*/, self._getTableInfo(database, table_name)];
                     case 1:
                         info = _a.sent();
                         return [2 /*return*/, info.map(function (field_info) { return field_info.COLUMN_NAME; })];
@@ -332,7 +333,7 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Gets the schema of the database as an array of table schema objects
-     * @returns {Array<{table_name: string, fields: Array<{column_name: string, data_type: string, key: string, max_length: string, is_nullable: string, default_value: string}>}>}
+     * @returns {Array<IJSObjectInfo>}>}
      */
     MySQLDriver.prototype.getJSSchema = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -365,7 +366,7 @@ var MySQLDriver = /** @class */ (function () {
     /**
      *
      * @param {string} table_name
-     * @return {{ fields: Object }}
+     * @return {IJSObjectInfo}
      */
     MySQLDriver.prototype.tableGetJSSchema = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -379,7 +380,7 @@ var MySQLDriver = /** @class */ (function () {
                         columns = _a.sent();
                         schema = {
                             table_name: table_name,
-                            fields: undefined
+                            fields: []
                         };
                         fields = [];
                         columns.map(function (column) {
@@ -440,17 +441,19 @@ var MySQLDriver = /** @class */ (function () {
      * Get the field
      * @param {string} database_name
      * @param {string} table_name
-     * @returns {Array<{COLUMN_NAME: string, DATA_TYPE: string, COLUMN_KEY: string, CHARACTER_MAXIMUM_LENGTH: number,IS_NULLABLE: int, COLUMN_DEFAULT: any }>}
+     * @returns {Array<ISQLTableColumn>}
      */
     MySQLDriver.prototype._getTableInfo = function (database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
-            var self;
+            var self, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
                         return [4 /*yield*/, self.query("SELECT \n            `COLUMN_NAME` as '" + ALIAS_COLUMN_NAME + "', \n            `DATA_TYPE` AS '" + ALIAS_DATA_TYPE + "', \n            `COLUMN_KEY` AS '" + ALIAS_COLUMN_KEY + "', \n            `CHARACTER_MAXIMUM_LENGTH` as '" + ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n            `IS_NULLABLE` as '" + ALIAS_IS_NULLABLE + "',\n            `COLUMN_DEFAULT` as '" + ALIAS_COLUMN_DEFAULT + "'\n            FROM INFORMATION_SCHEMA.COLUMNS\n            WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, result];
                 }
             });
         });

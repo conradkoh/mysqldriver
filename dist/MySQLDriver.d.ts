@@ -1,12 +1,9 @@
 import * as MySQL from "mysql";
+import { IConfig, ISQLTableColumn, IJSObjectInfo } from "./Interfaces";
 declare class MySQLDriver {
-    host: string;
-    user: string;
-    password: string;
-    database: string;
-    port: number;
+    config: IConfig;
     connection: MySQL.Connection;
-    constructor(host: string, user: string, password: string, database: string, port: number);
+    constructor(config: IConfig);
     /**
      * Create a new connection to the database
      */
@@ -70,15 +67,15 @@ declare class MySQLDriver {
     /**
      * Get the table information from the information schema
      * @param {string} table_name
-     * @return {Array}
+     * @return {Array<ISQLTableColumn>}
      */
-    getTableInfo(table_name: string): Promise<any[]>;
+    getTableInfo(table_name: string): Promise<ISQLTableColumn[]>;
     /**
      * Get the field names for a given table
      * @param {string} table_name
      * @returns {Array}
      */
-    getTableFieldNames(table_name: string): Promise<any[]>;
+    getTableFieldNames(table_name: string): Promise<string[]>;
     /**
      * Query the database connection asynchronously
      * @param {*} query
@@ -88,15 +85,15 @@ declare class MySQLDriver {
     query(query: string, values?: Array<any>): Promise<Array<any>>;
     /**
      * Gets the schema of the database as an array of table schema objects
-     * @returns {Array<{table_name: string, fields: Array<{column_name: string, data_type: string, key: string, max_length: string, is_nullable: string, default_value: string}>}>}
+     * @returns {Array<IJSObjectInfo>}>}
      */
-    getJSSchema(): Promise<any[]>;
+    getJSSchema(): Promise<IJSObjectInfo[]>;
     /**
      *
      * @param {string} table_name
-     * @return {{ fields: Object }}
+     * @return {IJSObjectInfo}
      */
-    tableGetJSSchema(table_name: string): Promise<any>;
+    tableGetJSSchema(table_name: string): Promise<IJSObjectInfo>;
     /**
      * Query the database
      * @param {*} query
@@ -109,9 +106,9 @@ declare class MySQLDriver {
      * Get the field
      * @param {string} database_name
      * @param {string} table_name
-     * @returns {Array<{COLUMN_NAME: string, DATA_TYPE: string, COLUMN_KEY: string, CHARACTER_MAXIMUM_LENGTH: number,IS_NULLABLE: int, COLUMN_DEFAULT: any }>}
+     * @returns {Array<ISQLTableColumn>}
      */
-    _getTableInfo(database_name: string, table_name: string): Promise<any[]>;
+    _getTableInfo(database_name: string, table_name: string): Promise<ISQLTableColumn[]>;
     /**
      * Gets all table names in a given database
      * @param {*} database_name
