@@ -94,7 +94,7 @@ function generateClass(table_schema, outfolder) {
         return last + "\n" + cur;
     });
     var class_jsdoc = '    /**\n     * @param {{' + table_schema.fields.map(function (field) {
-        return field.column_name + ":any";
+        return field.column_name + "?:any";
     }).reduce(function (last, cur, indx) {
         return last + "," + cur;
     }) + '}} db_objects\n     */';
@@ -140,7 +140,7 @@ function generateClass(table_schema, outfolder) {
         "}\n" +
         ("module.exports = " + class_name + ";");
     var outfile = getOutputFilePath(table_name, outfolder);
-    console.log("[updated] -" + table_name);
+    console.log("[updated] - " + table_name);
     FS.writeFileSync(outfile, output);
 }
 function getOutputFilePath(table_name, outfolder) {

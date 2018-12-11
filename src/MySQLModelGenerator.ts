@@ -39,7 +39,7 @@ function generateClass(table_schema: IJSObjectInfo, outfolder: string) {
 
     const class_jsdoc = '    /**\n     * @param {{' + table_schema.fields.map(
         field => {
-            return `${field.column_name}:any`;
+            return `${field.column_name}?:any`;
         }
     ).reduce(
         (last, cur, indx) => {
@@ -92,7 +92,7 @@ function generateClass(table_schema: IJSObjectInfo, outfolder: string) {
         `}\n` +
         `module.exports = ${class_name};`;
     let outfile = getOutputFilePath(table_name, outfolder);
-    console.log(`[updated] -${table_name}`);
+    console.log(`[updated] - ${table_name}`);
     FS.writeFileSync(outfile, output);
 }
 
