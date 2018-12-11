@@ -2,6 +2,7 @@
 let MySQLModelGenerator = require("./dist/MySQLModelGenerator");
 let args = process.argv;
 let params = {};
+let Path = require("path");
 for(var i = 2; i < process.argv.length; i++) {
     let statement = args[i];
     let statement_tokens = statement.split('=');
@@ -16,7 +17,7 @@ for(var i = 2; i < process.argv.length; i++) {
 let {conf, host, database, password, user, outfolder} = params;
 let config = {};
 if(conf) {
-    config = require(conf);
+    config = require(Path.resolve(conf));
     if(!config) {
         throw new Error(`Invalid configuration file provided`);
     }
