@@ -13,10 +13,20 @@ for(var i = 2; i < process.argv.length; i++) {
         params[key] = value;
     }
 }
-let {host, database, password, user, outfolder} = params;
-let config = {
-    host, database, password, user
+let {conf, host, database, password, user, outfolder} = params;
+let config = {};
+if(conf) {
+    config = require(conf);
+    if(!config) {
+        throw new Error(`Invalid configuration file provided`);
+    }
 }
+else {
+    config = {
+        host, database, password, user
+    }
+}
+
 if(!outfolder){
     throw new Error(`Out folder must be specified in the format outfolder=/path/to/model/folder`);
 }

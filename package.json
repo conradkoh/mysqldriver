@@ -1,6 +1,6 @@
 {
   "name": "mysqldriver",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "description": "",
   "main": "dist/MySQLDriver.js",
   "scripts": {
@@ -20,5 +20,8 @@
   "devDependencies": {
     "@types/mysql": "^2.15.5",
     "@types/uuid": "^3.4.4"
+  },
+  "bin": {
+    "mysqldriver-generate-model": "./mysqldriver-generate-model"
   }
 }
