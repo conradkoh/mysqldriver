@@ -289,6 +289,9 @@ class MySQLDriver {
             \`COLUMN_DEFAULT\` as '${ALIAS_COLUMN_DEFAULT}'
             FROM INFORMATION_SCHEMA.COLUMNS
             WHERE \`TABLE_NAME\` = ? AND \`TABLE_SCHEMA\` = ?`, [table_name, database_name]);
+        if (result.length === 0) {
+            throw new Error(`Table '${table_name}' does not exist on database '${database_name}'`);
+        }
         return result;
     }
 

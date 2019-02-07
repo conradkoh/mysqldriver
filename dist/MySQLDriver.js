@@ -453,6 +453,9 @@ var MySQLDriver = /** @class */ (function () {
                         return [4 /*yield*/, self.query("SELECT \n            `COLUMN_NAME` as '" + ALIAS_COLUMN_NAME + "', \n            `DATA_TYPE` AS '" + ALIAS_DATA_TYPE + "', \n            `COLUMN_KEY` AS '" + ALIAS_COLUMN_KEY + "', \n            `CHARACTER_MAXIMUM_LENGTH` as '" + ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n            `IS_NULLABLE` as '" + ALIAS_IS_NULLABLE + "',\n            `COLUMN_DEFAULT` as '" + ALIAS_COLUMN_DEFAULT + "'\n            FROM INFORMATION_SCHEMA.COLUMNS\n            WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
                     case 1:
                         result = _a.sent();
+                        if (result.length === 0) {
+                            throw new Error("Table " + table_name + " does not exist on database " + database_name);
+                        }
                         return [2 /*return*/, result];
                 }
             });
