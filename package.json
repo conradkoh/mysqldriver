@@ -1,6 +1,6 @@
 {
   "name": "mysqldriver",
-  "version": "3.0.8",
+  "version": "3.0.10",
   "description": "",
   "main": "dist/MySQLDriver.js",
   "scripts": {
@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/mysql": "^2.15.5",
+    "@types/uuid": "^3.4.4",
     "fs-extra": "^7.0.1",
     "mysql": "^2.16.0",
     "uuid": "^3.3.2"
@@ -17,10 +19,7 @@
     "type": "git",
     "url": "https://github.com/conradkoh/mysqldriver"
   },
-  "devDependencies": {
-    "@types/mysql": "^2.15.5",
-    "@types/uuid": "^3.4.4"
-  },
+  "devDependencies": {},
   "bin": {
     "mysqldriver-generate-model": "./mysqldriver-generate-model"
   }
