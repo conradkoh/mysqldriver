@@ -454,7 +454,7 @@ var MySQLDriver = /** @class */ (function () {
                     case 1:
                         result = _a.sent();
                         if (result.length === 0) {
-                            throw new Error("Table " + table_name + " does not exist on database " + database_name);
+                            throw new Error("Table '" + table_name + "' does not exist on database '" + database_name + "'");
                         }
                         return [2 /*return*/, result];
                 }
