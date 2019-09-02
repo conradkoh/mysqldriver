@@ -58,7 +58,27 @@ var MySQLDriver = /** @class */ (function () {
         this.config = config;
         this.config.port = config.port || 3306;
         this.connection = this.createConnection();
+        this.initConnectionHEventandlers();
+        console.log('connected to database.');
     }
+    MySQLDriver.prototype.initConnectionHEventandlers = function () {
+        var _this = this;
+        if (this.connection) {
+            this.connection.on('error', function () {
+                _this.connection = null;
+                console.log('Error in database connection.');
+            });
+        }
+    };
+    /**
+     * Get the database connection
+     */
+    MySQLDriver.prototype.getConnection = function () {
+        if (!this.connection) {
+            this.connection = this.createConnection();
+        }
+        return this.connection;
+    };
     /**
      * Create a new connection to the database
      */
@@ -408,31 +428,37 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype._query = function (query, values, callback) {
         var self = this;
+        var connection = this.getConnection();
         //Check if connection is healthy
-        if (self.connection.state === 'disconnected') {
+        if (connection.state === 'disconnected') {
             self.connection = self.createConnection();
         }
         //Make the request
-        self.connection.query(query, values, function (err, rows) {
+        connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
             callback(err, rows);
         });
     };
     MySQLDriver.prototype.closeConnection = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var self;
+            var connection;
+            var _this = this;
             return __generator(this, function (_a) {
-                self = this;
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        self.connection.end(function (err) {
-                            if (err) {
-                                reject(err);
-                            }
-                            else {
-                                resolve();
-                            }
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0:
+                        connection = this.getConnection();
+                        if (!connection) return [3 /*break*/, 2];
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                connection.end(function (err) {
+                                    _this.connection = null;
+                                    err ? reject(err) : resolve();
+                                });
+                            })];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
             });
         });
     };
@@ -454,7 +480,7 @@ var MySQLDriver = /** @class */ (function () {
                     case 1:
                         result = _a.sent();
                         if (result.length === 0) {
-                            throw new Error("Table " + table_name + " does not exist on database " + database_name);
+                            throw new Error("Table '" + table_name + "' does not exist on database '" + database_name + "'");
                         }
                         return [2 /*return*/, result];
                 }
