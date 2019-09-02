@@ -12,14 +12,32 @@ const ALIAS_TABLE_NAME = 'TABLE_NAME';
 
 class MySQLDriver {
     config: IConfig
-    connection: MySQL.Connection
+    connection?: MySQL.Connection | null
 
     constructor(config: IConfig) {
         this.config = config;
         this.config.port = config.port || 3306;
         this.connection = this.createConnection();
+        this.initConnectionHEventandlers();
+        console.log('connected to database.');
     }
-
+    initConnectionHEventandlers(){
+        if(this.connection) {
+            this.connection.on('error', () => {
+                this.connection = null;
+                console.log('Error in database connection.');
+            });
+        }
+    }
+    /**
+     * Get the database connection
+     */
+    getConnection() {
+        if(!this.connection) {
+            this.connection = this.createConnection();
+        }
+        return this.connection;
+    }
     /**
      * Create a new connection to the database
      */
@@ -248,27 +266,27 @@ class MySQLDriver {
      */
     _query(query: string, values: Array<string>, callback: Function) {
         let self = this;
+        let connection = this.getConnection();
         //Check if connection is healthy
-        if (self.connection.state === 'disconnected') {
+        if (connection.state === 'disconnected') {
             self.connection = self.createConnection();
         }
         //Make the request
-        self.connection.query(query, values, function (err, rows) {
+        connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
             callback(err, rows);
         });
     }
     async closeConnection() {
-        let self = this;
-        return new Promise((resolve, reject) => {
-            self.connection.end((err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            })
-        })
+        let connection = this.getConnection();
+        if(connection) {
+            await new Promise((resolve, reject) => {
+                connection.end(err => {
+                    this.connection = null;
+                    err ? reject(err) : resolve();
+                })
+            });
+        }
     }
 
     //INTERNAL FUNCTIONS

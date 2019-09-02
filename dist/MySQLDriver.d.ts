@@ -2,8 +2,13 @@ import * as MySQL from "mysql";
 import { IConfig, ISQLTableColumn, IJSObjectInfo } from "./Interfaces";
 declare class MySQLDriver {
     config: IConfig;
-    connection: MySQL.Connection;
+    connection?: MySQL.Connection | null;
     constructor(config: IConfig);
+    initConnectionHEventandlers(): void;
+    /**
+     * Get the database connection
+     */
+    getConnection(): MySQL.Connection;
     /**
      * Create a new connection to the database
      */
@@ -101,7 +106,7 @@ declare class MySQLDriver {
      * @param {*} callback
      */
     _query(query: string, values: Array<string>, callback: Function): void;
-    closeConnection(): Promise<{}>;
+    closeConnection(): Promise<void>;
     /**
      * Get the field
      * @param {string} database_name
