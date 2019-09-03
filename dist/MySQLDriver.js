@@ -53,36 +53,79 @@ var ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
 var ALIAS_IS_NULLABLE = "IS_NULLABLE";
 var ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
 var ALIAS_TABLE_NAME = 'TABLE_NAME';
+var CONNECTION_STATUS;
+(function (CONNECTION_STATUS) {
+    CONNECTION_STATUS["CONNECTED"] = "connected";
+    CONNECTION_STATUS["CONNECTING"] = "connecting";
+    CONNECTION_STATUS["DISCONNECTED"] = "disconnected";
+})(CONNECTION_STATUS || (CONNECTION_STATUS = {}));
+;
 var MySQLDriver = /** @class */ (function () {
     function MySQLDriver(config) {
         this.config = config;
         this.config.port = config.port || 3306;
-        this.connection = this.createConnection();
-        this.initConnectionHEventandlers();
-        console.log('connected to database.');
+        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
+        this.initConnection();
     }
-    MySQLDriver.prototype.initConnectionHEventandlers = function () {
-        var _this = this;
+    MySQLDriver.prototype.initConnection = function () {
+        this.connection = this.createConnection();
+        this.connection_status = CONNECTION_STATUS.CONNECTED;
+    };
+    MySQLDriver.prototype.handleDisconnect = function () {
         if (this.connection) {
-            this.connection.on('error', function () {
-                _this.connection = null;
-                console.log('Error in database connection.');
-            });
+            this.connection.destroy();
         }
+        this.connection = null;
+        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
+        console.log('Database disconnected by server.');
     };
     /**
      * Get the database connection
+     * @returns {MySQL.Connection}
      */
     MySQLDriver.prototype.getConnection = function () {
-        if (!this.connection) {
-            this.connection = this.createConnection();
-        }
-        return this.connection;
+        return __awaiter(this, void 0, void 0, function () {
+            var wait;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        wait = 500;
+                        if (this.connection_status === CONNECTION_STATUS.CONNECTED && this.connection) {
+                            return [2 /*return*/, this.connection];
+                        }
+                        _a.label = 1;
+                    case 1:
+                        if (!(this.connection_status === CONNECTION_STATUS.CONNECTING)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                setTimeout(function () {
+                                    resolve();
+                                }, wait);
+                            })];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 1];
+                    case 3:
+                        if (this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
+                            this.initConnection();
+                        }
+                        return [2 /*return*/, this.connection || this.createConnection()];
+                }
+            });
+        });
     };
     /**
      * Create a new connection to the database
      */
     MySQLDriver.prototype.createConnection = function () {
+        this.connection_status = CONNECTION_STATUS.CONNECTING;
+        var conn = this._createConnection();
+        conn.on('error', this.handleDisconnect.bind(this)); //Add the handler for disconnection on errors
+        this.connection = conn;
+        this.connection_status = CONNECTION_STATUS.CONNECTED;
+        return conn;
+    };
+    MySQLDriver.prototype._createConnection = function () {
+        console.log('Creating a new connection...');
         var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
         return MySQL.createConnection({
             host: host,
@@ -326,28 +369,37 @@ var MySQLDriver = /** @class */ (function () {
     MySQLDriver.prototype.query = function (query, values) {
         if (values === void 0) { values = []; }
         return __awaiter(this, void 0, void 0, function () {
-            var self;
+            var self, connection;
             return __generator(this, function (_a) {
-                self = this;
-                this._checkValues(values);
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        self._query(query, values, function (err, rows) {
-                            if (err) {
-                                var error = new Error("MySQLDriver: query: SQL query error.");
-                                var data = {
-                                    err: err,
-                                    query: query,
-                                    values: values
-                                };
-                                error.data = data;
-                                console.log(data);
-                                reject(error);
-                            }
-                            else {
-                                resolve(rows);
-                            }
-                        });
-                    })];
+                switch (_a.label) {
+                    case 0:
+                        self = this;
+                        this._checkValues(values);
+                        return [4 /*yield*/, this.getConnection()];
+                    case 1:
+                        connection = _a.sent();
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                self._query(connection, query, values, function (err, rows) {
+                                    if (err) {
+                                        var error = new Error("MySQLDriver: query: SQL query error.");
+                                        var data = {
+                                            err: err,
+                                            query: query,
+                                            values: values
+                                        };
+                                        error.data = data;
+                                        if (err.code === 'ECONNREFUSED') {
+                                            self.handleDisconnect();
+                                        }
+                                        console.log(data);
+                                        reject(error);
+                                    }
+                                    else {
+                                        resolve(rows);
+                                    }
+                                });
+                            })];
+                }
             });
         });
     };
@@ -422,17 +474,13 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Query the database
+     * @param {MySQL.Connection} connection
      * @param {*} query
      * @param {*} values
      * @param {*} callback
      */
-    MySQLDriver.prototype._query = function (query, values, callback) {
+    MySQLDriver.prototype._query = function (connection, query, values, callback) {
         var self = this;
-        var connection = this.getConnection();
-        //Check if connection is healthy
-        if (connection.state === 'disconnected') {
-            self.connection = self.createConnection();
-        }
         //Make the request
         connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
@@ -445,19 +493,20 @@ var MySQLDriver = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        connection = this.getConnection();
-                        if (!connection) return [3 /*break*/, 2];
+                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 1:
+                        connection = _a.sent();
+                        if (!connection) return [3 /*break*/, 3];
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
                                 connection.end(function (err) {
                                     _this.connection = null;
                                     err ? reject(err) : resolve();
                                 });
                             })];
-                    case 1:
+                    case 2:
                         _a.sent();
-                        _a.label = 2;
-                    case 2: return [2 /*return*/];
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
                 }
             });
         });

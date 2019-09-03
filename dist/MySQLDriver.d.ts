@@ -1,18 +1,27 @@
 import * as MySQL from "mysql";
 import { IConfig, ISQLTableColumn, IJSObjectInfo } from "./Interfaces";
+declare enum CONNECTION_STATUS {
+    CONNECTED = "connected",
+    CONNECTING = "connecting",
+    DISCONNECTED = "disconnected"
+}
 declare class MySQLDriver {
     config: IConfig;
     connection?: MySQL.Connection | null;
+    connection_status: CONNECTION_STATUS;
     constructor(config: IConfig);
-    initConnectionHEventandlers(): void;
+    initConnection(): void;
+    handleDisconnect(): void;
     /**
      * Get the database connection
+     * @returns {MySQL.Connection}
      */
-    getConnection(): MySQL.Connection;
+    getConnection(): Promise<MySQL.Connection>;
     /**
      * Create a new connection to the database
      */
     createConnection(): MySQL.Connection;
+    _createConnection(): MySQL.Connection;
     generateId(): string;
     /**
      * Insert records into the database
@@ -101,11 +110,12 @@ declare class MySQLDriver {
     tableGetJSSchema(table_name: string): Promise<IJSObjectInfo>;
     /**
      * Query the database
+     * @param {MySQL.Connection} connection
      * @param {*} query
      * @param {*} values
      * @param {*} callback
      */
-    _query(query: string, values: Array<string>, callback: Function): void;
+    _query(connection: MySQL.Connection, query: string, values: Array<string>, callback: Function): void;
     closeConnection(): Promise<void>;
     /**
      * Get the field

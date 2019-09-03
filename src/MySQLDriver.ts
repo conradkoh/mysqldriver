@@ -10,38 +10,70 @@ const ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
 
 const ALIAS_TABLE_NAME = 'TABLE_NAME';
 
+enum CONNECTION_STATUS {
+    CONNECTED = 'connected',
+    CONNECTING = 'connecting',
+    DISCONNECTED = 'disconnected'
+};
+
 class MySQLDriver {
     config: IConfig
     connection?: MySQL.Connection | null
-
+    connection_status: CONNECTION_STATUS
     constructor(config: IConfig) {
         this.config = config;
         this.config.port = config.port || 3306;
-        this.connection = this.createConnection();
-        this.initConnectionHEventandlers();
-        console.log('connected to database.');
+        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
+        this.initConnection();
     }
-    initConnectionHEventandlers(){
+    initConnection() {
+        this.connection = this.createConnection();
+        this.connection_status = CONNECTION_STATUS.CONNECTED;
+    }
+
+    handleDisconnect() {
         if(this.connection) {
-            this.connection.on('error', () => {
-                this.connection = null;
-                console.log('Error in database connection.');
-            });
+            this.connection.destroy();
         }
+        this.connection = null;
+        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
+        console.log('Database disconnected by server.');
     }
     /**
      * Get the database connection
+     * @returns {MySQL.Connection}
      */
-    getConnection() {
-        if(!this.connection) {
-            this.connection = this.createConnection();
+    async getConnection() : Promise<MySQL.Connection> {
+        let wait = 500;
+        if(this.connection_status === CONNECTION_STATUS.CONNECTED && this.connection) {
+            return this.connection;
         }
-        return this.connection;
+        while(this.connection_status === CONNECTION_STATUS.CONNECTING) {
+            await new Promise((resolve, reject) => { //Wait for a short interval before checking again
+                setTimeout(() => {
+                    resolve();
+                }, wait);
+            })
+        }
+        if(this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
+            this.initConnection();
+        }
+        return this.connection || this.createConnection();
     }
     /**
      * Create a new connection to the database
      */
     createConnection() {
+        this.connection_status = CONNECTION_STATUS.CONNECTING;
+        let conn = this._createConnection();
+        conn.on('error', this.handleDisconnect.bind(this)); //Add the handler for disconnection on errors
+        this.connection = conn;
+        this.connection_status = CONNECTION_STATUS.CONNECTED;
+        return conn;
+    }
+
+    _createConnection() {
+        console.log('Creating a new connection...');
         const { host, user, password, database, port } = this.config;
         return MySQL.createConnection({
             host,
@@ -50,6 +82,7 @@ class MySQLDriver {
             database,
             port
         });
+
     }
     generateId() {
         return UUIDv4();
@@ -192,8 +225,9 @@ class MySQLDriver {
     async query(query: string, values: Array<any> = []): Promise<Array<any>> {
         let self = this;
         this._checkValues(values);
+        let connection = await this.getConnection();
         return new Promise<Array<any>>((resolve, reject) => {
-            self._query(query, values, function (err: any, rows: Array<any>) {
+            self._query(connection, query, values, function (err: any, rows: Array<any>) {
                 if (err) {
                     let error: any = new Error(`MySQLDriver: query: SQL query error.`);
                     let data = {
@@ -202,6 +236,9 @@ class MySQLDriver {
                         values
                     };
                     error.data = data;
+                    if(err.code === 'ECONNREFUSED') {
+                        self.handleDisconnect();
+                    }
                     console.log(data);
                     reject(error);
                 } else {
@@ -257,20 +294,16 @@ class MySQLDriver {
 
 
     }
-
     /**
      * Query the database
+     * @param {MySQL.Connection} connection
      * @param {*} query 
      * @param {*} values 
      * @param {*} callback 
      */
-    _query(query: string, values: Array<string>, callback: Function) {
+    _query(connection: MySQL.Connection, query: string, values: Array<string>, callback: Function) {
         let self = this;
-        let connection = this.getConnection();
-        //Check if connection is healthy
-        if (connection.state === 'disconnected') {
-            self.connection = self.createConnection();
-        }
+
         //Make the request
         connection.query(query, values, function (err, rows) {
             rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
@@ -278,7 +311,7 @@ class MySQLDriver {
         });
     }
     async closeConnection() {
-        let connection = this.getConnection();
+        let connection = await this.getConnection();
         if(connection) {
             await new Promise((resolve, reject) => {
                 connection.end(err => {
