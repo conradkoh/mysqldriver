@@ -36,14 +36,20 @@ declare class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {Array}
      */
-    getRecords(table_name: string, where: any): Promise<any[]>;
+    getRecords(table_name: string, where: any, order_by?: Array<{
+        key: string;
+        order: 'ASC' | 'DESC';
+    }>): Promise<any[]>;
     /**
      * Get record from a table that match the where criteria
      * @param {string} table_name
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    getRecord(table_name: string, where: any): Promise<any>;
+    getRecord(table_name: string, where: any, order_by?: Array<{
+        key: string;
+        order: 'ASC' | 'DESC';
+    }>): Promise<any>;
     /**
      * Update records in a given table
      * @param {string} table_name
@@ -155,7 +161,10 @@ declare class MySQLDriver {
      * @param {string} table_name
      * @param {object} where
      */
-    _selectRecordRaw(table_name: string, where?: any): Promise<any[]>;
+    _selectRecordRaw(table_name: string, where: any, order_by: Array<{
+        key: string;
+        order: 'ASC' | 'DESC';
+    }>): Promise<any[]>;
     /**
      * INTERNAL: Delete records from a given table without any data processing
      * @param {*} table_name
