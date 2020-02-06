@@ -7,7 +7,7 @@ const ALIAS_COLUMN_KEY = "COLUMN_KEY";
 const ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
 const ALIAS_IS_NULLABLE = "IS_NULLABLE";
 const ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
-const INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^_~ "`\\';
+const INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
 const INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce((state: any, char: string) => {
     state[char] = 1;
     return state;

@@ -52,7 +52,7 @@ var ALIAS_COLUMN_KEY = "COLUMN_KEY";
 var ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
 var ALIAS_IS_NULLABLE = "IS_NULLABLE";
 var ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
-var INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^_~ "`\\';
+var INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
 var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce(function (state, char) {
     state[char] = 1;
     return state;
