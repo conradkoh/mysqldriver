@@ -49,7 +49,7 @@ declare class MySQLDriver {
     getRecord(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any>;
+    }>): Promise<any>;
     /**
      * Update records in a given table
      * @param {string} table_name

@@ -192,7 +192,7 @@ var MySQLDriver = /** @class */ (function () {
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    MySQLDriver.prototype.getRecord = function (table_name, where, order_by, options) {
+    MySQLDriver.prototype.getRecord = function (table_name, where, order_by) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var self, result;
@@ -200,7 +200,7 @@ var MySQLDriver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, options)];
+                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, { limit: { offset: 0, page_size: 1 } })];
                     case 1:
                         result = _a.sent();
                         if (result.length > 1) {

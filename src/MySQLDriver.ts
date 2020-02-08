@@ -121,9 +121,9 @@ class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    async getRecord(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = [], options?: QueryOptions) {
+    async getRecord(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = []) {
         let self = this;
-        const result = await self._selectRecordRaw(table_name, where, order_by, options);
+        const result = await self._selectRecordRaw(table_name, where, order_by, { limit: { offset: 0, page_size: 1 }});
         if (result.length > 1) {
             throw new Error(`MySQLDriver.getRecord: More than one record found.`);
         }
