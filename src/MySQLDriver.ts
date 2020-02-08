@@ -37,7 +37,7 @@ class MySQLDriver {
     }
 
     handleDisconnect() {
-        if(this.connection) {
+        if (this.connection) {
             this.connection.destroy();
         }
         this.connection = null;
@@ -48,19 +48,19 @@ class MySQLDriver {
      * Get the database connection
      * @returns {MySQL.Connection}
      */
-    async getConnection() : Promise<MySQL.Connection> {
+    async getConnection(): Promise<MySQL.Connection> {
         let wait = 500;
-        if(this.connection_status === CONNECTION_STATUS.CONNECTED && this.connection) {
+        if (this.connection_status === CONNECTION_STATUS.CONNECTED && this.connection) {
             return this.connection;
         }
-        while(this.connection_status === CONNECTION_STATUS.CONNECTING) {
+        while (this.connection_status === CONNECTION_STATUS.CONNECTING) {
             await new Promise((resolve, reject) => { //Wait for a short interval before checking again
                 setTimeout(() => {
                     resolve();
                 }, wait);
             })
         }
-        if(this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
+        if (this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
             this.initConnection();
         }
         return this.connection || this.createConnection();
@@ -110,9 +110,9 @@ class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {Array}
      */
-    async getRecords(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = []) {
+    async getRecords(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = [], options?: QueryOptions) {
         let self = this;
-        return await self._selectRecordRaw(table_name, where, order_by);
+        return await self._selectRecordRaw(table_name, where, order_by, options);
     }
 
     /**
@@ -121,9 +121,9 @@ class MySQLDriver {
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    async getRecord(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = []) {
+    async getRecord(table_name: string, where: any, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }> = [], options?: QueryOptions) {
         let self = this;
-        const result = await self._selectRecordRaw(table_name, where, order_by);
+        const result = await self._selectRecordRaw(table_name, where, order_by, options);
         if (result.length > 1) {
             throw new Error(`MySQLDriver.getRecord: More than one record found.`);
         }
@@ -241,7 +241,7 @@ class MySQLDriver {
                         values
                     };
                     error.data = data;
-                    if(err.code === 'ECONNREFUSED') {
+                    if (err.code === 'ECONNREFUSED') {
                         self.handleDisconnect();
                     }
                     console.log(data);
@@ -317,7 +317,7 @@ class MySQLDriver {
     }
     async closeConnection() {
         let connection = await this.getConnection();
-        if(connection) {
+        if (connection) {
             await new Promise((resolve, reject) => {
                 connection.end(err => {
                     this.connection = null;
@@ -400,7 +400,7 @@ class MySQLDriver {
         const insert_sql = `INSERT INTO \`${table_name}\``;
         let params: any[] = [];
         const keys_sql = Object.keys(record).map(key => {
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             let escaped_key = `\`${key}\``;
@@ -432,7 +432,7 @@ class MySQLDriver {
         const update_sql = `UPDATE \`${table_name}\``;
         let params: any[] = [];
         const properties_sql = Object.keys(properties).map(key => {
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             var property = properties[key];
@@ -441,9 +441,9 @@ class MySQLDriver {
         }).reduce((last, cur, index) => {
             return `${last}, ${cur}`;
         });
-    
+
         const where_sql = Object.keys(where).map(key => {
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             var value = where[key];
@@ -452,7 +452,7 @@ class MySQLDriver {
         }).reduce((last, cur, index) => {
             return `${last} AND ${cur}`;
         });
-    
+
         return await this.query(`${update_sql} SET ${properties_sql} WHERE ${where_sql}`, params);
     }
     /**
@@ -460,19 +460,19 @@ class MySQLDriver {
      * @param {string} table_name 
      * @param {object} where 
      */
-    async _selectRecordRaw(table_name: string, where: any = {}, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }>) {
+    async _selectRecordRaw(table_name: string, where: any = {}, order_by: Array<{ key: string, order: 'ASC' | 'DESC' }>, options?: QueryOptions) {
         const funcName = '__selectRecordRaw';
         const select_sql = `SELECT * FROM \`${table_name}\``;
         let params: any[] = [];
         const where_clause = Object.keys(where).map(key => {
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             let value = where[key];
             params.push(value);
             return `\`${key}\` = ?`;
         }).reduce((state, cur, idx) => {
-            if(idx === 0) {
+            if (idx === 0) {
                 state = `WHERE ${cur}`;
             }
             else {
@@ -480,11 +480,11 @@ class MySQLDriver {
             }
             return state;
         }, '');
-    
+
         //Compute order by caluse
         const order_by_clause = order_by.map(rule => {
             let { key = '', order = '' } = rule || {};
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             if (!key || !order || !(typeof order === 'string')) {
@@ -506,7 +506,20 @@ class MySQLDriver {
             }
             return state;
         }, '');
-        let sql = `${select_sql} ${where_clause} ${order_by_clause}`;
+        //Compute limit clause
+        let { limit = undefined } = options || {};
+        let limit_clause = '';
+        if (limit) {
+            let { offset, page_size } = limit;
+            if (typeof offset !== 'number') {
+                throw new Error(`${funcName}: offset in limit option must be a number.`);
+            }
+            if (typeof page_size !== 'number') {
+                throw new Error(`${funcName}: page_size in limit option must be a number.`);
+            }
+            limit_clause += ` LIMIT ${offset}, ${page_size}`;
+        }
+        let sql = `${select_sql} ${where_clause} ${order_by_clause} ${limit_clause}`;
         // console.log(sql);
         return await this.query(sql, params);
     }
@@ -520,7 +533,7 @@ class MySQLDriver {
         const select_sql = `DELETE FROM \`${table_name}\``;
         let params: any[] = [];
         const conditions = Object.keys(where).map(key => {
-            if(_containsSpecialChars(key)) {
+            if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             let value = where[key];
@@ -552,14 +565,20 @@ class MySQLDriver {
 
 function _containsSpecialChars(str_val: string) {
     let found = false;
-    for(let i = 0; i < str_val.length; i++) {
+    for (let i = 0; i < str_val.length; i++) {
         let c = str_val[i];
-        if(INVALID_COLUMN_NAME_CHARS_INDEX[c]) {
+        if (INVALID_COLUMN_NAME_CHARS_INDEX[c]) {
             found = true;
             break;
         }
     }
     return found;
 }
-
+type QueryOptions = {
+    limit?: QueryLimitOptions
+}
+type QueryLimitOptions = {
+    offset?: number
+    page_size: number
+}
 export = MySQLDriver;

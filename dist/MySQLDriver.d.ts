@@ -39,7 +39,7 @@ declare class MySQLDriver {
     getRecords(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>): Promise<any[]>;
+    }>, options?: QueryOptions): Promise<any[]>;
     /**
      * Get record from a table that match the where criteria
      * @param {string} table_name
@@ -49,7 +49,7 @@ declare class MySQLDriver {
     getRecord(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>): Promise<any>;
+    }>, options?: QueryOptions): Promise<any>;
     /**
      * Update records in a given table
      * @param {string} table_name
@@ -164,7 +164,7 @@ declare class MySQLDriver {
     _selectRecordRaw(table_name: string, where: any, order_by: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>): Promise<any[]>;
+    }>, options?: QueryOptions): Promise<any[]>;
     /**
      * INTERNAL: Delete records from a given table without any data processing
      * @param {*} table_name
@@ -177,5 +177,12 @@ declare class MySQLDriver {
      */
     _checkValues(values: Array<string>): Promise<void>;
 }
+declare type QueryOptions = {
+    limit?: QueryLimitOptions;
+};
+declare type QueryLimitOptions = {
+    offset?: number;
+    page_size: number;
+};
 export = MySQLDriver;
 //# sourceMappingURL=MySQLDriver.d.ts.map

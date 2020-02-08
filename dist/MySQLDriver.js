@@ -172,7 +172,7 @@ var MySQLDriver = /** @class */ (function () {
      * @param {object} where The search criteria to do a match
      * @return {Array}
      */
-    MySQLDriver.prototype.getRecords = function (table_name, where, order_by) {
+    MySQLDriver.prototype.getRecords = function (table_name, where, order_by, options) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var self;
@@ -180,7 +180,7 @@ var MySQLDriver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by)];
+                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, options)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -192,7 +192,7 @@ var MySQLDriver = /** @class */ (function () {
      * @param {object} where The search criteria to do a match
      * @return {*}
      */
-    MySQLDriver.prototype.getRecord = function (table_name, where, order_by) {
+    MySQLDriver.prototype.getRecord = function (table_name, where, order_by, options) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var self, result;
@@ -200,7 +200,7 @@ var MySQLDriver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by)];
+                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, options)];
                     case 1:
                         result = _a.sent();
                         if (result.length > 1) {
@@ -685,12 +685,12 @@ var MySQLDriver = /** @class */ (function () {
      * @param {string} table_name
      * @param {object} where
      */
-    MySQLDriver.prototype._selectRecordRaw = function (table_name, where, order_by) {
+    MySQLDriver.prototype._selectRecordRaw = function (table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
-            var funcName, select_sql, params, where_clause, order_by_clause, sql;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var funcName, select_sql, params, where_clause, order_by_clause, _a, limit, limit_clause, offset, page_size, sql;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         funcName = '__selectRecordRaw';
                         select_sql = "SELECT * FROM `" + table_name + "`";
@@ -735,11 +735,23 @@ var MySQLDriver = /** @class */ (function () {
                             }
                             return state;
                         }, '');
-                        sql = select_sql + " " + where_clause + " " + order_by_clause;
+                        _a = (options || {}).limit, limit = _a === void 0 ? undefined : _a;
+                        limit_clause = '';
+                        if (limit) {
+                            offset = limit.offset, page_size = limit.page_size;
+                            if (typeof offset !== 'number') {
+                                throw new Error(funcName + ": offset in limit option must be a number.");
+                            }
+                            if (typeof page_size !== 'number') {
+                                throw new Error(funcName + ": page_size in limit option must be a number.");
+                            }
+                            limit_clause += " LIMIT " + offset + ", " + page_size;
+                        }
+                        sql = select_sql + " " + where_clause + " " + order_by_clause + " " + limit_clause;
                         return [4 /*yield*/, this.query(sql, params)];
                     case 1: 
                     // console.log(sql);
-                    return [2 /*return*/, _a.sent()];
+                    return [2 /*return*/, _b.sent()];
                 }
             });
         });
