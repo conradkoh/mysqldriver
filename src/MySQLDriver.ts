@@ -470,7 +470,12 @@ class MySQLDriver {
             }
             let value = where[key];
             params.push(value);
-            return `\`${key}\` = ?`;
+            if(Array.isArray(value)) {
+                return `\`${key}\` IN (?)`;
+            }
+            else {
+                return `\`${key}\` = ?`;
+            }
         }).reduce((state, cur, idx) => {
             if (idx === 0) {
                 state = `WHERE ${cur}`;
