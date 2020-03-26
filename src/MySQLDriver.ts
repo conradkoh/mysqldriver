@@ -79,13 +79,14 @@ class MySQLDriver {
 
     _createConnection() {
         console.log('Creating a new connection...');
-        const { host, user, password, database, port } = this.config;
+        const { host, user, password, database, port, multipleStatements } = this.config;
         return MySQL.createConnection({
             host,
             user,
             password,
             database,
-            port
+            port,
+            multipleStatements
         });
 
     }

@@ -4,4 +4,5 @@ export interface IConfig {
     password: string,
     database: string,
     port?: number
+    multipleStatements?: boolean
 }

@@ -131,13 +131,14 @@ var MySQLDriver = /** @class */ (function () {
     };
     MySQLDriver.prototype._createConnection = function () {
         console.log('Creating a new connection...');
-        var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port;
+        var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port, multipleStatements = _a.multipleStatements;
         return MySQL.createConnection({
             host: host,
             user: user,
             password: password,
             database: database,
-            port: port
+            port: port,
+            multipleStatements: multipleStatements
         });
     };
     MySQLDriver.prototype.generateId = function () {
