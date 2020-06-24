@@ -1,6 +1,6 @@
 {
     "name": "mysqldriver",
-    "version": "3.0.19",
+    "version": "3.0.20",
     "description": "",
     "main": "dist/MySQLDriver.js",
     "scripts": {

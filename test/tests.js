@@ -110,6 +110,15 @@ describe('All Tests', () => {
         });
         chai.assert(records.length === 2, 'Failed to get records with OR operator.');
     });
+    it('Get Records (AND)', async () => {
+        let user = Object.values(users)[0];
+        let user_id_partial = user.user_id.substring(1, user.user_id.length - 2);
+        let records = await db.getRecords('user', { user_id: user_id_partial, index_number: 2 }, [{ key: 'index_number', order: 'DESC' }], {
+            limit: { offset: 0, page_size: 2 },
+            where: { operator: 'AND', wildcard: true },
+        });
+        chai.assert(records.length === 0, 'Failed to get records with AND operator.');
+    });
 
     //Count
     it('Get Records Count', async () => {
