@@ -1,9 +1,29 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -34,24 +54,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var MySQL = __importStar(require("mysql"));
 var v4_1 = __importDefault(require("uuid/v4"));
-var ALIAS_COLUMN_NAME = "COLUMN_NAME";
-var ALIAS_DATA_TYPE = "DATA_TYPE";
-var ALIAS_COLUMN_KEY = "COLUMN_KEY";
-var ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
-var ALIAS_IS_NULLABLE = "IS_NULLABLE";
-var ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
+var ALIAS_COLUMN_NAME = 'COLUMN_NAME';
+var ALIAS_DATA_TYPE = 'DATA_TYPE';
+var ALIAS_COLUMN_KEY = 'COLUMN_KEY';
+var ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
+var ALIAS_IS_NULLABLE = 'IS_NULLABLE';
+var ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
 var INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
 var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce(function (state, char) {
     state[char] = 1;
@@ -64,7 +77,6 @@ var CONNECTION_STATUS;
     CONNECTION_STATUS["CONNECTING"] = "connecting";
     CONNECTION_STATUS["DISCONNECTED"] = "disconnected";
 })(CONNECTION_STATUS || (CONNECTION_STATUS = {}));
-;
 var MySQLDriver = /** @class */ (function () {
     function MySQLDriver(config) {
         this.config = config;
@@ -86,7 +98,6 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Get the database connection
-     * @returns {MySQL.Connection}
      */
     MySQLDriver.prototype.getConnection = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -102,6 +113,7 @@ var MySQLDriver = /** @class */ (function () {
                     case 1:
                         if (!(this.connection_status === CONNECTION_STATUS.CONNECTING)) return [3 /*break*/, 3];
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                //Wait for a short interval before checking again
                                 setTimeout(function () {
                                     resolve();
                                 }, wait);
@@ -130,7 +142,6 @@ var MySQLDriver = /** @class */ (function () {
         return conn;
     };
     MySQLDriver.prototype._createConnection = function () {
-        console.log('Creating a new connection...');
         var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port, multipleStatements = _a.multipleStatements;
         return MySQL.createConnection({
             host: host,
@@ -138,7 +149,7 @@ var MySQLDriver = /** @class */ (function () {
             password: password,
             database: database,
             port: port,
-            multipleStatements: multipleStatements
+            multipleStatements: multipleStatements,
         });
     };
     MySQLDriver.prototype.generateId = function () {
@@ -146,9 +157,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Insert records into the database
-     * @param {string} table_name The name of the table to insert the records into
-     * @param {object} record The record to be insert into the database
-     * @return {object}
+     * @param table_name The name of the table to insert the records into
+     * @param record The record to be insert into the database
      */
     MySQLDriver.prototype.insertRecord = function (table_name, record) {
         return __awaiter(this, void 0, void 0, function () {
@@ -169,9 +179,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Get records from a table that match the where criteria
-     * @param {string} table_name
-     * @param {object} where The search criteria to do a match
-     * @return {Array}
+     * @param table_name
+     * @param where The search criteria to do a match
      */
     MySQLDriver.prototype.getRecords = function (table_name, where, order_by, options) {
         if (order_by === void 0) { order_by = []; }
@@ -188,10 +197,28 @@ var MySQLDriver = /** @class */ (function () {
         });
     };
     /**
+     * Get records count from a table that match the where criteria
+     * @param table_name
+     * @param where The search criteria to do a match
+     */
+    MySQLDriver.prototype.getRecordsCount = function (table_name, where, order_by, options) {
+        if (order_by === void 0) { order_by = []; }
+        return __awaiter(this, void 0, void 0, function () {
+            var self;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        self = this;
+                        return [4 /*yield*/, self._selectRecordRawCount(table_name, where, order_by, options)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    /**
      * Get record from a table that match the where criteria
-     * @param {string} table_name
-     * @param {object} where The search criteria to do a match
-     * @return {*}
+     * @param table_name
+     * @param where The search criteria to do a match
      */
     MySQLDriver.prototype.getRecord = function (table_name, where, order_by) {
         if (order_by === void 0) { order_by = []; }
@@ -217,10 +244,9 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Update records in a given table
-     * @param {string} table_name
-     * @param {object} properties The properties to be updated
-     * @param {object} where THe criteria to search
-     * @return {object}
+     * @param table_name
+     * @param properties The properties to be updated
+     * @param where THe criteria to search
      */
     MySQLDriver.prototype.updateRecords = function (table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
@@ -241,9 +267,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Delete records from a table that match there where criteria
-     * @param {string} table_name
-     * @param {object} where
-     * @return {object}
+     * @param table_name
+     * @param where
      */
     MySQLDriver.prototype.deleteRecords = function (table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
@@ -260,9 +285,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Get a record via an sql query
-     * @param {string} sql
-     * @param {Array} values
-     * @return {object}
+     * @param sql
+     * @param values
      */
     MySQLDriver.prototype.getRecordSql = function (sql, values) {
         return __awaiter(this, void 0, void 0, function () {
@@ -287,9 +311,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Gets records from the database via a provided sql statement
-     * @param {string} sql
-     * @param {Array} values
-     * @return {Array}
+     * @param sql
+     * @param values
      */
     MySQLDriver.prototype.getRecordsSql = function (sql, values) {
         return __awaiter(this, void 0, void 0, function () {
@@ -308,7 +331,6 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Gets all tables in the current database
-     * @return {Array}
      */
     MySQLDriver.prototype.getTableNames = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -328,8 +350,7 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Get the table information from the information schema
-     * @param {string} table_name
-     * @return {Array<ISQLTableColumn>}
+     * @param table_name
      */
     MySQLDriver.prototype.getTableInfo = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -349,8 +370,7 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Get the field names for a given table
-     * @param {string} table_name
-     * @returns {Array}
+     * @param table_name
      */
     MySQLDriver.prototype.getTableFieldNames = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -370,9 +390,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Query the database connection asynchronously
-     * @param {*} query
-     * @param {Array} values
-     * @return {Array}
+     * @param query
+     * @param values
      */
     MySQLDriver.prototype.query = function (query, values) {
         if (values === void 0) { values = []; }
@@ -393,7 +412,7 @@ var MySQLDriver = /** @class */ (function () {
                                         var data = {
                                             err: err,
                                             query: query,
-                                            values: values
+                                            values: values,
                                         };
                                         error.data = data;
                                         if (err.code === 'ECONNREFUSED') {
@@ -413,7 +432,6 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Gets the schema of the database as an array of table schema objects
-     * @returns {Array<IJSObjectInfo>}>}
      */
     MySQLDriver.prototype.getJSSchema = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -445,8 +463,7 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      *
-     * @param {string} table_name
-     * @return {IJSObjectInfo}
+     * @param table_name
      */
     MySQLDriver.prototype.tableGetJSSchema = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -460,7 +477,7 @@ var MySQLDriver = /** @class */ (function () {
                         columns = _a.sent();
                         schema = {
                             table_name: table_name,
-                            fields: []
+                            fields: [],
                         };
                         fields = [];
                         columns.map(function (column) {
@@ -470,7 +487,7 @@ var MySQLDriver = /** @class */ (function () {
                                 key: column[ALIAS_COLUMN_KEY],
                                 max_length: column[ALIAS_CHARACTER_MAXIMUM_LENGTH],
                                 is_nullable: column[ALIAS_IS_NULLABLE],
-                                default_value: column[ALIAS_COLUMN_DEFAULT]
+                                default_value: column[ALIAS_COLUMN_DEFAULT],
                             };
                             fields.push(field);
                         });
@@ -483,9 +500,9 @@ var MySQLDriver = /** @class */ (function () {
     /**
      * Query the database
      * @param {MySQL.Connection} connection
-     * @param {*} query
-     * @param {*} values
-     * @param {*} callback
+     * @param query
+     * @param values
+     * @param callback
      */
     MySQLDriver.prototype._query = function (connection, query, values, callback) {
         var self = this;
@@ -522,9 +539,8 @@ var MySQLDriver = /** @class */ (function () {
     //INTERNAL FUNCTIONS
     /**
      * Get the field
-     * @param {string} database_name
-     * @param {string} table_name
-     * @returns {Array<ISQLTableColumn>}
+     * @param database_name
+     * @param table_name
      */
     MySQLDriver.prototype._getTableInfo = function (database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -546,8 +562,7 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Gets all table names in a given database
-     * @param {*} database_name
-     * @returns {Array}
+     * @param database_name
      */
     MySQLDriver.prototype._getTableNames = function (database_name) {
         return __awaiter(this, void 0, void 0, function () {
@@ -567,9 +582,9 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Checks the record against the database schema and removes any irrelevant fields for insertion
-     * @param {*} database_name
-     * @param {*} table_name
-     * @param {*} record_raw
+     * @param database_name
+     * @param table_name
+     * @param record_raw
      */
     MySQLDriver.prototype._prepareRecord = function (database_name, table_name, record_raw) {
         return __awaiter(this, void 0, void 0, function () {
@@ -590,7 +605,8 @@ var MySQLDriver = /** @class */ (function () {
                         table_info = _a.sent();
                         table_info.map(function (field) {
                             var key = field[ALIAS_COLUMN_NAME];
-                            if (key in record_raw && (record_raw[key] !== undefined)) { //Only add items that have been specified in the record, and are not undefined in value
+                            if (key in record_raw && record_raw[key] !== undefined) {
+                                //Only add items that have been specified in the record, and are not undefined in value
                                 var value = record_raw[key];
                                 prepared_record[key] = value;
                             }
@@ -602,8 +618,8 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * INTERNAL: Insert records into the database without any processing
-     * @param {string} table_name The name of the table to insert the records into
-     * @param {object} record The record to be insert into the database
+     * @param table_name The name of the table to insert the records into
+     * @param record The record to be insert into the database
      */
     MySQLDriver.prototype._insertRecordRaw = function (table_name, record) {
         return __awaiter(this, void 0, void 0, function () {
@@ -614,7 +630,8 @@ var MySQLDriver = /** @class */ (function () {
                         funcName = '_insertRecordRaw';
                         insert_sql = "INSERT INTO `" + table_name + "`";
                         params = [];
-                        keys_sql = Object.keys(record).map(function (key) {
+                        keys_sql = Object.keys(record)
+                            .map(function (key) {
                             if (_containsSpecialChars(key)) {
                                 throw new Error(funcName + ": Special character found in key: '" + key + "'");
                             }
@@ -622,12 +639,15 @@ var MySQLDriver = /** @class */ (function () {
                             var value = record[key];
                             params.push(value);
                             return escaped_key;
-                        }).reduce(function (last, cur, index) {
+                        })
+                            .reduce(function (last, cur, index) {
                             return last + ", " + cur;
                         });
-                        values_sql = Object.keys(record).map(function (key) {
+                        values_sql = Object.keys(record)
+                            .map(function (key) {
                             return '?';
-                        }).reduce(function (last, cur, index) {
+                        })
+                            .reduce(function (last, cur, index) {
                             return last + ", " + cur;
                         });
                         return [4 /*yield*/, this.query(insert_sql + " (" + keys_sql + ") VALUES (" + values_sql + ")", params)];
@@ -638,9 +658,9 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * INTERNAL: Update records in a given table without any processing
-     * @param {string} table_name
-     * @param {object} properties The properties to be updated
-     * @param {object} where THe criteria to search
+     * @param table_name
+     * @param properties The properties to be updated
+     * @param where THe criteria to search
      */
     MySQLDriver.prototype._updateRecordsRaw = function (table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
@@ -655,24 +675,28 @@ var MySQLDriver = /** @class */ (function () {
                         }
                         update_sql = "UPDATE `" + table_name + "`";
                         params = [];
-                        properties_sql = Object.keys(properties).map(function (key) {
+                        properties_sql = Object.keys(properties)
+                            .map(function (key) {
                             if (_containsSpecialChars(key)) {
                                 throw new Error(funcName + ": Special character found in key: '" + key + "'");
                             }
                             var property = properties[key];
                             params.push(property);
                             return "`" + key + "` = ?";
-                        }).reduce(function (last, cur, index) {
+                        })
+                            .reduce(function (last, cur, index) {
                             return last + ", " + cur;
                         });
-                        where_sql = Object.keys(where).map(function (key) {
+                        where_sql = Object.keys(where)
+                            .map(function (key) {
                             if (_containsSpecialChars(key)) {
                                 throw new Error(funcName + ": Special character found in key: '" + key + "'");
                             }
                             var value = where[key];
                             params.push(value);
                             return "`" + key + "` = ?";
-                        }).reduce(function (last, cur, index) {
+                        })
+                            .reduce(function (last, cur, index) {
                             return last + " AND " + cur;
                         });
                         return [4 /*yield*/, this.query(update_sql + " SET " + properties_sql + " WHERE " + where_sql, params)];
@@ -683,89 +707,57 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * INTERNAL: Select records from a given table without any data processing
-     * @param {string} table_name
-     * @param {object} where
+     * @param table_name
+     * @param where
      */
     MySQLDriver.prototype._selectRecordRaw = function (table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
-            var funcName, select_sql, params, where_clause, order_by_clause, _a, limit, limit_clause, offset, page_size, sql;
+            var funcName, _a, sql, params, isResultEmpty;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        funcName = '__selectRecordRaw';
-                        select_sql = "SELECT * FROM `" + table_name + "`";
-                        params = [];
-                        where_clause = Object.keys(where).map(function (key) {
-                            if (_containsSpecialChars(key)) {
-                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
-                            }
-                            var value = where[key];
-                            params.push(value);
-                            if (Array.isArray(value)) {
-                                return "`" + key + "` IN (?)";
-                            }
-                            else {
-                                return "`" + key + "` = ?";
-                            }
-                        }).reduce(function (state, cur, idx) {
-                            if (idx === 0) {
-                                state = "WHERE " + cur;
-                            }
-                            else {
-                                state += " AND " + cur;
-                            }
-                            return state;
-                        }, '');
-                        order_by_clause = order_by.map(function (rule) {
-                            var _a = rule || {}, _b = _a.key, key = _b === void 0 ? '' : _b, _c = _a.order, order = _c === void 0 ? '' : _c;
-                            if (_containsSpecialChars(key)) {
-                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
-                            }
-                            if (!key || !order || !(typeof order === 'string')) {
-                                throw new Error(funcName + ": Invalid order by config provided [" + key + " : " + order + "]");
-                            }
-                            var property_name = key;
-                            var sort_order = order.trim().toUpperCase();
-                            //Check that sort_order is either ASC or DESC
-                            if (['ASC', 'DESC'].indexOf(sort_order) === -1) {
-                                throw new Error(funcName + ": Invalid sort order provided - '" + sort_order);
-                            }
-                            return "`" + property_name + "` " + sort_order;
-                        }).reduce(function (state, cur, idx) {
-                            if (idx === 0) {
-                                state += "ORDER BY " + cur;
-                            }
-                            else {
-                                state += ",\n" + cur;
-                            }
-                            return state;
-                        }, '');
-                        _a = (options || {}).limit, limit = _a === void 0 ? undefined : _a;
-                        limit_clause = '';
-                        if (limit) {
-                            offset = limit.offset, page_size = limit.page_size;
-                            if (typeof offset !== 'number') {
-                                throw new Error(funcName + ": offset in limit option must be a number.");
-                            }
-                            if (typeof page_size !== 'number') {
-                                throw new Error(funcName + ": page_size in limit option must be a number.");
-                            }
-                            limit_clause += " LIMIT " + offset + ", " + page_size;
+                        funcName = '_selectRecordRaw';
+                        _a = _prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
+                        if (isResultEmpty) {
+                            return [2 /*return*/, []];
                         }
-                        sql = select_sql + " " + where_clause + " " + order_by_clause + " " + limit_clause;
                         return [4 /*yield*/, this.query(sql, params)];
-                    case 1: 
-                    // console.log(sql);
-                    return [2 /*return*/, _b.sent()];
+                    case 1: return [2 /*return*/, _b.sent()];
+                }
+            });
+        });
+    };
+    /**
+     * INTERNAL: Select count of records from a given table without any data processing
+     * @param table_name
+     * @param where
+     */
+    MySQLDriver.prototype._selectRecordRawCount = function (table_name, where, order_by, options) {
+        if (where === void 0) { where = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var funcName, _a, sql, params, isResultEmpty, sql_count, records;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        funcName = '_selectRecordRawCount';
+                        _a = _prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
+                        if (isResultEmpty) {
+                            return [2 /*return*/, 0];
+                        }
+                        sql_count = "SELECT COUNT(*) as count from (\n            (" + sql + ") as table_data)";
+                        return [4 /*yield*/, this.query(sql_count, params)];
+                    case 1:
+                        records = _b.sent();
+                        return [2 /*return*/, records[0].count];
                 }
             });
         });
     };
     /**
      * INTERNAL: Delete records from a given table without any data processing
-     * @param {*} table_name
-     * @param {*} where
+     * @param table_name
+     * @param where
      */
     MySQLDriver.prototype._deleteRecordRaw = function (table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
@@ -814,6 +806,92 @@ var MySQLDriver = /** @class */ (function () {
     };
     return MySQLDriver;
 }());
+/**
+ * INTERNAL: Prepare select statement from options
+ * @param table_name
+ * @param where
+ */
+function _prepareSelectStatement(table_name, where, order_by, options) {
+    if (where === void 0) { where = {}; }
+    var funcName = '_prepareSelectRecord';
+    var select_sql = "SELECT * FROM `" + table_name + "`";
+    var isResultEmpty = false;
+    var params = [];
+    var where_clause = Object.keys(where)
+        .map(function (key) {
+        if (_containsSpecialChars(key)) {
+            throw new Error(funcName + ": Special character found in key: '" + key + "'");
+        }
+        var value = where[key];
+        params.push(value);
+        if (Array.isArray(value)) {
+            if (value.length === 0) {
+                isResultEmpty = true;
+            }
+            return "`" + key + "` IN (?)";
+        }
+        else {
+            return "`" + key + "` = ?";
+        }
+    })
+        .reduce(function (state, cur, idx) {
+        if (idx === 0) {
+            state = "WHERE " + cur;
+        }
+        else {
+            state += " AND " + cur;
+        }
+        return state;
+    }, '');
+    //Compute order by caluse
+    var order_by_clause = order_by
+        .map(function (rule) {
+        var _a = rule || {}, _b = _a.key, key = _b === void 0 ? '' : _b, _c = _a.order, order = _c === void 0 ? '' : _c;
+        if (_containsSpecialChars(key)) {
+            throw new Error(funcName + ": Special character found in key: '" + key + "'");
+        }
+        if (!key || !order || !(typeof order === 'string')) {
+            throw new Error(funcName + ": Invalid order by config provided [" + key + " : " + order + "]");
+        }
+        var property_name = key;
+        var sort_order = order.trim().toUpperCase();
+        //Check that sort_order is either ASC or DESC
+        if (['ASC', 'DESC'].indexOf(sort_order) === -1) {
+            throw new Error(funcName + ": Invalid sort order provided - '" + sort_order);
+        }
+        return "`" + property_name + "` " + sort_order;
+    })
+        .reduce(function (state, cur, idx) {
+        if (idx === 0) {
+            state += "ORDER BY " + cur;
+        }
+        else {
+            state += ",\n" + cur;
+        }
+        return state;
+    }, '');
+    //Compute limit clause
+    var _a = (options || {}).limit, limit = _a === void 0 ? undefined : _a;
+    var limit_clause = '';
+    if (limit) {
+        var offset = limit.offset, page_size = limit.page_size;
+        if (typeof offset !== 'number') {
+            throw new Error(funcName + ": offset in limit option must be a number.");
+        }
+        if (typeof page_size !== 'number') {
+            throw new Error(funcName + ": page_size in limit option must be a number.");
+        }
+        limit_clause += " LIMIT ?, ?";
+        params.push(offset);
+        params.push(page_size);
+    }
+    var sql = select_sql + " " + where_clause + " " + order_by_clause + " " + limit_clause;
+    return {
+        sql: sql,
+        params: params,
+        isResultEmpty: isResultEmpty,
+    };
+}
 function _containsSpecialChars(str_val) {
     var found = false;
     for (var i = 0; i < str_val.length; i++) {
