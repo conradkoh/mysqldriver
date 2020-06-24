@@ -1,6 +1,7 @@
 import * as MySQL from 'mysql';
 import UUIDv4 from 'uuid/v4';
 import { IConfig, ISQLTableColumn, IJSObjectFieldInfo, IJSObjectInfo } from './Interfaces';
+import { ALLOWED_OPERATORS } from './constants';
 const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 const ALIAS_DATA_TYPE = 'DATA_TYPE';
 const ALIAS_COLUMN_KEY = 'COLUMN_KEY';
@@ -527,38 +528,67 @@ class MySQLDriver {
  * @param where
  */
 function _prepareSelectStatement(table_name: string, where: any = {}, order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>, options?: QueryOptions) {
-    const funcName = '_prepareSelectRecord';
+    const funcName = '_prepareSelectStatement';
     const select_sql = `SELECT * FROM \`${table_name}\``;
     let isResultEmpty = false;
     let params: any[] = [];
 
-    const where_clause = Object.keys(where)
+    //Validations
+    let where_options = options?.where;
+    let where_operator = where_options?.operator || 'AND';
+    if (where_operator) {
+        if (!ALLOWED_OPERATORS[where_operator]) {
+            throw new Error(`${funcName}: Invalid operator '${where_operator}'`);
+        }
+    }
+    //Construction
+    const where_clause = Object.keys(where ? where : {})
         .map((key) => {
             if (_containsSpecialChars(key)) {
                 throw new Error(`${funcName}: Special character found in key: '${key}'`);
             }
             let value = where[key];
-            params.push(value);
-            if (Array.isArray(value)) {
-                if (value.length === 0) {
-                    isResultEmpty = true;
+            if (where_options?.wildcard || (where_options?.wildcardAfter && where_options.wildcardAfter)) {
+                if (Array.isArray(value)) {
+                    throw new Error(`${funcName}: Wildcard search not supported for arrays.`);
                 }
-                return `\`${key}\` IN (?)`;
+                params.push(`%${value}%`);
+                return `${key} LIKE ?`;
+            } else if (where_options?.wildcardBefore) {
+                if (Array.isArray(value)) {
+                    throw new Error(`${funcName}: Wildcard search not supported for arrays.`);
+                }
+                params.push(`%${value}`);
+                return `${key} LIKE ?`;
+            } else if (where_options?.wildcardAfter) {
+                if (Array.isArray(value)) {
+                    throw new Error(`${funcName}: Wildcard search not supported for arrays.`);
+                }
+                params.push(`${value}%`);
+                return `${key} LIKE ?`;
             } else {
-                return `\`${key}\` = ?`;
+                params.push(value);
+                if (Array.isArray(value)) {
+                    if (value.length === 0) {
+                        isResultEmpty = true;
+                    }
+                    return `\`${key}\` IN (?)`;
+                } else {
+                    return `\`${key}\` = ?`;
+                }
             }
         })
         .reduce((state, cur, idx) => {
             if (idx === 0) {
                 state = `WHERE ${cur}`;
             } else {
-                state += ` AND ${cur}`;
+                state += ` ${where_operator} ${cur}`;
             }
             return state;
         }, '');
 
     //Compute order by caluse
-    const order_by_clause = order_by
+    const order_by_clause = (order_by ? order_by : [])
         .map((rule) => {
             let { key = '', order = '' } = rule || {};
             if (_containsSpecialChars(key)) {
@@ -619,9 +649,16 @@ function _containsSpecialChars(str_val: string) {
 }
 type QueryOptions = {
     limit?: QueryLimitOptions;
+    where?: QueryWhereOptions;
 };
 type QueryLimitOptions = {
     offset?: number;
     page_size: number;
+};
+type QueryWhereOptions = {
+    operator?: 'AND' | 'OR';
+    wildcard?: boolean;
+    wildcardBefore?: boolean;
+    wildcardAfter?: boolean;
 };
 export = MySQLDriver;

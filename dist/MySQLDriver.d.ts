@@ -181,10 +181,17 @@ declare class MySQLDriver {
 }
 declare type QueryOptions = {
     limit?: QueryLimitOptions;
+    where?: QueryWhereOptions;
 };
 declare type QueryLimitOptions = {
     offset?: number;
     page_size: number;
+};
+declare type QueryWhereOptions = {
+    operator?: 'AND' | 'OR';
+    wildcard?: boolean;
+    wildcardBefore?: boolean;
+    wildcardAfter?: boolean;
 };
 export = MySQLDriver;
 //# sourceMappingURL=MySQLDriver.d.ts.map

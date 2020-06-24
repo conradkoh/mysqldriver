@@ -1,6 +1,8 @@
 # MySQLDriver
+
 ## Sample usage
-``` Javascript
+
+```Javascript
 const MySQLDriver = require('mysqldriver');
 const config = {
     host: '127.0.0.1',
@@ -14,18 +16,21 @@ const users = await DB.getRecords('user', { name: 'John Doe' }); // Gets all rec
 ```
 
 ## Model Generation
+
 Executing this code within the root folder of your project will models in the folder specified in outfolder from the database specified in the configuration
+
 ```
 npx mysqldriver-generate-model conf=./config/dbconfig.js outfolder=./references/db_objects
 ```
 
 Example generated class:
-``` javascript
+
+```javascript
 class user {
     /**
      * @param {{created_date?:any,deleted?:any,displayname?:any,email?:any,fullname?:any,id?:any,idnumber?:any,password?:any,suspended?:any,updated_date?:any,username?:any}} db_objects
      */
-    constructor(db_objects){
+    constructor(db_objects) {
         this.created_date = db_objects.created_date;
         this.deleted = db_objects.deleted;
         this.displayname = db_objects.displayname;
@@ -39,24 +44,23 @@ class user {
         this.username = db_objects.username;
     }
     validate(db_fields) {
-        var properties = Object.keys(this)
-        if(db_fields.length !== properties.length) {
+        var properties = Object.keys(this);
+        if (db_fields.length !== properties.length) {
             console.log('db_fields:');
             console.log(db_fields);
             console.log('properties:');
             console.log(properties);
-            throw new Error(`user.validate: Validate error: Field lengths do not match.`)
+            throw new Error(`user.validate: Validate error: Field lengths do not match.`);
         }
-        for(var i in db_fields) {
-            var property_index = properties.indexOf(db_fields[i])
-            if(property_index === -1) {
-                throw new Error(`user.validate: Validate_error: ${db_fields[i]} not found in db.`)
-            }
-            else {
+        for (var i in db_fields) {
+            var property_index = properties.indexOf(db_fields[i]);
+            if (property_index === -1) {
+                throw new Error(`user.validate: Validate_error: ${db_fields[i]} not found in db.`);
+            } else {
                 properties.splice(property_index, 1); //Remove the properties. All properties should be removed if validation passes
             }
         }
-        if(properties.length > 0) {
+        if (properties.length > 0) {
             console.log(`user.validate: Missing properties in DB:`);
             console.log(properties);
             throw new Error(`user.validate: Property mismatch`);
@@ -67,4 +71,27 @@ class user {
     }
 }
 module.exports = user;
+```
+
+## Setting up the test database
+
+Execute the following statements
+
+```
+CREATE DATABASE mysqldriver_test;
+CREATE USER 'testuser'@'%' IDENTIFIED WITH mysql_native_password BY 'P@ssw0rd';
+GRANT ALL PRIVILEGES ON mysqldriver_test.* TO 'testuser'@'%';
+FLUSH PRIVILEGES;
+```
+
+Create a configuration file `dbconfig.js`
+
+```javascript
+const config = {
+    host: '127.0.0.1',
+    database: 'mysqldriver_test',
+    password: 'P@ssw0rd',
+    user: 'testuser',
+};
+module.exports = config;
 ```

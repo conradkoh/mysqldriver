@@ -59,6 +59,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var MySQL = __importStar(require("mysql"));
 var v4_1 = __importDefault(require("uuid/v4"));
+var constants_1 = require("./constants");
 var ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 var ALIAS_DATA_TYPE = 'DATA_TYPE';
 var ALIAS_COLUMN_KEY = 'COLUMN_KEY';
@@ -813,25 +814,57 @@ var MySQLDriver = /** @class */ (function () {
  */
 function _prepareSelectStatement(table_name, where, order_by, options) {
     if (where === void 0) { where = {}; }
-    var funcName = '_prepareSelectRecord';
+    var funcName = '_prepareSelectStatement';
     var select_sql = "SELECT * FROM `" + table_name + "`";
     var isResultEmpty = false;
     var params = [];
-    var where_clause = Object.keys(where)
+    //Validations
+    var where_options = options === null || options === void 0 ? void 0 : options.where;
+    var where_operator = (where_options === null || where_options === void 0 ? void 0 : where_options.operator) || 'AND';
+    if (where_operator) {
+        if (!constants_1.ALLOWED_OPERATORS[where_operator]) {
+            throw new Error(funcName + ": Invalid operator '" + where_operator + "'");
+        }
+    }
+    //Construction
+    var where_clause = Object.keys(where ? where : {})
         .map(function (key) {
         if (_containsSpecialChars(key)) {
             throw new Error(funcName + ": Special character found in key: '" + key + "'");
         }
         var value = where[key];
-        params.push(value);
-        if (Array.isArray(value)) {
-            if (value.length === 0) {
-                isResultEmpty = true;
+        if ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcard) || ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) && where_options.wildcardAfter)) {
+            if (Array.isArray(value)) {
+                throw new Error(funcName + ": Wildcard search not supported for arrays.");
             }
-            return "`" + key + "` IN (?)";
+            params.push("%" + value + "%");
+            return key + " LIKE ?";
+        }
+        else if (where_options === null || where_options === void 0 ? void 0 : where_options.wildcardBefore) {
+            if (Array.isArray(value)) {
+                throw new Error(funcName + ": Wildcard search not supported for arrays.");
+            }
+            params.push("%" + value);
+            return key + " LIKE ?";
+        }
+        else if (where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) {
+            if (Array.isArray(value)) {
+                throw new Error(funcName + ": Wildcard search not supported for arrays.");
+            }
+            params.push(value + "%");
+            return key + " LIKE ?";
         }
         else {
-            return "`" + key + "` = ?";
+            params.push(value);
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    isResultEmpty = true;
+                }
+                return "`" + key + "` IN (?)";
+            }
+            else {
+                return "`" + key + "` = ?";
+            }
         }
     })
         .reduce(function (state, cur, idx) {
@@ -839,12 +872,12 @@ function _prepareSelectStatement(table_name, where, order_by, options) {
             state = "WHERE " + cur;
         }
         else {
-            state += " AND " + cur;
+            state += " " + where_operator + " " + cur;
         }
         return state;
     }, '');
     //Compute order by caluse
-    var order_by_clause = order_by
+    var order_by_clause = (order_by ? order_by : [])
         .map(function (rule) {
         var _a = rule || {}, _b = _a.key, key = _b === void 0 ? '' : _b, _c = _a.order, order = _c === void 0 ? '' : _c;
         if (_containsSpecialChars(key)) {
