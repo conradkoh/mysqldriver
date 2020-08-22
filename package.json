@@ -2,7 +2,7 @@
   "name": "mysqldriver",
   "version": "3.0.22",
   "description": "",
-  "main": "dist/MySQLDriver.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "mocha test",
     "test:watch": "mocha test/**/*.js --reporter min -w --recursive"

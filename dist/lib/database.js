@@ -36,15 +36,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTableNames = exports.getTableInfo = exports.prepareRecord = void 0;
+exports.getTableNames = exports.getTableInfo = exports.prepareRecord = exports.ALIAS_TABLE_NAME = exports.ALIAS_COLUMN_DEFAULT = exports.ALIAS_IS_NULLABLE = exports.ALIAS_CHARACTER_MAXIMUM_LENGTH = exports.ALIAS_COLUMN_KEY = exports.ALIAS_DATA_TYPE = exports.ALIAS_COLUMN_NAME = void 0;
 var query_1 = require("./query");
-var ALIAS_COLUMN_NAME = 'COLUMN_NAME';
-var ALIAS_DATA_TYPE = 'DATA_TYPE';
-var ALIAS_COLUMN_KEY = 'COLUMN_KEY';
-var ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
-var ALIAS_IS_NULLABLE = 'IS_NULLABLE';
-var ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
-var ALIAS_TABLE_NAME = 'TABLE_NAME';
+exports.ALIAS_COLUMN_NAME = 'COLUMN_NAME';
+exports.ALIAS_DATA_TYPE = 'DATA_TYPE';
+exports.ALIAS_COLUMN_KEY = 'COLUMN_KEY';
+exports.ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
+exports.ALIAS_IS_NULLABLE = 'IS_NULLABLE';
+exports.ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
+exports.ALIAS_TABLE_NAME = 'TABLE_NAME';
 /**
  * Checks the record against the database schema and removes any irrelevant fields for insertion
  * @param database_name
@@ -68,7 +68,7 @@ function prepareRecord(connection, database_name, table_name, record_raw) {
                 case 1:
                     table_info = _a.sent();
                     table_info.map(function (field) {
-                        var key = field[ALIAS_COLUMN_NAME];
+                        var key = field[exports.ALIAS_COLUMN_NAME];
                         if (key in record_raw && record_raw[key] !== undefined) {
                             //Only add items that have been specified in the record, and are not undefined in value
                             var value = record_raw[key];
@@ -92,7 +92,7 @@ function getTableInfo(connection, database_name, table_name) {
         var result;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT \n    `COLUMN_NAME` as '" + ALIAS_COLUMN_NAME + "', \n    `DATA_TYPE` AS '" + ALIAS_DATA_TYPE + "', \n    `COLUMN_KEY` AS '" + ALIAS_COLUMN_KEY + "', \n    `CHARACTER_MAXIMUM_LENGTH` as '" + ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n    `IS_NULLABLE` as '" + ALIAS_IS_NULLABLE + "',\n    `COLUMN_DEFAULT` as '" + ALIAS_COLUMN_DEFAULT + "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
+                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT \n    `COLUMN_NAME` as '" + exports.ALIAS_COLUMN_NAME + "', \n    `DATA_TYPE` AS '" + exports.ALIAS_DATA_TYPE + "', \n    `COLUMN_KEY` AS '" + exports.ALIAS_COLUMN_KEY + "', \n    `CHARACTER_MAXIMUM_LENGTH` as '" + exports.ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n    `IS_NULLABLE` as '" + exports.ALIAS_IS_NULLABLE + "',\n    `COLUMN_DEFAULT` as '" + exports.ALIAS_COLUMN_DEFAULT + "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
                 case 1:
                     result = _a.sent();
                     if (result.length === 0) {
@@ -116,7 +116,7 @@ function getTableNames(connection, database_name) {
                 case 0: return [4 /*yield*/, query_1.query(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ?", [database_name])];
                 case 1:
                     tables = _a.sent();
-                    table_names = tables.map(function (table) { return table[ALIAS_TABLE_NAME]; });
+                    table_names = tables.map(function (table) { return table[exports.ALIAS_TABLE_NAME]; });
                     return [2 /*return*/, table_names];
             }
         });

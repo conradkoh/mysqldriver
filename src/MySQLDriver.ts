@@ -14,21 +14,13 @@ import { prepareRecord, getTableNames, getTableInfo } from './lib/database';
 import { insertRecordRaw } from './lib/insert';
 import { updateRecordsRaw } from './lib/update';
 import { deleteRecordRaw } from './lib/delete';
+import { getJSSchema, tableGetJSSchema } from './lib/javascript';
 const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 const ALIAS_DATA_TYPE = 'DATA_TYPE';
 const ALIAS_COLUMN_KEY = 'COLUMN_KEY';
 const ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
 const ALIAS_IS_NULLABLE = 'IS_NULLABLE';
 const ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
-const INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
-const INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split(
-  ''
-).reduce((state: any, char: string) => {
-  state[char] = 1;
-  return state;
-}, {});
-
-const ALIAS_TABLE_NAME = 'TABLE_NAME';
 
 enum CONNECTION_STATUS {
   CONNECTED = 'connected',
@@ -286,56 +278,14 @@ class MySQLDriver {
   }
   /**
    * Query the database connection asynchronously
-   * @param query
+   * @param sql
    * @param values
    */
-  async query(query: string, values: Array<any> = []): Promise<Array<any>> {
-    let self = this;
-    this._checkValues(values);
+  async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
     let connection = await this.getConnection();
-    return new Promise<Array<any>>((resolve, reject) => {
-      self._query(connection, query, values, function (
-        err: any,
-        rows: Array<any>
-      ) {
-        if (err) {
-          let error: any = new Error(`MySQLDriver: query: SQL query error.`);
-          let data = {
-            err,
-            query,
-            values,
-          };
-          error.data = data;
-          if (err.code === 'ECONNREFUSED') {
-            self.handleDisconnect();
-          }
-          console.log(data);
-          reject(error);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+    return await query(connection, sql, values);
   }
-  /**
-   * Query the database
-   * @param {IConnection} connection
-   * @param query
-   * @param values
-   * @param callback
-   */
-  _query(
-    connection: IConnection,
-    query: string,
-    values: Array<string>,
-    callback: Function
-  ) {
-    //Make the request
-    connection.query(query, values, function (err, rows) {
-      rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
-      callback(err, rows);
-    });
-  }
+
   async closeConnection() {
     let connection = await this.getConnection();
     if (connection) {
@@ -351,52 +301,18 @@ class MySQLDriver {
    * Gets the schema of the database as an array of table schema objects
    */
   async getJSSchema(): Promise<IJSObjectInfo[]> {
-    const self = this;
-    const tables = await self.getTableNames();
-    const schema = tables.map(async (table_name: string) => {
-      let table_schema = await self.tableGetJSSchema(table_name);
-      return table_schema;
-    });
-    return await Promise.all(schema);
+    let connection = await this.getConnection();
+    let { database } = this.config;
+    return await getJSSchema(connection, database);
   }
   /**
    *
    * @param table_name
    */
   async tableGetJSSchema(table_name: string): Promise<IJSObjectInfo> {
-    const self = this;
-    const columns = await self.getTableInfo(table_name);
-    let schema: IJSObjectInfo = {
-      table_name: table_name,
-      fields: [],
-    };
-    let fields: Array<IJSObjectFieldInfo> = [];
-    columns.map((column: any) => {
-      let field: IJSObjectFieldInfo = {
-        column_name: column[ALIAS_COLUMN_NAME],
-        data_type: column[ALIAS_DATA_TYPE],
-        key: column[ALIAS_COLUMN_KEY],
-        max_length: column[ALIAS_CHARACTER_MAXIMUM_LENGTH],
-        is_nullable: column[ALIAS_IS_NULLABLE],
-        default_value: column[ALIAS_COLUMN_DEFAULT],
-      };
-      fields.push(field);
-    });
-    schema.fields = fields;
-    return schema;
-  }
-  /**
-   * Checks an array of values and ensures that it is not undefined
-   * @param {Array<string>} values
-   */
-  async _checkValues(values: Array<string>) {
-    values.map((value) => {
-      if (value === undefined) {
-        throw new Error(
-          `DB._checkValues: SQL prepared value cannot be undefined.`
-        );
-      }
-    });
+    let connection = await this.getConnection();
+    let { database } = this.config;
+    return await tableGetJSSchema(connection, database, table_name);
   }
 }
 type QueryOptions = {

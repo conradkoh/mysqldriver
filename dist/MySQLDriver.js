@@ -45,18 +45,13 @@ var database_1 = require("./lib/database");
 var insert_1 = require("./lib/insert");
 var update_1 = require("./lib/update");
 var delete_1 = require("./lib/delete");
+var javascript_1 = require("./lib/javascript");
 var ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 var ALIAS_DATA_TYPE = 'DATA_TYPE';
 var ALIAS_COLUMN_KEY = 'COLUMN_KEY';
 var ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
 var ALIAS_IS_NULLABLE = 'IS_NULLABLE';
 var ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
-var INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
-var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce(function (state, char) {
-    state[char] = 1;
-    return state;
-}, {});
-var ALIAS_TABLE_NAME = 'TABLE_NAME';
 var CONNECTION_STATUS;
 (function (CONNECTION_STATUS) {
     CONNECTION_STATUS["CONNECTED"] = "connected";
@@ -393,58 +388,22 @@ var MySQLDriver = /** @class */ (function () {
     };
     /**
      * Query the database connection asynchronously
-     * @param query
+     * @param sql
      * @param values
      */
-    MySQLDriver.prototype.query = function (query, values) {
+    MySQLDriver.prototype.query = function (sql, values) {
         if (values === void 0) { values = []; }
         return __awaiter(this, void 0, void 0, function () {
-            var self, connection;
+            var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        self = this;
-                        this._checkValues(values);
-                        return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [2 /*return*/, new Promise(function (resolve, reject) {
-                                self._query(connection, query, values, function (err, rows) {
-                                    if (err) {
-                                        var error = new Error("MySQLDriver: query: SQL query error.");
-                                        var data = {
-                                            err: err,
-                                            query: query,
-                                            values: values,
-                                        };
-                                        error.data = data;
-                                        if (err.code === 'ECONNREFUSED') {
-                                            self.handleDisconnect();
-                                        }
-                                        console.log(data);
-                                        reject(error);
-                                    }
-                                    else {
-                                        resolve(rows);
-                                    }
-                                });
-                            })];
+                        return [4 /*yield*/, query_1.query(connection, sql, values)];
+                    case 2: return [2 /*return*/, _a.sent()];
                 }
             });
-        });
-    };
-    /**
-     * Query the database
-     * @param {IConnection} connection
-     * @param query
-     * @param values
-     * @param callback
-     */
-    MySQLDriver.prototype._query = function (connection, query, values, callback) {
-        //Make the request
-        connection.query(query, values, function (err, rows) {
-            rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
-            callback(err, rows);
         });
     };
     MySQLDriver.prototype.closeConnection = function () {
@@ -474,27 +433,14 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.getJSSchema = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var self, tables, schema;
-            var _this = this;
+            var connection, database;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        self = this;
-                        return [4 /*yield*/, self.getTableNames()];
+                    case 0: return [4 /*yield*/, this.getConnection()];
                     case 1:
-                        tables = _a.sent();
-                        schema = tables.map(function (table_name) { return __awaiter(_this, void 0, void 0, function () {
-                            var table_schema;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4 /*yield*/, self.tableGetJSSchema(table_name)];
-                                    case 1:
-                                        table_schema = _a.sent();
-                                        return [2 /*return*/, table_schema];
-                                }
-                            });
-                        }); });
-                        return [4 /*yield*/, Promise.all(schema)];
+                        connection = _a.sent();
+                        database = this.config.database;
+                        return [4 /*yield*/, javascript_1.getJSSchema(connection, database)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -506,49 +452,16 @@ var MySQLDriver = /** @class */ (function () {
      */
     MySQLDriver.prototype.tableGetJSSchema = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, columns, schema, fields;
+            var connection, database;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        self = this;
-                        return [4 /*yield*/, self.getTableInfo(table_name)];
+                    case 0: return [4 /*yield*/, this.getConnection()];
                     case 1:
-                        columns = _a.sent();
-                        schema = {
-                            table_name: table_name,
-                            fields: [],
-                        };
-                        fields = [];
-                        columns.map(function (column) {
-                            var field = {
-                                column_name: column[ALIAS_COLUMN_NAME],
-                                data_type: column[ALIAS_DATA_TYPE],
-                                key: column[ALIAS_COLUMN_KEY],
-                                max_length: column[ALIAS_CHARACTER_MAXIMUM_LENGTH],
-                                is_nullable: column[ALIAS_IS_NULLABLE],
-                                default_value: column[ALIAS_COLUMN_DEFAULT],
-                            };
-                            fields.push(field);
-                        });
-                        schema.fields = fields;
-                        return [2 /*return*/, schema];
+                        connection = _a.sent();
+                        database = this.config.database;
+                        return [4 /*yield*/, javascript_1.tableGetJSSchema(connection, database, table_name)];
+                    case 2: return [2 /*return*/, _a.sent()];
                 }
-            });
-        });
-    };
-    /**
-     * Checks an array of values and ensures that it is not undefined
-     * @param {Array<string>} values
-     */
-    MySQLDriver.prototype._checkValues = function (values) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                values.map(function (value) {
-                    if (value === undefined) {
-                        throw new Error("DB._checkValues: SQL prepared value cannot be undefined.");
-                    }
-                });
-                return [2 /*return*/];
             });
         });
     };

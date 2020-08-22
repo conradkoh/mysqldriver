@@ -1,4 +1,11 @@
 import { DatabaseConnection } from '../classes/DatabaseConnection';
+export declare const ALIAS_COLUMN_NAME = "COLUMN_NAME";
+export declare const ALIAS_DATA_TYPE = "DATA_TYPE";
+export declare const ALIAS_COLUMN_KEY = "COLUMN_KEY";
+export declare const ALIAS_CHARACTER_MAXIMUM_LENGTH = "CHARACTER_MAXIMUM_LENGTH";
+export declare const ALIAS_IS_NULLABLE = "IS_NULLABLE";
+export declare const ALIAS_COLUMN_DEFAULT = "COLUMN_DEFAULT";
+export declare const ALIAS_TABLE_NAME = "TABLE_NAME";
 /**
  * Checks the record against the database schema and removes any irrelevant fields for insertion
  * @param database_name

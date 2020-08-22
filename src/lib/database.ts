@@ -1,12 +1,12 @@
 import { DatabaseConnection } from '../classes/DatabaseConnection';
 import { query } from './query';
-const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
-const ALIAS_DATA_TYPE = 'DATA_TYPE';
-const ALIAS_COLUMN_KEY = 'COLUMN_KEY';
-const ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
-const ALIAS_IS_NULLABLE = 'IS_NULLABLE';
-const ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
-const ALIAS_TABLE_NAME = 'TABLE_NAME';
+export const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
+export const ALIAS_DATA_TYPE = 'DATA_TYPE';
+export const ALIAS_COLUMN_KEY = 'COLUMN_KEY';
+export const ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
+export const ALIAS_IS_NULLABLE = 'IS_NULLABLE';
+export const ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
+export const ALIAS_TABLE_NAME = 'TABLE_NAME';
 /**
  * Checks the record against the database schema and removes any irrelevant fields for insertion
  * @param database_name

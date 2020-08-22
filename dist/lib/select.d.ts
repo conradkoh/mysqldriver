@@ -3,7 +3,7 @@ import { QueryOptions } from './query';
 export declare function selectRecordRaw(connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
     key: string;
     order: 'ASC' | 'DESC';
-}>, options?: QueryOptions): never[] | Promise<any>;
+}>, options?: QueryOptions): Promise<any> | never[];
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name

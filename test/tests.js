@@ -1,11 +1,21 @@
 let chai = require('chai');
-let MySQLDriver = require('../dist/MySQLDriver');
+let package = require('../dist/index');
 const { user } = require('../dbconfig');
 const { assert } = require('chai');
 let TEST_DATA = getTestData();
 let mysql = require('mysql');
 describe('All Tests', () => {
   let users = {};
+  let dbConfig = {
+    createConnection: () =>
+      mysql.createConnection({
+        host: '127.0.0.1',
+        database: 'mysqldriver_test',
+        password: 'P@ssw0rd',
+        user: 'testuser',
+      }),
+  };
+  let provider = new package.ConnectionProvider(dbConfig);
   let conn = mysql.createConnection({
     host: '127.0.0.1',
     database: 'mysqldriver_test',
@@ -13,7 +23,7 @@ describe('All Tests', () => {
     user: 'testuser',
     multipleStatements: true,
   });
-  let db = new MySQLDriver({
+  let db = new package.MySQLDriver({
     createConnection: () =>
       mysql.createConnection({
         host: '127.0.0.1',

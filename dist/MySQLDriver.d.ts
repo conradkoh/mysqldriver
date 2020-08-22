@@ -96,18 +96,10 @@ declare class MySQLDriver {
     getTableFieldNames(table_name: string): Promise<any[]>;
     /**
      * Query the database connection asynchronously
-     * @param query
+     * @param sql
      * @param values
      */
-    query(query: string, values?: Array<any>): Promise<Array<any>>;
-    /**
-     * Query the database
-     * @param {IConnection} connection
-     * @param query
-     * @param values
-     * @param callback
-     */
-    _query(connection: IConnection, query: string, values: Array<string>, callback: Function): void;
+    query(sql: string, values?: Array<any>): Promise<Array<any>>;
     closeConnection(): Promise<void>;
     /**
      * Gets the schema of the database as an array of table schema objects
@@ -118,11 +110,6 @@ declare class MySQLDriver {
      * @param table_name
      */
     tableGetJSSchema(table_name: string): Promise<IJSObjectInfo>;
-    /**
-     * Checks an array of values and ensures that it is not undefined
-     * @param {Array<string>} values
-     */
-    _checkValues(values: Array<string>): Promise<void>;
 }
 declare type QueryOptions = {
     limit?: QueryLimitOptions;
