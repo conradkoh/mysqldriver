@@ -19,7 +19,7 @@ declare class MySQLDriver {
     getConnection(): Promise<IConnection>;
     _prepareConnection(): {
         conn: IConnection;
-        querySelect: (query: string, values: any[]) => Promise<any[]>;
+        querySelect: (query: string, values: any[]) => Promise<any>;
     };
     generateId(): string;
     /**
