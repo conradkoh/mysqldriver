@@ -1,88 +1,28 @@
-import * as MySQL from 'mysql';
 import UUIDv4 from 'uuid/v4';
+import { ConnectionProvider } from './ConnectionProvider';
+import { DatabaseConfig } from './DatabaseConfig';
+import { containsSpecialChars, query, QueryOptions } from '../lib/query';
+import { selectRecordRaw, selectRecordRawCount } from '../lib/select';
 import {
-  IConfig,
-  ISQLTableColumn,
-  IJSObjectFieldInfo,
-  IJSObjectInfo,
-} from './Interfaces';
-import { ALLOWED_OPERATORS } from './constants';
-import { IConnection } from './interfaces/IConnection';
-import { containsSpecialChars, query } from './lib/query';
-import { selectRecordRaw, selectRecordRawCount } from './lib/select';
-import { prepareRecord, getTableNames, getTableInfo } from './lib/database';
-import { insertRecordRaw } from './lib/insert';
-import { updateRecordsRaw } from './lib/update';
-import { deleteRecordRaw } from './lib/delete';
-import { getJSSchema, tableGetJSSchema } from './lib/javascript';
-
-enum CONNECTION_STATUS {
-  CONNECTED = 'connected',
-  CONNECTING = 'connecting',
-  DISCONNECTED = 'disconnected',
-}
-
-class MySQLDriver {
-  config: IConfig;
-  _createConnection: () => IConnection;
-  querySelect: (query: string, values: any[]) => Promise<any[]>;
-  connection: IConnection;
-  connection_status: CONNECTION_STATUS;
-  constructor(config: IConfig) {
-    this.config = config;
-    this._createConnection = config.createConnection;
-    // this.config.port = config.port || 3306;
-    this.connection_status = CONNECTION_STATUS.DISCONNECTED;
-    let { conn, querySelect } = this._prepareConnection();
-    conn.on('error', this.handleDisconnect.bind(this)); //Add the handler for disconnection on errors
-    this.connection = conn;
-    this.querySelect = querySelect;
-  }
-
-  handleDisconnect() {
-    if (this.connection) {
-      this.connection.destroy();
-    }
-    this.connection_status = CONNECTION_STATUS.DISCONNECTED;
-    console.log('Database disconnected by server.');
-  }
-  /**
-   * Get the database connection
-   */
-  async getConnection(): Promise<IConnection> {
-    let wait = 500;
-    if (
-      this.connection_status === CONNECTION_STATUS.CONNECTED &&
-      this.connection
-    ) {
-      return this.connection;
-    }
-    while (this.connection_status === CONNECTION_STATUS.CONNECTING) {
-      await new Promise((resolve, reject) => {
-        //Wait for a short interval before checking again
-        setTimeout(() => {
-          resolve();
-        }, wait);
-      });
-    }
-    if (this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
-      let { conn, querySelect } = this._prepareConnection();
-      this.querySelect = querySelect;
-      return conn;
-    }
-    return this.connection;
-  }
-
-  _prepareConnection() {
-    let conn = this._createConnection();
-    let querySelect = async (query: string, values: any[]) => {
-      let result = await this.config.querySelect(conn, query, values);
-      return result;
-    };
-    return {
-      conn,
-      querySelect,
-    };
+  prepareRecord,
+  getTableNames,
+  getTableInfo,
+  SQLTableColumn,
+} from '../lib/database';
+import { insertRecordRaw } from '../lib/insert';
+import { updateRecordsRaw } from '../lib/update';
+import { deleteRecordRaw } from '../lib/delete';
+import {
+  getJSSchema,
+  tableGetJSSchema,
+  JSTableSchema,
+} from '../lib/javascript';
+export class DatabaseDriver {
+  private config: DatabaseConfig;
+  private provider: ConnectionProvider;
+  constructor(cfg: DatabaseConfig) {
+    this.config = cfg;
+    this.provider = new ConnectionProvider(cfg);
   }
   generateId() {
     return UUIDv4();
@@ -93,7 +33,7 @@ class MySQLDriver {
    * @param record The record to be insert into the database
    */
   async insertRecord(table_name: string, record: any) {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
     let clean_record = await prepareRecord(
@@ -116,7 +56,7 @@ class MySQLDriver {
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = [],
     options?: QueryOptions
   ) {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     return await selectRecordRaw(
       connection,
       table_name,
@@ -136,7 +76,7 @@ class MySQLDriver {
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = [],
     options?: QueryOptions
   ) {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     return await selectRecordRawCount(
       connection,
       table_name,
@@ -156,7 +96,7 @@ class MySQLDriver {
     where: any,
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = []
   ) {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     const result = await selectRecordRaw(
       connection,
       table_name,
@@ -181,7 +121,7 @@ class MySQLDriver {
    */
   async updateRecords(table_name: string, properties: any, where: any) {
     let self = this;
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
 
     let { database } = self.config;
     let clean_properties = await prepareRecord(
@@ -204,7 +144,7 @@ class MySQLDriver {
    */
   async deleteRecords(table_name: string, where: any) {
     let self = this;
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     return await deleteRecordRaw(connection, table_name, where);
   }
 
@@ -233,7 +173,7 @@ class MySQLDriver {
    * @param values
    */
   async getRecordsSql(sql: string, values: Array<any>): Promise<Array<any>> {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     return await query(connection, sql, values);
   }
 
@@ -241,7 +181,7 @@ class MySQLDriver {
    * Gets all tables in the current database
    */
   async getTableNames() {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     const self = this;
     let { database } = self.config;
     const table_names = await getTableNames(connection, database);
@@ -251,8 +191,8 @@ class MySQLDriver {
    * Get the table information from the information schema
    * @param table_name
    */
-  async getTableInfo(table_name: string): Promise<ISQLTableColumn[]> {
-    let connection = await this.getConnection();
+  async getTableInfo(table_name: string): Promise<SQLTableColumn[]> {
+    let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
     let info = await getTableInfo(connection, database, table_name);
@@ -264,7 +204,7 @@ class MySQLDriver {
    * @param table_name
    */
   async getTableFieldNames(table_name: string): Promise<any[]> {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
     let info = await getTableInfo(connection, database, table_name);
@@ -276,12 +216,12 @@ class MySQLDriver {
    * @param values
    */
   async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     return await query(connection, sql, values);
   }
 
   async closeConnection() {
-    let connection = await this.getConnection();
+    let connection = await this.provider.getConnection();
     if (connection) {
       await new Promise((resolve, reject) => {
         connection.end((err) => {
@@ -294,8 +234,8 @@ class MySQLDriver {
   /**
    * Gets the schema of the database as an array of table schema objects
    */
-  async getJSSchema(): Promise<IJSObjectInfo[]> {
-    let connection = await this.getConnection();
+  async getJSSchema(): Promise<JSTableSchema[]> {
+    let connection = await this.provider.getConnection();
     let { database } = this.config;
     return await getJSSchema(connection, database);
   }
@@ -303,24 +243,9 @@ class MySQLDriver {
    *
    * @param table_name
    */
-  async tableGetJSSchema(table_name: string): Promise<IJSObjectInfo> {
-    let connection = await this.getConnection();
+  async tableGetJSSchema(table_name: string): Promise<JSTableSchema> {
+    let connection = await this.provider.getConnection();
     let { database } = this.config;
     return await tableGetJSSchema(connection, database, table_name);
   }
 }
-type QueryOptions = {
-  limit?: QueryLimitOptions;
-  where?: QueryWhereOptions;
-};
-type QueryLimitOptions = {
-  offset?: number;
-  page_size: number;
-};
-type QueryWhereOptions = {
-  operator?: 'AND' | 'OR';
-  wildcard?: boolean;
-  wildcardBefore?: boolean;
-  wildcardAfter?: boolean;
-};
-export = MySQLDriver;

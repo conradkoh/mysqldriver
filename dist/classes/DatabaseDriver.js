@@ -38,95 +38,23 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DatabaseDriver = void 0;
 var v4_1 = __importDefault(require("uuid/v4"));
-var query_1 = require("./lib/query");
-var select_1 = require("./lib/select");
-var database_1 = require("./lib/database");
-var insert_1 = require("./lib/insert");
-var update_1 = require("./lib/update");
-var delete_1 = require("./lib/delete");
-var javascript_1 = require("./lib/javascript");
-var CONNECTION_STATUS;
-(function (CONNECTION_STATUS) {
-    CONNECTION_STATUS["CONNECTED"] = "connected";
-    CONNECTION_STATUS["CONNECTING"] = "connecting";
-    CONNECTION_STATUS["DISCONNECTED"] = "disconnected";
-})(CONNECTION_STATUS || (CONNECTION_STATUS = {}));
-var MySQLDriver = /** @class */ (function () {
-    function MySQLDriver(config) {
-        this.config = config;
-        this._createConnection = config.createConnection;
-        // this.config.port = config.port || 3306;
-        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
-        var _a = this._prepareConnection(), conn = _a.conn, querySelect = _a.querySelect;
-        conn.on('error', this.handleDisconnect.bind(this)); //Add the handler for disconnection on errors
-        this.connection = conn;
-        this.querySelect = querySelect;
+var ConnectionProvider_1 = require("./ConnectionProvider");
+var query_1 = require("../lib/query");
+var select_1 = require("../lib/select");
+var database_1 = require("../lib/database");
+var insert_1 = require("../lib/insert");
+var update_1 = require("../lib/update");
+var delete_1 = require("../lib/delete");
+var javascript_1 = require("../lib/javascript");
+var DatabaseDriver = /** @class */ (function () {
+    function DatabaseDriver(cfg) {
+        this.config = cfg;
+        this.provider = new ConnectionProvider_1.ConnectionProvider(cfg);
     }
-    MySQLDriver.prototype.handleDisconnect = function () {
-        if (this.connection) {
-            this.connection.destroy();
-        }
-        this.connection_status = CONNECTION_STATUS.DISCONNECTED;
-        console.log('Database disconnected by server.');
-    };
-    /**
-     * Get the database connection
-     */
-    MySQLDriver.prototype.getConnection = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var wait, _a, conn, querySelect;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        wait = 500;
-                        if (this.connection_status === CONNECTION_STATUS.CONNECTED &&
-                            this.connection) {
-                            return [2 /*return*/, this.connection];
-                        }
-                        _b.label = 1;
-                    case 1:
-                        if (!(this.connection_status === CONNECTION_STATUS.CONNECTING)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                //Wait for a short interval before checking again
-                                setTimeout(function () {
-                                    resolve();
-                                }, wait);
-                            })];
-                    case 2:
-                        _b.sent();
-                        return [3 /*break*/, 1];
-                    case 3:
-                        if (this.connection_status === CONNECTION_STATUS.DISCONNECTED) {
-                            _a = this._prepareConnection(), conn = _a.conn, querySelect = _a.querySelect;
-                            this.querySelect = querySelect;
-                            return [2 /*return*/, conn];
-                        }
-                        return [2 /*return*/, this.connection];
-                }
-            });
-        });
-    };
-    MySQLDriver.prototype._prepareConnection = function () {
-        var _this = this;
-        var conn = this._createConnection();
-        var querySelect = function (query, values) { return __awaiter(_this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.config.querySelect(conn, query, values)];
-                    case 1:
-                        result = _a.sent();
-                        return [2 /*return*/, result];
-                }
-            });
-        }); };
-        return {
-            conn: conn,
-            querySelect: querySelect,
-        };
-    };
-    MySQLDriver.prototype.generateId = function () {
+    DatabaseDriver.prototype.generateId = function () {
         return v4_1.default();
     };
     /**
@@ -134,12 +62,12 @@ var MySQLDriver = /** @class */ (function () {
      * @param table_name The name of the table to insert the records into
      * @param record The record to be insert into the database
      */
-    MySQLDriver.prototype.insertRecord = function (table_name, record) {
+    DatabaseDriver.prototype.insertRecord = function (table_name, record) {
         return __awaiter(this, void 0, void 0, function () {
             var connection, self, database, clean_record, res;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         self = this;
@@ -160,13 +88,13 @@ var MySQLDriver = /** @class */ (function () {
      * @param table_name
      * @param where The search criteria to do a match
      */
-    MySQLDriver.prototype.getRecords = function (table_name, where, order_by, options) {
+    DatabaseDriver.prototype.getRecords = function (table_name, where, order_by, options) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, select_1.selectRecordRaw(connection, table_name, where, order_by, options)];
@@ -180,13 +108,13 @@ var MySQLDriver = /** @class */ (function () {
      * @param table_name
      * @param where The search criteria to do a match
      */
-    MySQLDriver.prototype.getRecordsCount = function (table_name, where, order_by, options) {
+    DatabaseDriver.prototype.getRecordsCount = function (table_name, where, order_by, options) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, select_1.selectRecordRawCount(connection, table_name, where, order_by, options)];
@@ -200,13 +128,13 @@ var MySQLDriver = /** @class */ (function () {
      * @param table_name
      * @param where The search criteria to do a match
      */
-    MySQLDriver.prototype.getRecord = function (table_name, where, order_by) {
+    DatabaseDriver.prototype.getRecord = function (table_name, where, order_by) {
         if (order_by === void 0) { order_by = []; }
         return __awaiter(this, void 0, void 0, function () {
             var connection, result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, select_1.selectRecordRaw(connection, table_name, where, order_by, { limit: { offset: 0, page_size: 1 } })];
@@ -229,14 +157,14 @@ var MySQLDriver = /** @class */ (function () {
      * @param properties The properties to be updated
      * @param where THe criteria to search
      */
-    MySQLDriver.prototype.updateRecords = function (table_name, properties, where) {
+    DatabaseDriver.prototype.updateRecords = function (table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
             var self, connection, database, clean_properties;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, this.getConnection()];
+                        return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         database = self.config.database;
@@ -254,14 +182,14 @@ var MySQLDriver = /** @class */ (function () {
      * @param table_name
      * @param where
      */
-    MySQLDriver.prototype.deleteRecords = function (table_name, where) {
+    DatabaseDriver.prototype.deleteRecords = function (table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
             var self, connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, this.getConnection()];
+                        return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, delete_1.deleteRecordRaw(connection, table_name, where)];
@@ -275,7 +203,7 @@ var MySQLDriver = /** @class */ (function () {
      * @param sql
      * @param values
      */
-    MySQLDriver.prototype.getRecordSql = function (sql, values) {
+    DatabaseDriver.prototype.getRecordSql = function (sql, values) {
         return __awaiter(this, void 0, void 0, function () {
             var self, records;
             return __generator(this, function (_a) {
@@ -301,12 +229,12 @@ var MySQLDriver = /** @class */ (function () {
      * @param sql
      * @param values
      */
-    MySQLDriver.prototype.getRecordsSql = function (sql, values) {
+    DatabaseDriver.prototype.getRecordsSql = function (sql, values) {
         return __awaiter(this, void 0, void 0, function () {
             var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, query_1.query(connection, sql, values)];
@@ -318,12 +246,12 @@ var MySQLDriver = /** @class */ (function () {
     /**
      * Gets all tables in the current database
      */
-    MySQLDriver.prototype.getTableNames = function () {
+    DatabaseDriver.prototype.getTableNames = function () {
         return __awaiter(this, void 0, void 0, function () {
             var connection, self, database, table_names;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         self = this;
@@ -340,12 +268,12 @@ var MySQLDriver = /** @class */ (function () {
      * Get the table information from the information schema
      * @param table_name
      */
-    MySQLDriver.prototype.getTableInfo = function (table_name) {
+    DatabaseDriver.prototype.getTableInfo = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var connection, self, database, info;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         self = this;
@@ -362,12 +290,12 @@ var MySQLDriver = /** @class */ (function () {
      * Get the field names for a given table
      * @param table_name
      */
-    MySQLDriver.prototype.getTableFieldNames = function (table_name) {
+    DatabaseDriver.prototype.getTableFieldNames = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var connection, self, database, info;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         self = this;
@@ -385,13 +313,13 @@ var MySQLDriver = /** @class */ (function () {
      * @param sql
      * @param values
      */
-    MySQLDriver.prototype.query = function (sql, values) {
+    DatabaseDriver.prototype.query = function (sql, values) {
         if (values === void 0) { values = []; }
         return __awaiter(this, void 0, void 0, function () {
             var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, query_1.query(connection, sql, values)];
@@ -400,12 +328,12 @@ var MySQLDriver = /** @class */ (function () {
             });
         });
     };
-    MySQLDriver.prototype.closeConnection = function () {
+    DatabaseDriver.prototype.closeConnection = function () {
         return __awaiter(this, void 0, void 0, function () {
             var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         if (!connection) return [3 /*break*/, 3];
@@ -425,12 +353,12 @@ var MySQLDriver = /** @class */ (function () {
     /**
      * Gets the schema of the database as an array of table schema objects
      */
-    MySQLDriver.prototype.getJSSchema = function () {
+    DatabaseDriver.prototype.getJSSchema = function () {
         return __awaiter(this, void 0, void 0, function () {
             var connection, database;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         database = this.config.database;
@@ -444,12 +372,12 @@ var MySQLDriver = /** @class */ (function () {
      *
      * @param table_name
      */
-    MySQLDriver.prototype.tableGetJSSchema = function (table_name) {
+    DatabaseDriver.prototype.tableGetJSSchema = function (table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var connection, database;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         database = this.config.database;
@@ -459,7 +387,7 @@ var MySQLDriver = /** @class */ (function () {
             });
         });
     };
-    return MySQLDriver;
+    return DatabaseDriver;
 }());
-module.exports = MySQLDriver;
-//# sourceMappingURL=MySQLDriver.js.map
+exports.DatabaseDriver = DatabaseDriver;
+//# sourceMappingURL=DatabaseDriver.js.map

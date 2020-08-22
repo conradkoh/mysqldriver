@@ -1,4 +1,5 @@
 import MySQLDriver from './MySQLDriver';
 import { ConnectionProvider } from './classes/ConnectionProvider';
-export { MySQLDriver, ConnectionProvider };
+import { DatabaseDriver } from './classes/DatabaseDriver';
+export { MySQLDriver, ConnectionProvider, DatabaseDriver };
 //# sourceMappingURL=index.d.ts.map

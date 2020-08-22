@@ -7,6 +7,7 @@ let mysql = require('mysql');
 describe('All Tests', () => {
   let users = {};
   let dbConfig = {
+    database: 'mysqldriver_test',
     createConnection: () =>
       mysql.createConnection({
         host: '127.0.0.1',
@@ -15,33 +16,7 @@ describe('All Tests', () => {
         user: 'testuser',
       }),
   };
-  let provider = new package.ConnectionProvider(dbConfig);
-  let conn = mysql.createConnection({
-    host: '127.0.0.1',
-    database: 'mysqldriver_test',
-    password: 'P@ssw0rd',
-    user: 'testuser',
-    multipleStatements: true,
-  });
-  let db = new package.MySQLDriver({
-    createConnection: () =>
-      mysql.createConnection({
-        host: '127.0.0.1',
-        database: 'mysqldriver_test',
-        password: 'P@ssw0rd',
-        user: 'testuser',
-      }),
-    querySelect: (conn, query, values) => {
-      return new Promise((resolve, reject) => {
-        //Make the request
-        conn.query(query, values, function (err, rows) {
-          rows = rows ? JSON.parse(JSON.stringify(rows)) : [];
-          err ? reject(err) : resolve(rows);
-        });
-      });
-    },
-    database: 'mysqldriver_test',
-  });
+  let db = new package.DatabaseDriver(dbConfig);
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
