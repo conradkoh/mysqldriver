@@ -3,23 +3,33 @@ let package = require('../dist/index');
 const { user } = require('../dbconfig');
 const { assert } = require('chai');
 let TEST_DATA = getTestData();
-let mysql = require('mysql');
+let mysql = require('serverless-mysql');
 let dbConfig = {
   database: 'mysqldriver_test',
   createConnection: () => {
-    let conn = mysql.createConnection({
-      host: '127.0.0.1',
-      database: 'mysqldriver_test',
-      password: 'P@ssw0rd',
-      user: 'testuser',
+    let conn = mysql({
+      config: {
+        host: '127.0.0.1',
+        database: 'mysqldriver_test',
+        password: 'P@ssw0rd',
+        user: 'testuser',
+      },
     });
     return {
-      destroy: () => conn.destroy(),
-      on: (ev, cb) => conn.on(ev, cb),
-      query: (q, v, cb) => conn.query(q, v, cb),
-      end: (cb) => conn.end(cb),
-      isDisconnected:
-        conn.state == 'disconnected' || conn.state == 'protocol_error',
+      destroy: () => conn.quit(),
+      on: (ev, cb) => {},
+      query: (q, v, cb) => {
+        conn
+          .query(q, v)
+          .then((data) => ({ data, err: null }))
+          .catch((err) => ({ err, data: null }))
+          .then((result) => {
+            let { err, data } = result;
+            cb(err, data);
+          });
+      },
+      end: (cb) => conn.end().then(() => cb()),
+      isDisconnected: false,
     };
   },
 };

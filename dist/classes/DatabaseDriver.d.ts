@@ -1,4 +1,4 @@
-import { DatabaseConfig } from './DatabaseConfig';
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { QueryOptions } from '../lib/query';
 import { SQLTableColumn } from '../lib/database';
 import { JSTableSchema } from '../lib/javascript';
@@ -21,7 +21,7 @@ export declare class DatabaseDriver {
     getRecords(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any>;
+    }>, options?: QueryOptions): Promise<any[]>;
     /**
      * Get records count from a table that match the where criteria
      * @param table_name
@@ -30,7 +30,7 @@ export declare class DatabaseDriver {
     getRecordsCount(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any>;
+    }>, options?: QueryOptions): Promise<number>;
     /**
      * Get record from a table that match the where criteria
      * @param table_name

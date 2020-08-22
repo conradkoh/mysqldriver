@@ -36,50 +36,25 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConnectionProvider = exports.Database = void 0;
-var ConnectionStatus;
-(function (ConnectionStatus) {
-    ConnectionStatus["CONNECTED"] = "connected";
-    ConnectionStatus["DISCONNECTED"] = "disconnected";
-})(ConnectionStatus || (ConnectionStatus = {}));
-var Database = /** @class */ (function () {
-    function Database(cfg) {
-        this.cfg = cfg;
-        this.provider = new ConnectionProvider(cfg);
-    }
-    return Database;
-}());
-exports.Database = Database;
+exports.ConnectionProvider = void 0;
 var ConnectionProvider = /** @class */ (function () {
     function ConnectionProvider(cfg) {
         this.timeoutDelay = 500;
         this.cfg = cfg;
         this.connection = cfg.createConnection();
         this.connection.on('error', this.handleDisconnect.bind(this));
-        this.connectionStatus = ConnectionStatus.CONNECTED;
     }
     ConnectionProvider.prototype.handleDisconnect = function () {
-        this.connectionStatus = ConnectionStatus.DISCONNECTED;
         this.connection = this.cfg.createConnection();
         this.connection.on('error', this.handleDisconnect.bind(this));
-        this.connectionStatus = ConnectionStatus.CONNECTED;
     };
     ConnectionProvider.prototype.getConnection = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!(this.connectionStatus == ConnectionStatus.DISCONNECTED)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                setTimeout(function () { return resolve(); }, _this.timeoutDelay);
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.getConnection()];
-                    case 2: return [2 /*return*/, _a.sent()];
-                    case 3: return [2 /*return*/, this.connection];
+                if (this.connection.isDisconnected) {
+                    this.connection = this.cfg.createConnection();
                 }
+                return [2 /*return*/, this.connection];
             });
         });
     };

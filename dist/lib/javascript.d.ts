@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 /**
  * Gets the schema of the database as an array of table schema objects
  */

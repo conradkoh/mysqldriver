@@ -1,13 +1,17 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
-import { query, QueryOptions, containsSpecialChars } from './query';
-import { ALLOWED_OPERATORS } from '../constants';
-export function selectRecordRaw(
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
+import {
+  query,
+  QueryOptions,
+  containsSpecialChars,
+  ALLOWED_OPERATORS,
+} from './query';
+export async function selectRecordRaw(
   connection: DatabaseConnection,
   table_name: string,
   where: any = {},
   order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
   options?: QueryOptions
-) {
+): Promise<any[]> {
   const { sql, params, isResultEmpty } = prepareSelectStatement(
     table_name,
     where,
@@ -17,7 +21,7 @@ export function selectRecordRaw(
   if (isResultEmpty) {
     return [];
   }
-  let data = query(connection, sql, params);
+  let data = await query(connection, sql, params);
   return data;
 }
 
@@ -32,7 +36,7 @@ export async function selectRecordRawCount(
   where: any = {},
   order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
   options?: QueryOptions
-) {
+): Promise<number> {
   const funcName = 'selectRecordRawCount';
   const { sql, params, isResultEmpty } = prepareSelectStatement(
     table_name,

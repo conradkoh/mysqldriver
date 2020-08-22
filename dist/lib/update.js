@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateRecordsRaw = void 0;
 var query_1 = require("./query");
 /**
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
    * INTERNAL: Update records in a given table without any processing
    * @param table_name
    * @param properties The properties to be updated

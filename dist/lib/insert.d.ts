@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 /**
  * INTERNAL: Insert records into the database without any processing
  * @param table_name The name of the table to insert the records into

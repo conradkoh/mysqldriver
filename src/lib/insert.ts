@@ -1,5 +1,5 @@
 import { containsSpecialChars, query } from './query';
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 
 /**
  * INTERNAL: Insert records into the database without any processing

@@ -1,5 +1,14 @@
-import { ALLOWED_OPERATORS } from '../constants';
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
+export const OPERATORS = {
+  AND: 'AND',
+  OR: 'OR',
+};
+
+export const ALLOWED_OPERATORS = {
+  [OPERATORS.AND]: 1,
+  [OPERATORS.OR]: 1,
+};
+
 const INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
 const INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split(
   ''

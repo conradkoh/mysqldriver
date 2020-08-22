@@ -1,6 +1,6 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 /**
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
    * INTERNAL: Update records in a given table without any processing
    * @param table_name
    * @param properties The properties to be updated

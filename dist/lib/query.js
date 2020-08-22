@@ -35,8 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.containsSpecialChars = exports.query = void 0;
+exports.containsSpecialChars = exports.query = exports.ALLOWED_OPERATORS = exports.OPERATORS = void 0;
+exports.OPERATORS = {
+    AND: 'AND',
+    OR: 'OR',
+};
+exports.ALLOWED_OPERATORS = (_a = {},
+    _a[exports.OPERATORS.AND] = 1,
+    _a[exports.OPERATORS.OR] = 1,
+    _a);
 var INVALID_COLUMN_NAME_CHARS = '!#%&’()*+,-./:;<=>?@[]^~ "`\\';
 var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce(function (state, char) {
     state[char] = 1;

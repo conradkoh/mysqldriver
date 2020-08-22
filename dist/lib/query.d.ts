@@ -1,4 +1,11 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
+export declare const OPERATORS: {
+    AND: string;
+    OR: string;
+};
+export declare const ALLOWED_OPERATORS: {
+    [x: string]: number;
+};
 /**
  * Query a connection with data
  * @param connection

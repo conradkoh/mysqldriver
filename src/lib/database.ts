@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 import { query } from './query';
 export const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 export const ALIAS_DATA_TYPE = 'DATA_TYPE';

@@ -1,6 +1,6 @@
 import UUIDv4 from 'uuid/v4';
 import { ConnectionProvider } from './ConnectionProvider';
-import { DatabaseConfig } from './DatabaseConfig';
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { containsSpecialChars, query, QueryOptions } from '../lib/query';
 import { selectRecordRaw, selectRecordRawCount } from '../lib/select';
 import {
@@ -55,7 +55,7 @@ export class DatabaseDriver {
     where: any,
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = [],
     options?: QueryOptions
-  ) {
+  ): Promise<any[]> {
     let connection = await this.provider.getConnection();
     return await selectRecordRaw(
       connection,
@@ -75,7 +75,7 @@ export class DatabaseDriver {
     where: any,
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = [],
     options?: QueryOptions
-  ) {
+  ): Promise<number> {
     let connection = await this.provider.getConnection();
     return await selectRecordRawCount(
       connection,

@@ -18,6 +18,7 @@
     "fs-extra": "^7.0.1",
     "mocha": "^8.1.1",
     "mysql": "^2.18.1",
+    "serverless-mysql": "^1.5.4",
     "uuid": "^3.4.0"
   },
   "repository": {

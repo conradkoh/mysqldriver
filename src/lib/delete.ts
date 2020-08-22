@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 import { containsSpecialChars, query } from './query';
 
 /**

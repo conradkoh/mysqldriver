@@ -1,4 +1,4 @@
-import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 /**
  * INTERNAL: Delete records from a given table without any data processing
  * @param table_name

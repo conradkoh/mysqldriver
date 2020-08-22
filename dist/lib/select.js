@@ -38,15 +38,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareSelectStatement = exports.selectRecordRawCount = exports.selectRecordRaw = void 0;
 var query_1 = require("./query");
-var constants_1 = require("../constants");
 function selectRecordRaw(connection, table_name, where, order_by, options) {
     if (where === void 0) { where = {}; }
-    var _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
-    if (isResultEmpty) {
-        return [];
-    }
-    var data = query_1.query(connection, sql, params);
-    return data;
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, sql, params, isResultEmpty, data;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
+                    if (isResultEmpty) {
+                        return [2 /*return*/, []];
+                    }
+                    return [4 /*yield*/, query_1.query(connection, sql, params)];
+                case 1:
+                    data = _b.sent();
+                    return [2 /*return*/, data];
+            }
+        });
+    });
 }
 exports.selectRecordRaw = selectRecordRaw;
 /**
@@ -91,7 +100,7 @@ function prepareSelectStatement(table_name, where, order_by, options) {
     var where_options = options === null || options === void 0 ? void 0 : options.where;
     var where_operator = (where_options === null || where_options === void 0 ? void 0 : where_options.operator) || 'AND';
     if (where_operator) {
-        if (!constants_1.ALLOWED_OPERATORS[where_operator]) {
+        if (!query_1.ALLOWED_OPERATORS[where_operator]) {
             throw new Error(funcName + ": Invalid operator '" + where_operator + "'");
         }
     }
