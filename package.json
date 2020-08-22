@@ -1,31 +1,31 @@
 {
-    "name": "mysqldriver",
-    "version": "3.0.21",
-    "description": "",
-    "main": "dist/MySQLDriver.js",
-    "scripts": {
-        "test": "mocha test",
-        "test:watch": "mocha test/**/*.js --reporter min -w --recursive"
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@types/chai": "^4.2.11",
-        "@types/mocha": "^7.0.2",
-        "@types/mysql": "^2.15.5",
-        "@types/uuid": "^3.4.4",
-        "chai": "^4.2.0",
-        "fs-extra": "^7.0.1",
-        "mocha": "^8.1.1",
-        "mysql": "^2.16.0",
-        "uuid": "^3.3.2"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/conradkoh/mysqldriver"
-    },
-    "devDependencies": {},
-    "bin": {
-        "mysqldriver-generate-model": "./mysqldriver-generate-model"
-    }
+  "name": "mysqldriver",
+  "version": "3.0.21",
+  "description": "",
+  "main": "dist/MySQLDriver.js",
+  "scripts": {
+    "test": "mocha test",
+    "test:watch": "mocha test/**/*.js --reporter min -w --recursive"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^7.0.2",
+    "@types/mysql": "^2.15.15",
+    "@types/uuid": "^3.4.9",
+    "chai": "^4.2.0",
+    "fs-extra": "^7.0.1",
+    "mocha": "^8.1.1",
+    "mysql": "^2.18.1",
+    "uuid": "^3.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conradkoh/mysqldriver"
+  },
+  "devDependencies": {},
+  "bin": {
+    "mysqldriver-generate-model": "./mysqldriver-generate-model"
+  }
 }
