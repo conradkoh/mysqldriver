@@ -4,38 +4,15 @@ const { user } = require('../dbconfig');
 const { assert } = require('chai');
 let TEST_DATA = getTestData();
 let mysql = require('serverless-mysql');
-let dbConfig = {
+let config = {
+  host: '127.0.0.1',
   database: 'mysqldriver_test',
-  createConnection: () => {
-    let conn = mysql({
-      config: {
-        host: '127.0.0.1',
-        database: 'mysqldriver_test',
-        password: 'P@ssw0rd',
-        user: 'testuser',
-      },
-    });
-    return {
-      destroy: () => conn.quit(),
-      on: (ev, cb) => {},
-      query: (q, v, cb) => {
-        conn
-          .query(q, v)
-          .then((data) => ({ data, err: null }))
-          .catch((err) => ({ err, data: null }))
-          .then((result) => {
-            let { err, data } = result;
-            cb(err, data);
-          });
-      },
-      end: (cb) => conn.end().then(() => cb()),
-      isDisconnected: false,
-    };
-  },
+  password: 'P@ssw0rd',
+  user: 'testuser',
 };
 describe('All Tests', () => {
   let users = {};
-  let db = new package.DatabaseDriver(dbConfig);
+  let db = package.connect(config);
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
@@ -247,7 +224,7 @@ describe('All Tests', () => {
 
 describe('Automatic reconnect', () => {
   let users = {};
-  let db = new package.DatabaseDriver(dbConfig);
+  let db = package.connect(config);
   let testData = getTestData();
   before(async () => {
     let sqls = [

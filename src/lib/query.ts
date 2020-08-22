@@ -49,8 +49,7 @@ export async function query(
  * @param values
  */
 function checkValues(values: Array<string>) {
-  let isValid = false;
-  let errors = [];
+  let errors: string[] = [];
   for (let idx in values) {
     let value = values[idx];
     if (value === undefined) {

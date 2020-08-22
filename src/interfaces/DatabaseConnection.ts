@@ -4,7 +4,7 @@ export interface DatabaseConnection {
   query(
     query: string,
     values: any[],
-    callback: (err: Error | null, rows: any[]) => void
+    callback: (err: Error | null, rows: any[] | null) => void
   ): void;
   end(callback: (err: Error | null) => void): void;
   isDisconnected: boolean;

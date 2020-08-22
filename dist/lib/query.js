@@ -92,7 +92,6 @@ exports.query = query;
  * @param values
  */
 function checkValues(values) {
-    var isValid = false;
     var errors = [];
     for (var idx in values) {
         var value = values[idx];
