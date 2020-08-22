@@ -1,5 +1,5 @@
-import * as MySQL from 'mysql';
 import { IConfig, ISQLTableColumn, IJSObjectInfo } from './Interfaces';
+import { IConnection } from './interfaces/IConnection';
 declare enum CONNECTION_STATUS {
     CONNECTED = "connected",
     CONNECTING = "connecting",
@@ -7,27 +7,27 @@ declare enum CONNECTION_STATUS {
 }
 declare class MySQLDriver {
     config: IConfig;
-    connection?: MySQL.Connection | null;
+    _createConnection: () => IConnection;
+    querySelect: (query: string, values: any[]) => Promise<any[]>;
+    connection: IConnection;
     connection_status: CONNECTION_STATUS;
     constructor(config: IConfig);
-    initConnection(): void;
     handleDisconnect(): void;
     /**
      * Get the database connection
      */
-    getConnection(): Promise<MySQL.Connection>;
-    /**
-     * Create a new connection to the database
-     */
-    createConnection(): MySQL.Connection;
-    _createConnection(): MySQL.Connection;
+    getConnection(): Promise<IConnection>;
+    _prepareConnection(): {
+        conn: IConnection;
+        querySelect: (query: string, values: any[]) => Promise<any[]>;
+    };
     generateId(): string;
     /**
      * Insert records into the database
      * @param table_name The name of the table to insert the records into
      * @param record The record to be insert into the database
      */
-    insertRecord(table_name: string, record: any): Promise<any[]>;
+    insertRecord(table_name: string, record: any): Promise<any>;
     /**
      * Get records from a table that match the where criteria
      * @param table_name
@@ -36,7 +36,7 @@ declare class MySQLDriver {
     getRecords(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any[]>;
+    }>, options?: QueryOptions): Promise<any>;
     /**
      * Get records count from a table that match the where criteria
      * @param table_name
@@ -61,13 +61,13 @@ declare class MySQLDriver {
      * @param properties The properties to be updated
      * @param where THe criteria to search
      */
-    updateRecords(table_name: string, properties: any, where: any): Promise<any[]>;
+    updateRecords(table_name: string, properties: any, where: any): Promise<any>;
     /**
      * Delete records from a table that match there where criteria
      * @param table_name
      * @param where
      */
-    deleteRecords(table_name: string, where: any): Promise<any[]>;
+    deleteRecords(table_name: string, where: any): Promise<any>;
     /**
      * Get a record via an sql query
      * @param sql
@@ -101,6 +101,15 @@ declare class MySQLDriver {
      */
     query(query: string, values?: Array<any>): Promise<Array<any>>;
     /**
+     * Query the database
+     * @param {IConnection} connection
+     * @param query
+     * @param values
+     * @param callback
+     */
+    _query(connection: IConnection, query: string, values: Array<string>, callback: Function): void;
+    closeConnection(): Promise<void>;
+    /**
      * Gets the schema of the database as an array of table schema objects
      */
     getJSSchema(): Promise<IJSObjectInfo[]>;
@@ -109,70 +118,6 @@ declare class MySQLDriver {
      * @param table_name
      */
     tableGetJSSchema(table_name: string): Promise<IJSObjectInfo>;
-    /**
-     * Query the database
-     * @param {MySQL.Connection} connection
-     * @param query
-     * @param values
-     * @param callback
-     */
-    _query(connection: MySQL.Connection, query: string, values: Array<string>, callback: Function): void;
-    closeConnection(): Promise<void>;
-    /**
-     * Get the field
-     * @param database_name
-     * @param table_name
-     */
-    _getTableInfo(database_name: string, table_name: string): Promise<ISQLTableColumn[]>;
-    /**
-     * Gets all table names in a given database
-     * @param database_name
-     */
-    _getTableNames(database_name: string): Promise<any[]>;
-    /**
-     * Checks the record against the database schema and removes any irrelevant fields for insertion
-     * @param database_name
-     * @param table_name
-     * @param record_raw
-     */
-    _prepareRecord(database_name: string, table_name: string, record_raw: any): Promise<any>;
-    /**
-     * INTERNAL: Insert records into the database without any processing
-     * @param table_name The name of the table to insert the records into
-     * @param record The record to be insert into the database
-     */
-    _insertRecordRaw(table_name: string, record: any): Promise<any[]>;
-    /**
-     * INTERNAL: Update records in a given table without any processing
-     * @param table_name
-     * @param properties The properties to be updated
-     * @param where THe criteria to search
-     */
-    _updateRecordsRaw(table_name: string, properties: any, where: any): Promise<any[]>;
-    /**
-     * INTERNAL: Select records from a given table without any data processing
-     * @param table_name
-     * @param where
-     */
-    _selectRecordRaw(table_name: string, where: any, order_by: Array<{
-        key: string;
-        order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any[]>;
-    /**
-     * INTERNAL: Select count of records from a given table without any data processing
-     * @param table_name
-     * @param where
-     */
-    _selectRecordRawCount(table_name: string, where: any, order_by: Array<{
-        key: string;
-        order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any>;
-    /**
-     * INTERNAL: Delete records from a given table without any data processing
-     * @param table_name
-     * @param where
-     */
-    _deleteRecordRaw(table_name: string, where: any): Promise<any[]>;
     /**
      * Checks an array of values and ensures that it is not undefined
      * @param {Array<string>} values

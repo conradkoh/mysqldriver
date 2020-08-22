@@ -1,9 +1,7 @@
+import { IConnection } from './IConnection';
 export interface IConfig {
-    host: string;
-    user: string;
-    password: string;
+    createConnection: () => IConnection;
+    querySelect: (conn: any, query: string, values: any[]) => Promise<any[]>;
     database: string;
-    port?: number;
-    multipleStatements?: boolean;
 }
 //# sourceMappingURL=IConfig.d.ts.map

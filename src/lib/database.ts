@@ -1,0 +1,100 @@
+import { DatabaseConnection } from '../classes/DatabaseConnection';
+import { query } from './query';
+const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
+const ALIAS_DATA_TYPE = 'DATA_TYPE';
+const ALIAS_COLUMN_KEY = 'COLUMN_KEY';
+const ALIAS_CHARACTER_MAXIMUM_LENGTH = 'CHARACTER_MAXIMUM_LENGTH';
+const ALIAS_IS_NULLABLE = 'IS_NULLABLE';
+const ALIAS_COLUMN_DEFAULT = 'COLUMN_DEFAULT';
+const ALIAS_TABLE_NAME = 'TABLE_NAME';
+/**
+ * Checks the record against the database schema and removes any irrelevant fields for insertion
+ * @param database_name
+ * @param table_name
+ * @param record_raw
+ */
+export async function prepareRecord(
+  connection: DatabaseConnection,
+  database_name: string,
+  table_name: string,
+  record_raw: any
+) {
+  if (!(typeof table_name === 'string')) {
+    let error: any = new Error(
+      `MySQLDriver in function prepareRecord: Provided table name is not a string.`
+    );
+    error.table_name = table_name;
+    error.record_raw = record_raw;
+    throw error;
+  }
+  let prepared_record: any = {};
+  let table_info = await getTableInfo(connection, database_name, table_name);
+  table_info.map((field) => {
+    let key = field[ALIAS_COLUMN_NAME];
+    if (key in record_raw && record_raw[key] !== undefined) {
+      //Only add items that have been specified in the record, and are not undefined in value
+      let value = record_raw[key];
+      prepared_record[key] = value;
+    }
+  });
+  return prepared_record;
+}
+
+//INTERNAL FUNCTIONS
+/**
+ * Get the field
+ * @param database_name
+ * @param table_name
+ */
+export async function getTableInfo(
+  connection: DatabaseConnection,
+  database_name: string,
+  table_name: string
+): Promise<SQLTableColumn[]> {
+  let result: Array<SQLTableColumn> = await query(
+    connection,
+    `SELECT 
+    \`COLUMN_NAME\` as '${ALIAS_COLUMN_NAME}', 
+    \`DATA_TYPE\` AS '${ALIAS_DATA_TYPE}', 
+    \`COLUMN_KEY\` AS '${ALIAS_COLUMN_KEY}', 
+    \`CHARACTER_MAXIMUM_LENGTH\` as '${ALIAS_CHARACTER_MAXIMUM_LENGTH}',
+    \`IS_NULLABLE\` as '${ALIAS_IS_NULLABLE}',
+    \`COLUMN_DEFAULT\` as '${ALIAS_COLUMN_DEFAULT}'
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE \`TABLE_NAME\` = ? AND \`TABLE_SCHEMA\` = ?`,
+    [table_name, database_name]
+  );
+  if (result.length === 0) {
+    throw new Error(
+      `Table '${table_name}' does not exist on database '${database_name}'`
+    );
+  }
+  return result;
+}
+
+/**
+ * Gets all table names in a given database
+ * @param database_name
+ */
+export async function getTableNames(
+  connection: DatabaseConnection,
+  database_name: string
+): Promise<any[]> {
+  const tables: Array<any> = await query(
+    connection,
+    `SELECT TABLE_NAME 
+            FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ?`,
+    [database_name]
+  );
+  const table_names = tables.map((table) => table[ALIAS_TABLE_NAME]);
+  return table_names;
+}
+
+export interface SQLTableColumn {
+  COLUMN_NAME: string;
+  DATA_TYPE: string;
+  COLUMN_KEY: string;
+  CHARACTER_MAXIMUM_LENGTH: number;
+  IS_NULLABLE: number;
+  COLUMN_DEFAULT?: string;
+}
