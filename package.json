@@ -27,6 +27,6 @@
   },
   "devDependencies": {},
   "bin": {
-    "mysqldriver-generate-model": "./mysqldriver-generate-model"
+    "mysqldriver": "./mysqldriver"
   }
 }
