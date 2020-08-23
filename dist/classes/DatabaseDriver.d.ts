@@ -95,5 +95,10 @@ export declare class DatabaseDriver {
      * @param table_name
      */
     tableGetJSSchema(table_name: string): Promise<JSTableSchema>;
+    /**
+     * Checks if a table already exists
+     * @param table_name
+     */
+    tableExists(table_name: string): Promise<boolean>;
 }
 //# sourceMappingURL=DatabaseDriver.d.ts.map

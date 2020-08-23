@@ -387,6 +387,25 @@ var DatabaseDriver = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Checks if a table already exists
+     * @param table_name
+     */
+    DatabaseDriver.prototype.tableExists = function (table_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, database;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
+                    case 1:
+                        connection = _a.sent();
+                        database = this.config.database;
+                        return [4 /*yield*/, database_1.tableExists(connection, database, table_name)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     return DatabaseDriver;
 }());
 exports.DatabaseDriver = DatabaseDriver;

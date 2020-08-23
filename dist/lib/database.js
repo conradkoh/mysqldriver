@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTableNames = exports.getTableInfo = exports.prepareRecord = exports.ALIAS_TABLE_NAME = exports.ALIAS_COLUMN_DEFAULT = exports.ALIAS_IS_NULLABLE = exports.ALIAS_CHARACTER_MAXIMUM_LENGTH = exports.ALIAS_COLUMN_KEY = exports.ALIAS_DATA_TYPE = exports.ALIAS_COLUMN_NAME = void 0;
+exports.tableExists = exports.getTableNames = exports.getTableInfo = exports.prepareRecord = exports.ALIAS_TABLE_NAME = exports.ALIAS_COLUMN_DEFAULT = exports.ALIAS_IS_NULLABLE = exports.ALIAS_CHARACTER_MAXIMUM_LENGTH = exports.ALIAS_COLUMN_KEY = exports.ALIAS_DATA_TYPE = exports.ALIAS_COLUMN_NAME = void 0;
 var query_1 = require("./query");
 exports.ALIAS_COLUMN_NAME = 'COLUMN_NAME';
 exports.ALIAS_DATA_TYPE = 'DATA_TYPE';
@@ -123,4 +123,23 @@ function getTableNames(connection, database_name) {
     });
 }
 exports.getTableNames = getTableNames;
+/**
+ * Checks if a table exists
+ * @param database_name
+ * @param table_name
+ */
+function tableExists(connection, database_name, table_name) {
+    return __awaiter(this, void 0, void 0, function () {
+        var rows;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?", [database_name, table_name])];
+                case 1:
+                    rows = _a.sent();
+                    return [2 /*return*/, rows.length > 0];
+            }
+        });
+    });
+}
+exports.tableExists = tableExists;
 //# sourceMappingURL=database.js.map

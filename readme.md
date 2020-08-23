@@ -2,15 +2,15 @@
 
 ## Sample usage
 
-```Javascript
+```javascript
 const MySQLDriver = require('mysqldriver');
 const config = {
-    host: '127.0.0.1',
-    user: 'admin',
-    password: 'password',
-    database: 'mydatabase',
-    port: 3306
-}
+  host: '127.0.0.1',
+  user: 'admin',
+  password: 'password',
+  database: 'mydatabase',
+  port: 3306,
+};
 const DB = MySQLDriver.connect(config);
 const users = await DB.getRecords('user', { name: 'John Doe' }); // Gets all records who have name John Doe
 ```
@@ -19,7 +19,7 @@ const users = await DB.getRecords('user', { name: 'John Doe' }); // Gets all rec
 
 Execute the following statements
 
-```
+```sql
 CREATE DATABASE mysqldriver_test;
 CREATE USER 'testuser'@'%' IDENTIFIED WITH mysql_native_password BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES ON mysqldriver_test.* TO 'testuser'@'%';
@@ -36,4 +36,24 @@ const config = {
   user: 'testuser',
 };
 module.exports = config;
+```
+
+## Migrations
+
+Create a new migration
+
+```
+DB_HOST=127.0.0.1 DB_DATABASE=mysqldriver_test DB_USERNAME=testuser DB_PASSWORD=P@ssw0rd mysqldriver create-migration --name createNewTable
+```
+
+Apply migrations
+
+```
+DB_HOST=127.0.0.1 DB_DATABASE=mysqldriver_test DB_USERNAME=testuser DB_PASSWORD=P@ssw0rd mysqldriver migrate --count 500
+```
+
+Rollback a migration
+
+```
+DB_HOST=127.0.0.1 DB_DATABASE=mysqldriver_test DB_USERNAME=testuser DB_PASSWORD=P@ssw0rd mysqldriver rollback --count 500
 ```

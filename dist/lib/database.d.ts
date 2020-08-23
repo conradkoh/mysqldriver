@@ -24,6 +24,12 @@ export declare function getTableInfo(connection: DatabaseConnection, database_na
  * @param database_name
  */
 export declare function getTableNames(connection: DatabaseConnection, database_name: string): Promise<any[]>;
+/**
+ * Checks if a table exists
+ * @param database_name
+ * @param table_name
+ */
+export declare function tableExists(connection: DatabaseConnection, database_name: string, table_name: string): Promise<boolean>;
 export interface SQLTableColumn {
     COLUMN_NAME: string;
     DATA_TYPE: string;

@@ -8,6 +8,7 @@ import {
   getTableNames,
   getTableInfo,
   SQLTableColumn,
+  tableExists,
 } from '../lib/database';
 import { insertRecordRaw } from '../lib/insert';
 import { updateRecordsRaw } from '../lib/update';
@@ -247,5 +248,14 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
     let { database } = this.config;
     return await tableGetJSSchema(connection, database, table_name);
+  }
+  /**
+   * Checks if a table already exists
+   * @param table_name
+   */
+  async tableExists(table_name: string): Promise<boolean> {
+    let connection = await this.provider.getConnection();
+    let { database } = this.config;
+    return await tableExists(connection, database, table_name);
   }
 }

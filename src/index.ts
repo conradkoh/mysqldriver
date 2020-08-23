@@ -3,13 +3,22 @@ import { DatabaseDriver } from './classes/DatabaseDriver';
 import { DatabaseConfig } from './interfaces/DatabaseConfig';
 import serverlessMySQL from 'serverless-mysql';
 interface Config {
-  host: string;
-  database: string;
-  password: string;
-  user: string;
+  host?: string;
+  database?: string;
+  password?: string;
+  user?: string;
   multipleStatements?: boolean;
 }
 function connect(config: Config) {
+  if (!config.host) {
+    throw new MissingConfigParamException('host', config.host);
+  }
+  if (!config.database) {
+    throw new MissingConfigParamException('database', config.database);
+  }
+  if (!config.user) {
+    throw new MissingConfigParamException('user', config.user);
+  }
   let dbCfg: DatabaseConfig = {
     database: config.database,
     createConnection: () => {
@@ -40,3 +49,9 @@ function connect(config: Config) {
   return new DatabaseDriver(dbCfg);
 }
 export { ConnectionProvider, DatabaseDriver, connect };
+
+class MissingConfigParamException extends Error {
+  constructor(key: string, value: any) {
+    super(`MySQLDriver: Missing config: ${key} has value ${value}`);
+  }
+}

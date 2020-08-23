@@ -90,6 +90,25 @@ export async function getTableNames(
   return table_names;
 }
 
+/**
+ * Checks if a table exists
+ * @param database_name
+ * @param table_name
+ */
+export async function tableExists(
+  connection: DatabaseConnection,
+  database_name: string,
+  table_name: string
+): Promise<boolean> {
+  const rows: Array<any> = await query(
+    connection,
+    `SELECT TABLE_NAME 
+            FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ? AND \`TABLE_NAME\` = ?`,
+    [database_name, table_name]
+  );
+  return rows.length > 0;
+}
+
 export interface SQLTableColumn {
   COLUMN_NAME: string;
   DATA_TYPE: string;
