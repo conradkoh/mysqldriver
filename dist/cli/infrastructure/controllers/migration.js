@@ -43,6 +43,7 @@ exports.createDefaultMigrationProcessor = exports.MigrationController = void 0;
 var migrateUpgrade_1 = __importDefault(require("../../usecases/migrateUpgrade"));
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
+var mkdirp_1 = __importDefault(require("mkdirp"));
 var MigrationAction_1 = require("../../interfaces/MigrationAction");
 var MigrationController = /** @class */ (function () {
     function MigrationController(db, processor) {
@@ -82,25 +83,39 @@ var MigrationController = /** @class */ (function () {
      */
     MigrationController.prototype.createMigration = function (folderName, scriptName) {
         return __awaiter(this, void 0, void 0, function () {
-            var timestamp, name;
+            var folderPath, exists, timestamp, name;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        timestamp = new Date().getTime();
-                        name = timestamp + "-" + scriptName;
+                        folderPath = path_1.default.resolve(path_1.default.join(process.cwd(), folderName));
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                fs_1.default.writeFile(path_1.default.resolve(path_1.default.join(process.cwd(), folderName, name + ".up.sql")), '', function (err) {
-                                    err ? reject(err) : resolve();
+                                fs_1.default.exists(folderPath, function (exists) {
+                                    resolve(exists);
                                 });
                             })];
                     case 1:
+                        exists = _a.sent();
+                        if (!!exists) return [3 /*break*/, 3];
+                        return [4 /*yield*/, mkdirp_1.default(folderPath)];
+                    case 2:
                         _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        timestamp = new Date().getTime();
+                        name = timestamp + "-" + scriptName;
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                fs_1.default.writeFile(path_1.default.resolve(path_1.default.join(process.cwd(), folderName, name + ".down.sql")), '', function (err) {
+                                fs_1.default.writeFile(path_1.default.join(folderPath, name + ".up.sql"), '', function (err) {
                                     err ? reject(err) : resolve();
                                 });
                             })];
-                    case 2:
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                fs_1.default.writeFile(path_1.default.join(folderPath, name + ".down.sql"), '', function (err) {
+                                    err ? reject(err) : resolve();
+                                });
+                            })];
+                    case 5:
                         _a.sent();
                         return [2 /*return*/];
                 }

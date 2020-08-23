@@ -1,6 +1,7 @@
 import applyMigration from '../../usecases/migrateUpgrade';
 import fs from 'fs';
 import path from 'path';
+import mkdirp from 'mkdirp';
 import { MigrationProcessor } from '../../interfaces/MigrationProcessor';
 import { MigrationFile } from '../../interfaces/MigrationFile';
 import { MigrationAction } from '../../interfaces/MigrationAction';
@@ -39,25 +40,28 @@ export class MigrationController {
    * @param scriptName
    */
   async createMigration(folderName: string, scriptName: string) {
+    let folderPath = path.resolve(path.join(process.cwd(), folderName));
+    //Ensure that the folder exists
+    let exists = await new Promise((resolve, reject) => {
+      fs.exists(folderPath, (exists) => {
+        resolve(exists);
+      });
+    });
+    if (!exists) {
+      await mkdirp(folderPath);
+    }
+
     const timestamp = new Date().getTime();
     const name = `${timestamp}-${scriptName}`;
     await new Promise((resolve, reject) => {
-      fs.writeFile(
-        path.resolve(path.join(process.cwd(), folderName, `${name}.up.sql`)),
-        '',
-        (err) => {
-          err ? reject(err) : resolve();
-        }
-      );
+      fs.writeFile(path.join(folderPath, `${name}.up.sql`), '', (err) => {
+        err ? reject(err) : resolve();
+      });
     });
     await new Promise((resolve, reject) => {
-      fs.writeFile(
-        path.resolve(path.join(process.cwd(), folderName, `${name}.down.sql`)),
-        '',
-        (err) => {
-          err ? reject(err) : resolve();
-        }
-      );
+      fs.writeFile(path.join(folderPath, `${name}.down.sql`), '', (err) => {
+        err ? reject(err) : resolve();
+      });
     });
   }
 }

@@ -11,11 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "@types/chai": "^4.2.12",
+    "@types/mkdirp": "^1.0.1",
     "@types/mocha": "^7.0.2",
     "@types/mysql": "^2.15.15",
     "@types/uuid": "^3.4.9",
     "chai": "^4.2.0",
     "fs-extra": "^7.0.1",
+    "mkdirp": "^1.0.4",
     "mocha": "^8.1.1",
     "mysql": "^2.18.1",
     "serverless-mysql": "^1.5.4",
