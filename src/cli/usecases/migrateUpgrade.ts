@@ -92,9 +92,9 @@ async function migrate(
     case MigrationAction.Up: {
       //Sort migrations by created date ASC for upgrades
       migrations = migrations.sort((a, b) => {
-        if (a.createdTime < b.createdTime) {
+        if (a.fileName < b.fileName) {
           return -1;
-        } else if (a.createdTime > b.createdTime) {
+        } else if (a.fileName > b.fileName) {
           return 1;
         } else {
           return 0;
@@ -105,9 +105,9 @@ async function migrate(
     case MigrationAction.Down: {
       //Sort migrations by created date DESC for upgrades
       migrations = migrations.sort((a, b) => {
-        if (a.createdTime < b.createdTime) {
+        if (a.fileName < b.fileName) {
           return 1;
-        } else if (a.createdTime > b.createdTime) {
+        } else if (a.fileName > b.fileName) {
           return -1;
         } else {
           return 0;

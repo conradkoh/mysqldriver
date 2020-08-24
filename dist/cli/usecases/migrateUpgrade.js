@@ -145,10 +145,10 @@ function migrate(db, processor, action, count, migrationPath) {
                         case MigrationAction_1.MigrationAction.Up: {
                             //Sort migrations by created date ASC for upgrades
                             migrations = migrations.sort(function (a, b) {
-                                if (a.createdTime < b.createdTime) {
+                                if (a.fileName < b.fileName) {
                                     return -1;
                                 }
-                                else if (a.createdTime > b.createdTime) {
+                                else if (a.fileName > b.fileName) {
                                     return 1;
                                 }
                                 else {
@@ -160,10 +160,10 @@ function migrate(db, processor, action, count, migrationPath) {
                         case MigrationAction_1.MigrationAction.Down: {
                             //Sort migrations by created date DESC for upgrades
                             migrations = migrations.sort(function (a, b) {
-                                if (a.createdTime < b.createdTime) {
+                                if (a.fileName < b.fileName) {
                                     return 1;
                                 }
-                                else if (a.createdTime > b.createdTime) {
+                                else if (a.fileName > b.fileName) {
                                     return -1;
                                 }
                                 else {
