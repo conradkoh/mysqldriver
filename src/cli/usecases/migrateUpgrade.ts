@@ -40,7 +40,7 @@ async function migrate(
   //Fetch migrations from database
   let appliedMigrations = await db.getRecords('migrations', {});
   let appliedMigrationIndex = appliedMigrations.reduce((state, migration) => {
-    state[migration.name] = 1;
+    state[migration.name] = migration;
     return state;
   }, {});
   //Fetch migration files from folder
@@ -53,6 +53,7 @@ async function migrate(
   let migrationsRaw = files.map((fileName) =>
     parseFilepath(path.resolve(path.join(migrationPath, fileName)))
   );
+
   //Remove null values from migration files
   let migrations: MigrationFile[] = [];
   for (let migrationRaw of migrationsRaw) {
@@ -62,6 +63,16 @@ async function migrate(
   }
   //Filter by correct action types
   migrations = migrations.filter((m) => m.action === action);
+
+  //Check to ensure that no duplicate migrations are created
+  migrations.reduce((state, migration) => {
+    if (state[migration.name]) {
+      let existingMigration = state[migration.name];
+      throw new DuplicateMigrationNameError(existingMigration);
+    }
+    state[migration.name] = migration;
+    return state;
+  }, {});
 
   //Filter out based on action type
   switch (action) {
@@ -141,7 +152,7 @@ async function migrate(
               run_on: new Date(),
             });
             console.log(
-              `[✔️] Applied migration ${migration.name} with action ${migration.action}`
+              `[✔️] Applied migration ${migration.name} (${migration.ext}) with action ${migration.action}`
             );
             break;
           }
@@ -150,7 +161,7 @@ async function migrate(
               name: migration.name,
             });
             console.log(
-              `[✔️] Rolled back migration ${migration.name} with action ${migration.action}`
+              `[✔️] Rolled back migration ${migration.name} (${migration.ext}) with action ${migration.action}`
             );
             break;
           }
@@ -161,7 +172,7 @@ async function migrate(
 }
 
 export function parseFilepath(filePath: string): MigrationFile | null {
-  let filenamePattern = /([0-9]+)-([A-z0-9]+)\.(down|up)\.(sql)/g;
+  let filenamePattern = /([0-9]+)-([A-z0-9]+)\.(down|up)\.(sql|js)/g;
   let matchesRaw = filenamePattern.exec(filePath);
   if (matchesRaw !== null) {
     let matches = Array.from(matchesRaw);
@@ -193,6 +204,9 @@ function getFileTypeFromExt(ext: string): MigrationFileTypes {
     case MigrationFileExtensions.SQL: {
       return MigrationFileTypes.SQL;
     }
+    case MigrationFileExtensions.JS: {
+      return MigrationFileTypes.JS;
+    }
     default: {
       throw new UnsupportedFileExtensionException(ext);
     }
@@ -217,6 +231,9 @@ function getExtensionFromExtensionRaw(extRaw: string): MigrationFileExtensions {
   switch (extRaw) {
     case MigrationFileExtensions.SQL: {
       return MigrationFileExtensions.SQL;
+    }
+    case MigrationFileExtensions.JS: {
+      return MigrationFileExtensions.JS;
     }
     default: {
       throw new UnsupportedFileExtensionException(extRaw);
@@ -250,6 +267,14 @@ class MigrationFailedError extends Error {
   migrationFile: MigrationFile;
   constructor(migrationFile: MigrationFile) {
     super(`Migration ${migrationFile.fileName} failed to process`);
+    this.migrationFile = migrationFile;
+  }
+}
+
+class DuplicateMigrationNameError extends Error {
+  migrationFile: MigrationFile;
+  constructor(migrationFile: MigrationFile) {
+    super(`Duplicate migration found: ${migrationFile.fileName}`);
     this.migrationFile = migrationFile;
   }
 }

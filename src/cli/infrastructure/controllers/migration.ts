@@ -101,5 +101,19 @@ export const createDefaultMigrationProcessor = async (
         }
       },
     },
+    js: {
+      handler: async (
+        migrationFile: MigrationFile
+      ): Promise<MigrationResult> => {
+        let migrate = require(migrationFile.filePath);
+        try {
+          await migrate(db);
+          return { success: true };
+        } catch (err) {
+          console.error(err);
+          return { success: false };
+        }
+      },
+    },
   };
 };

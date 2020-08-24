@@ -95,7 +95,7 @@ function migrate(db, processor, action, count, migrationPath) {
                 case 1:
                     appliedMigrations = _b.sent();
                     appliedMigrationIndex = appliedMigrations.reduce(function (state, migration) {
-                        state[migration.name] = 1;
+                        state[migration.name] = migration;
                         return state;
                     }, {});
                     return [4 /*yield*/, new Promise(function (resolve, reject) {
@@ -117,6 +117,15 @@ function migrate(db, processor, action, count, migrationPath) {
                     }
                     //Filter by correct action types
                     migrations = migrations.filter(function (m) { return m.action === action; });
+                    //Check to ensure that no duplicate migrations are created
+                    migrations.reduce(function (state, migration) {
+                        if (state[migration.name]) {
+                            var existingMigration = state[migration.name];
+                            throw new DuplicateMigrationNameError(existingMigration);
+                        }
+                        state[migration.name] = migration;
+                        return state;
+                    }, {});
                     //Filter out based on action type
                     switch (action) {
                         case MigrationAction_1.MigrationAction.Up: {
@@ -204,14 +213,14 @@ function migrate(db, processor, action, count, migrationPath) {
                     })];
                 case 8:
                     _b.sent();
-                    console.log("[\u2714\uFE0F] Applied migration " + migration.name + " with action " + migration.action);
+                    console.log("[\u2714\uFE0F] Applied migration " + migration.name + " (" + migration.ext + ") with action " + migration.action);
                     return [3 /*break*/, 11];
                 case 9: return [4 /*yield*/, db.deleteRecords('migrations', {
                         name: migration.name,
                     })];
                 case 10:
                     _b.sent();
-                    console.log("[\u2714\uFE0F] Rolled back migration " + migration.name + " with action " + migration.action);
+                    console.log("[\u2714\uFE0F] Rolled back migration " + migration.name + " (" + migration.ext + ") with action " + migration.action);
                     return [3 /*break*/, 11];
                 case 11:
                     i++;
@@ -222,7 +231,7 @@ function migrate(db, processor, action, count, migrationPath) {
     });
 }
 function parseFilepath(filePath) {
-    var filenamePattern = /([0-9]+)-([A-z0-9]+)\.(down|up)\.(sql)/g;
+    var filenamePattern = /([0-9]+)-([A-z0-9]+)\.(down|up)\.(sql|js)/g;
     var matchesRaw = filenamePattern.exec(filePath);
     if (matchesRaw !== null) {
         var matches = Array.from(matchesRaw);
@@ -254,6 +263,9 @@ function getFileTypeFromExt(ext) {
         case MigrationFileExtensions_1.MigrationFileExtensions.SQL: {
             return MigrationFileTypes_1.MigrationFileTypes.SQL;
         }
+        case MigrationFileExtensions_1.MigrationFileExtensions.JS: {
+            return MigrationFileTypes_1.MigrationFileTypes.JS;
+        }
         default: {
             throw new UnsupportedFileExtensionException(ext);
         }
@@ -276,6 +288,9 @@ function getExtensionFromExtensionRaw(extRaw) {
     switch (extRaw) {
         case MigrationFileExtensions_1.MigrationFileExtensions.SQL: {
             return MigrationFileExtensions_1.MigrationFileExtensions.SQL;
+        }
+        case MigrationFileExtensions_1.MigrationFileExtensions.JS: {
+            return MigrationFileExtensions_1.MigrationFileExtensions.JS;
         }
         default: {
             throw new UnsupportedFileExtensionException(extRaw);
@@ -318,5 +333,14 @@ var MigrationFailedError = /** @class */ (function (_super) {
         return _this;
     }
     return MigrationFailedError;
+}(Error));
+var DuplicateMigrationNameError = /** @class */ (function (_super) {
+    __extends(DuplicateMigrationNameError, _super);
+    function DuplicateMigrationNameError(migrationFile) {
+        var _this = _super.call(this, "Duplicate migration found: " + migrationFile.fileName) || this;
+        _this.migrationFile = migrationFile;
+        return _this;
+    }
+    return DuplicateMigrationNameError;
 }(Error));
 //# sourceMappingURL=migrateUpgrade.js.map

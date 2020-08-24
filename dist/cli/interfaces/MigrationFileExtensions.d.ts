@@ -1,4 +1,5 @@
 export declare enum MigrationFileExtensions {
-    SQL = "sql"
+    SQL = "sql",
+    JS = "js"
 }
 //# sourceMappingURL=MigrationFileExtensions.d.ts.map

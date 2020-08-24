@@ -167,6 +167,29 @@ exports.createDefaultMigrationProcessor = function (db) { return __awaiter(void 
                             });
                         }); },
                     },
+                    js: {
+                        handler: function (migrationFile) { return __awaiter(void 0, void 0, void 0, function () {
+                            var migrate, err_2;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        migrate = require(migrationFile.filePath);
+                                        _a.label = 1;
+                                    case 1:
+                                        _a.trys.push([1, 3, , 4]);
+                                        return [4 /*yield*/, migrate(db)];
+                                    case 2:
+                                        _a.sent();
+                                        return [2 /*return*/, { success: true }];
+                                    case 3:
+                                        err_2 = _a.sent();
+                                        console.error(err_2);
+                                        return [2 /*return*/, { success: false }];
+                                    case 4: return [2 /*return*/];
+                                }
+                            });
+                        }); },
+                    },
                 }];
         }
     });
