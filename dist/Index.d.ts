@@ -5,6 +5,7 @@ interface Config {
     database?: string;
     password?: string;
     user?: string;
+    port?: number;
     multipleStatements?: boolean;
 }
 declare function connect(config: Config): DatabaseDriver;

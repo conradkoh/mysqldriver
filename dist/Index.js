@@ -32,6 +32,9 @@ function connect(config) {
     if (!config.user) {
         throw new MissingConfigParamException('user', config.user);
     }
+    if (!config.port) {
+        config.port = 3306;
+    }
     var dbCfg = {
         database: config.database,
         createConnection: function () {

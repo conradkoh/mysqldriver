@@ -7,6 +7,7 @@ interface Config {
   database?: string;
   password?: string;
   user?: string;
+  port?: number;
   multipleStatements?: boolean;
 }
 function connect(config: Config) {
@@ -18,6 +19,9 @@ function connect(config: Config) {
   }
   if (!config.user) {
     throw new MissingConfigParamException('user', config.user);
+  }
+  if (!config.port) {
+    config.port = 3306;
   }
   let dbCfg: DatabaseConfig = {
     database: config.database,
