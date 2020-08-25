@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "prepublish": "rm -rf dist && tsc",
   "scripts": {
     "test": "mocha test",
+    "prepublish": "rm -rf dist && tsc --build --clean && tsc --build",
     "test:watch": "mocha test/**/*.js --reporter min -w --recursive"
   },
   "author": "",
