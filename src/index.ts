@@ -51,7 +51,7 @@ function connect(config: ConnectionConfig) {
   };
   return new DatabaseDriver(dbCfg);
 }
-export { ConnectionProvider, DatabaseDriver, connect };
+export { ConnectionProvider, DatabaseDriver, connect, ConnectionConfig };
 
 class MissingConfigParamException extends Error {
   constructor(key: string, value: any) {
