@@ -23,6 +23,7 @@ var DatabaseDriver_1 = require("./classes/DatabaseDriver");
 Object.defineProperty(exports, "DatabaseDriver", { enumerable: true, get: function () { return DatabaseDriver_1.DatabaseDriver; } });
 var serverless_mysql_1 = __importDefault(require("serverless-mysql"));
 function connect(config) {
+    var _a;
     if (!config.host) {
         throw new MissingConfigParamException('host', config.host);
     }
@@ -34,6 +35,11 @@ function connect(config) {
     }
     if (!config.port) {
         config.port = 3306;
+    }
+    if (config.requireSsl) {
+        if (!((_a = config === null || config === void 0 ? void 0 : config.ssl) === null || _a === void 0 ? void 0 : _a.ca)) {
+            throw new MissingConfigParamException('ssl ca', '<secret>');
+        }
     }
     var dbCfg = {
         database: config.database,

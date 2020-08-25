@@ -57,3 +57,17 @@ Rollback a migration
 ```
 DB_HOST=127.0.0.1 DB_DATABASE=mysqldriver_test DB_USERNAME=testuser DB_PASSWORD=P@ssw0rd mysqldriver rollback --count 500
 ```
+
+Migration options
+
+```bash
+DB_HOST= # The database host
+DB_DATABASE= # The database to connect to
+DB_USERNAME= #The database user's username
+DB_PASSWORD= #The password for the database user
+DB_PORT= #The port to connect to
+DB_SSL_CA_CERTIFICATE # The base64 encoded string for the CA certificate
+DB_REQUIRE_SSL= # Whether to enforce that the connection requires an ssl connection (1 or 0, defaults to 1 if cetificate is provided)
+DB_SSL_ALLOW_SELF_SIGNED_CERT= # Whether self-signed certificates are allowed (1 or 0, defaults to 0)
+
+```

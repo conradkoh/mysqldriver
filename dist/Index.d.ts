@@ -1,13 +1,6 @@
 import { ConnectionProvider } from './classes/ConnectionProvider';
 import { DatabaseDriver } from './classes/DatabaseDriver';
-interface Config {
-    host?: string;
-    database?: string;
-    password?: string;
-    user?: string;
-    port?: number;
-    multipleStatements?: boolean;
-}
-declare function connect(config: Config): DatabaseDriver;
+import { ConnectionConfig } from './interfaces/ConnectionConfig';
+declare function connect(config: ConnectionConfig): DatabaseDriver;
 export { ConnectionProvider, DatabaseDriver, connect };
 //# sourceMappingURL=index.d.ts.map

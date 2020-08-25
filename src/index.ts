@@ -2,15 +2,9 @@ import { ConnectionProvider } from './classes/ConnectionProvider';
 import { DatabaseDriver } from './classes/DatabaseDriver';
 import { DatabaseConfig } from './interfaces/DatabaseConfig';
 import serverlessMySQL from 'serverless-mysql';
-interface Config {
-  host?: string;
-  database?: string;
-  password?: string;
-  user?: string;
-  port?: number;
-  multipleStatements?: boolean;
-}
-function connect(config: Config) {
+import { ConnectionConfig } from './interfaces/ConnectionConfig';
+
+function connect(config: ConnectionConfig) {
   if (!config.host) {
     throw new MissingConfigParamException('host', config.host);
   }
@@ -23,11 +17,16 @@ function connect(config: Config) {
   if (!config.port) {
     config.port = 3306;
   }
+  if (config.requireSsl) {
+    if (!config?.ssl?.ca) {
+      throw new MissingConfigParamException('ssl ca', '<secret>');
+    }
+  }
   let dbCfg: DatabaseConfig = {
     database: config.database,
     createConnection: () => {
       let conn = serverlessMySQL({
-        config: config,
+        config,
       });
       return {
         destroy: () => conn.quit(),

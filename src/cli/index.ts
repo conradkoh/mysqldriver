@@ -5,7 +5,7 @@ import {
   createDefaultMigrationProcessor,
 } from './infrastructure/controllers/migration';
 import { connect } from '..';
-import { Config } from 'serverless-mysql';
+import { ConnectionConfig } from '../interfaces/ConnectionConfig';
 export async function execute() {
   try {
     let args = process.argv;
@@ -22,7 +22,7 @@ export async function execute() {
  * @param actions
  */
 async function performAction(action: Action, options: ActionOptions) {
-  let config: any = {
+  let config: ConnectionConfig = {
     host: process.env['DB_HOST'],
     database: process.env['DB_DATABASE'],
     password: process.env['DB_PASSWORD'],
@@ -34,6 +34,30 @@ async function performAction(action: Action, options: ActionOptions) {
     : undefined;
   if (port) {
     config.port = port;
+  }
+  let caCertContent = process.env['DB_SSL_CA_CERTIFICATE'];
+  let defaultSslOption = caCertContent ? 1 : 0;
+  let requireSsl = parseInt(`${process.env['DB_REQUIRE_SSL']}`)
+    ? true
+    : defaultSslOption;
+  if (requireSsl && !caCertContent) {
+    throw new Error('DB_SSL_CA_CERTIFICATE must be provided.');
+  }
+  if (caCertContent) {
+    config.ssl = {
+      ca: Buffer.from(caCertContent, 'base64').toString(),
+    };
+
+    let rejectUnauthorised = process.env['DB_SSL_ALLOW_SELF_SIGNED_CERT'];
+    if (rejectUnauthorised) {
+      let val = parseInt(rejectUnauthorised);
+      if (val === 0) {
+        config.ssl = {
+          ...config.ssl,
+          rejectUnauthorized: false,
+        };
+      }
+    }
   }
   let db = connect(config);
   const defaultMigrationProcessor = await createDefaultMigrationProcessor(db);
