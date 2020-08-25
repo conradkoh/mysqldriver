@@ -5,6 +5,7 @@ import {
   createDefaultMigrationProcessor,
 } from './infrastructure/controllers/migration';
 import { connect } from '..';
+import { Config } from 'serverless-mysql';
 export async function execute() {
   try {
     let args = process.argv;
@@ -21,12 +22,20 @@ export async function execute() {
  * @param actions
  */
 async function performAction(action: Action, options: ActionOptions) {
-  let db = connect({
+  let config: any = {
     host: process.env['DB_HOST'],
     database: process.env['DB_DATABASE'],
     password: process.env['DB_PASSWORD'],
     user: process.env['DB_USERNAME'],
-  });
+    multipleStatements: true,
+  };
+  let port = process.env['DB_PORT']
+    ? parseInt(process.env['DB_PORT'])
+    : undefined;
+  if (port) {
+    config.port = port;
+  }
+  let db = connect(config);
   const defaultMigrationProcessor = await createDefaultMigrationProcessor(db);
   let controller = new MigrationController(db, defaultMigrationProcessor);
   switch (action.type) {

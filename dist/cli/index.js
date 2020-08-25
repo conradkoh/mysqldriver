@@ -84,16 +84,24 @@ exports.execute = execute;
  */
 function performAction(action, options) {
     return __awaiter(this, void 0, void 0, function () {
-        var db, defaultMigrationProcessor, controller, _a, count, count, defaultName, migrationName;
+        var config, port, db, defaultMigrationProcessor, controller, _a, count, count, defaultName, migrationName;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    db = __1.connect({
+                    config = {
                         host: process.env['DB_HOST'],
                         database: process.env['DB_DATABASE'],
                         password: process.env['DB_PASSWORD'],
                         user: process.env['DB_USERNAME'],
-                    });
+                        multipleStatements: true,
+                    };
+                    port = process.env['DB_PORT']
+                        ? parseInt(process.env['DB_PORT'])
+                        : undefined;
+                    if (port) {
+                        config.port = port;
+                    }
+                    db = __1.connect(config);
                     return [4 /*yield*/, migration_1.createDefaultMigrationProcessor(db)];
                 case 1:
                     defaultMigrationProcessor = _b.sent();
