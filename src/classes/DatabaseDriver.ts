@@ -154,7 +154,7 @@ export class DatabaseDriver {
    * @param sql
    * @param values
    */
-  async getRecordSql(sql: string, values: Array<any>): Promise<Array<any>> {
+  async getRecordSql(sql: string, values: Array<any>): Promise<any> {
     let self = this;
     let records = await self.getRecordsSql(sql, values);
     if (records.length > 1) {
@@ -163,7 +163,7 @@ export class DatabaseDriver {
       );
     }
     if (records.length === 0) {
-      return [];
+      return null;
     }
 
     return records[0];

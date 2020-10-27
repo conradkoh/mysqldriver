@@ -58,7 +58,7 @@ export declare class DatabaseDriver {
      * @param sql
      * @param values
      */
-    getRecordSql(sql: string, values: Array<any>): Promise<Array<any>>;
+    getRecordSql(sql: string, values: Array<any>): Promise<any>;
     /**
      * Gets records from the database via a provided sql statement
      * @param sql

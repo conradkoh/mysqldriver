@@ -217,7 +217,7 @@ var DatabaseDriver = /** @class */ (function () {
                             throw new Error("MySQLDriver.getRecordSql: More than one record found for value.");
                         }
                         if (records.length === 0) {
-                            return [2 /*return*/, []];
+                            return [2 /*return*/, null];
                         }
                         return [2 /*return*/, records[0]];
                 }
