@@ -107,7 +107,8 @@ var MySQLDriver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         wait = 500;
-                        if (this.connection_status === CONNECTION_STATUS.CONNECTED && this.connection) {
+                        if (this.connection_status === CONNECTION_STATUS.CONNECTED &&
+                            this.connection) {
                             return [2 /*return*/, this.connection];
                         }
                         _a.label = 1;
@@ -143,7 +144,7 @@ var MySQLDriver = /** @class */ (function () {
         return conn;
     };
     MySQLDriver.prototype._createConnection = function () {
-        var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port, multipleStatements = _a.multipleStatements;
+        var _a = this.config, host = _a.host, user = _a.user, password = _a.password, database = _a.database, port = _a.port, multipleStatements = _a.multipleStatements, charset = _a.charset;
         return MySQL.createConnection({
             host: host,
             user: user,
@@ -151,6 +152,7 @@ var MySQLDriver = /** @class */ (function () {
             database: database,
             port: port,
             multipleStatements: multipleStatements,
+            charset: charset,
         });
     };
     MySQLDriver.prototype.generateId = function () {
@@ -229,7 +231,9 @@ var MySQLDriver = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         self = this;
-                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, { limit: { offset: 0, page_size: 1 } })];
+                        return [4 /*yield*/, self._selectRecordRaw(table_name, where, order_by, {
+                                limit: { offset: 0, page_size: 1 },
+                            })];
                     case 1:
                         result = _a.sent();
                         if (result.length > 1) {
@@ -833,7 +837,8 @@ function _prepareSelectStatement(table_name, where, order_by, options) {
             throw new Error(funcName + ": Special character found in key: '" + key + "'");
         }
         var value = where[key];
-        if ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcard) || ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) && where_options.wildcardAfter)) {
+        if ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcard) ||
+            ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) && where_options.wildcardAfter)) {
             if (Array.isArray(value)) {
                 throw new Error(funcName + ": Wildcard search not supported for arrays.");
             }

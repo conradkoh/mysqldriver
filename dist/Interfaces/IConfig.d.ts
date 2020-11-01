@@ -5,5 +5,6 @@ export interface IConfig {
     database: string;
     port?: number;
     multipleStatements?: boolean;
+    charset?: string;
 }
 //# sourceMappingURL=IConfig.d.ts.map
