@@ -11,5 +11,6 @@ export interface ConnectionConfig {
     ssl?: tls.SecureContextOptions & {
         rejectUnauthorized?: boolean;
     };
+    charset?: string;
 }
 //# sourceMappingURL=ConnectionConfig.d.ts.map

@@ -1,7 +1,7 @@
 let chai = require('chai');
 let package = require('../dist/index');
 const { user } = require('../dbconfig');
-const { assert } = require('chai');
+const { assert, expect } = require('chai');
 let TEST_DATA = getTestData();
 let mysql = require('mysql');
 let dbConfig = {
@@ -12,6 +12,7 @@ let dbConfig = {
       database: 'mysqldriver_test',
       password: 'P@ssw0rd',
       user: 'testuser',
+      charset: 'utf8mb4',
     });
     return {
       destroy: () => conn.destroy(),
@@ -25,7 +26,13 @@ let dbConfig = {
 };
 describe('All Tests', () => {
   let users = {};
-  let db = new package.DatabaseDriver(dbConfig);
+  let db = package.connect({
+    host: '127.0.0.1',
+    database: 'mysqldriver_test',
+    password: 'P@ssw0rd',
+    user: 'testuser',
+    charset: 'utf8mb4',
+  });
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
@@ -70,6 +77,7 @@ describe('All Tests', () => {
     }
     await createUser(TEST_DATA.USER_1);
     await createUser(TEST_DATA.USER_2);
+    await createUser(TEST_DATA.USER_3);
   });
   //Get
   it('Get Records', async () => {
@@ -80,6 +88,16 @@ describe('All Tests', () => {
     });
     chai.assert(record.length > 0, 'Failed to get records.');
   });
+  it('Get Records (with Emoji', async () => {
+    let user = Object.values(users)[2];
+    let record = await db.getRecord('user', {
+      user_id: user.user_id,
+      index_number: user.index_number,
+    });
+    chai
+      .expect(record.last_name)
+      .to.be.equal(user.last_name, 'Emojis not preserved');
+  });
   it('Get Records Limit', async () => {
     let record = await db.getRecords('user', {}, null, {
       limit: { offset: 0, page_size: 1 },
@@ -87,7 +105,8 @@ describe('All Tests', () => {
     chai.assert(record.length === 1, 'Failed to limit records.');
   });
   it('Get Records Order', async () => {
-    let user = Object.values(users)[1];
+    let usersList = Object.values(users);
+    let user = usersList[usersList.length - 1];
     let records = await db.getRecords(
       'user',
       {},
@@ -97,7 +116,8 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (before)', async () => {
-    let user = Object.values(users)[1];
+    let usersList = Object.values(users);
+    let user = usersList[usersList.length - 1];
     let user_id_partial = user.user_id.substring(1, user.user_id.length);
     let records = await db.getRecords(
       'user',
@@ -112,7 +132,8 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (after)', async () => {
-    let user = Object.values(users)[1];
+    let usersList = Object.values(users);
+    let user = usersList[usersList.length - 1];
     let user_id_partial = user.user_id.substring(0, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -127,7 +148,8 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (before and after)', async () => {
-    let user = Object.values(users)[1];
+    let usersList = Object.values(users);
+    let user = usersList[usersList.length - 1];
     let user_id_partial = user.user_id.substring(1, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -296,6 +318,11 @@ function getTestData() {
       last_name: 'tu2ln',
       email: 'test_user2@localhost',
       index_number: 2,
+    },
+    USER_3: {
+      first_name: 'test_user3',
+      last_name: '😂',
+      index_number: 3,
     },
   };
 }

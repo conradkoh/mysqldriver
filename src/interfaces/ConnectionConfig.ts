@@ -8,4 +8,5 @@ export interface ConnectionConfig {
   multipleStatements?: boolean;
   requireSsl?: boolean;
   ssl?: tls.SecureContextOptions & { rejectUnauthorized?: boolean };
+  charset?: string;
 }
