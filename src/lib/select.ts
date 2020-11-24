@@ -47,8 +47,8 @@ export async function selectRecordRawCount(
   if (isResultEmpty) {
     return 0;
   }
-  let sql_count = `SELECT COUNT(*) as count from (
-            (${sql}) as table_data)`;
+  let sql_count = `SELECT COUNT(*) AS count from (
+    ${sql}) AS T`;
   let records = await query(connection, sql_count, params);
   return records[0].count;
 }

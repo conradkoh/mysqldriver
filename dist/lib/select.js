@@ -75,7 +75,7 @@ function selectRecordRawCount(connection, table_name, where, order_by, options) 
                     if (isResultEmpty) {
                         return [2 /*return*/, 0];
                     }
-                    sql_count = "SELECT COUNT(*) as count from (\n            (" + sql + ") as table_data)";
+                    sql_count = "SELECT COUNT(*) AS count from (\n    " + sql + ") AS T";
                     return [4 /*yield*/, query_1.query(connection, sql_count, params)];
                 case 1:
                     records = _b.sent();
