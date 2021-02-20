@@ -224,7 +224,7 @@ export class DatabaseDriver {
   async closeConnection() {
     let connection = await this.provider.getConnection();
     if (connection) {
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         connection.end((err) => {
           err ? reject(err) : resolve();
         });

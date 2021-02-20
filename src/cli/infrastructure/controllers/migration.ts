@@ -53,12 +53,12 @@ export class MigrationController {
 
     const timestamp = new Date().getTime();
     const name = `${timestamp}-${scriptName}`;
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       fs.writeFile(path.join(folderPath, `${name}.up.sql`), '', (err) => {
         err ? reject(err) : resolve();
       });
     });
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       fs.writeFile(path.join(folderPath, `${name}.down.sql`), '', (err) => {
         err ? reject(err) : resolve();
       });
