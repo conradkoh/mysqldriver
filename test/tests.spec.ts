@@ -1,36 +1,10 @@
 import chai, { assert } from 'chai';
 import * as MySQLDriverPackage from '../src/index';
 let TEST_DATA = getTestData();
-import mysql from 'mysql';
-let dbConfig = {
-  database: 'mysqldriver_test',
-  createConnection: () => {
-    let conn = mysql.createConnection({
-      host: '127.0.0.1',
-      database: 'mysqldriver_test',
-      password: 'P@ssw0rd',
-      user: 'testuser',
-      charset: 'utf8mb4',
-    });
-    return {
-      destroy: () => conn.destroy(),
-      on: (ev, cb) => conn.on(ev, cb),
-      query: (q, v, cb) => conn.query(q, v, cb),
-      end: (cb) => conn.end(cb),
-      isDisconnected:
-        conn.state == 'disconnected' || conn.state == 'protocol_error',
-    };
-  },
-};
+import { makeDBConfig, makeTestConnectionConfig } from './utils/connection';
 describe('All Tests', () => {
   let users = {};
-  let db = MySQLDriverPackage.connect({
-    host: '127.0.0.1',
-    database: 'mysqldriver_test',
-    password: 'P@ssw0rd',
-    user: 'testuser',
-    charset: 'utf8mb4',
-  });
+  let db = MySQLDriverPackage.connect(makeTestConnectionConfig());
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
@@ -257,7 +231,7 @@ describe('All Tests', () => {
 
 describe('Automatic reconnect', () => {
   let users = {};
-  let db = new MySQLDriverPackage.DatabaseDriver(dbConfig);
+  let db = new MySQLDriverPackage.DatabaseDriver(makeDBConfig());
   let testData = getTestData();
   before(async () => {
     let sqls = [

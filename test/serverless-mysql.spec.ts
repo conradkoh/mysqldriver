@@ -1,15 +1,9 @@
-import chai, { assert, expect } from 'chai';
+import chai, { assert } from 'chai';
 import * as MySQLDriverPackage from '../src/index';
-const { user } = require('../dbconfig');
-// const { assert } = require('chai');
+import { makeTestConnectionConfig } from './utils/connection';
 let TEST_DATA = getTestData();
 let mysql = require('serverless-mysql');
-let config = {
-  host: '127.0.0.1',
-  database: 'mysqldriver_test',
-  password: 'P@ssw0rd',
-  user: 'testuser',
-};
+let config = makeTestConnectionConfig();
 describe('All Tests', () => {
   let users = {};
   let db = MySQLDriverPackage.connect(config);
