@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha test",
+    "test": "ts-mocha test/**/*.spec.ts",
     "prepublish": "rm -rf dist && tsc --build --clean && tsc --build",
-    "test:watch": "mocha test/**/*.js --reporter min -w --recursive"
+    "test:watch": "ts-mocha test/**/*.spec.ts --reporter min -w --recursive"
   },
   "author": "",
   "license": "ISC",

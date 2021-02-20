@@ -1,7 +1,7 @@
-let chai = require('chai');
-let package = require('../dist/index');
+import chai, { assert, expect } from 'chai';
+import * as MySQLDriverPackage from '../src/index';
 const { user } = require('../dbconfig');
-const { assert } = require('chai');
+// const { assert } = require('chai');
 let TEST_DATA = getTestData();
 let mysql = require('serverless-mysql');
 let config = {
@@ -12,7 +12,7 @@ let config = {
 };
 describe('All Tests', () => {
   let users = {};
-  let db = package.connect(config);
+  let db = MySQLDriverPackage.connect(config);
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
@@ -60,7 +60,7 @@ describe('All Tests', () => {
   });
   //Get
   it('Get Records', async () => {
-    let user = Object.values(users)[0];
+    let user: any = Object.values(users)[0];
     let record = await db.getRecords('user', {
       user_id: user.user_id,
       index_number: user.index_number,
@@ -68,13 +68,13 @@ describe('All Tests', () => {
     chai.assert(record.length > 0, 'Failed to get records.');
   });
   it('Get Records Limit', async () => {
-    let record = await db.getRecords('user', {}, null, {
+    let record = await db.getRecords('user', {}, undefined, {
       limit: { offset: 0, page_size: 1 },
     });
     chai.assert(record.length === 1, 'Failed to limit records.');
   });
   it('Get Records Order', async () => {
-    let user = Object.values(users)[1];
+    let user: any = Object.values(users)[1];
     let records = await db.getRecords(
       'user',
       {},
@@ -84,7 +84,7 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (before)', async () => {
-    let user = Object.values(users)[1];
+    let user: any = Object.values(users)[1];
     let user_id_partial = user.user_id.substring(1, user.user_id.length);
     let records = await db.getRecords(
       'user',
@@ -99,7 +99,7 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (after)', async () => {
-    let user = Object.values(users)[1];
+    let user: any = Object.values(users)[1];
     let user_id_partial = user.user_id.substring(0, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -114,7 +114,7 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records Order Wildcard (before and after)', async () => {
-    let user = Object.values(users)[1];
+    let user: any = Object.values(users)[1];
     let user_id_partial = user.user_id.substring(1, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -129,7 +129,7 @@ describe('All Tests', () => {
     chai.assert(records[0].user_id === user.user_id, 'Failed to order records');
   });
   it('Get Records (OR)', async () => {
-    let user = Object.values(users)[0];
+    let user: any = Object.values(users)[0];
     let user_id_partial = user.user_id.substring(1, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -146,7 +146,7 @@ describe('All Tests', () => {
     );
   });
   it('Get Records (AND)', async () => {
-    let user = Object.values(users)[0];
+    let user: any = Object.values(users)[0];
     let user_id_partial = user.user_id.substring(1, user.user_id.length - 2);
     let records = await db.getRecords(
       'user',
@@ -165,12 +165,12 @@ describe('All Tests', () => {
 
   //Count
   it('Get Records Count', async () => {
-    let user = Object.values(users)[0];
+    let user: any = Object.values(users)[0];
     let count = await db.getRecordsCount('user', { user_id: user.user_id });
     chai.assert(count > 0, 'Failed to count records.');
   });
   it('Get Records Count Limit', async () => {
-    let count = await db.getRecordsCount('user', {}, null, {
+    let count = await db.getRecordsCount('user', {}, undefined, {
       limit: { offset: 0, page_size: 1 },
     });
     chai.assert(count === 1, 'Failed to limit records.');
@@ -187,7 +187,7 @@ describe('All Tests', () => {
 
   //Update
   it('Update Records', async () => {
-    let user1 = Object.values(users)[0];
+    let user1: any = Object.values(users)[0];
     await db.updateRecords('user', TEST_DATA.USER_1_UPDATED, {
       user_id: user1.user_id,
     });
@@ -202,7 +202,7 @@ describe('All Tests', () => {
       TEST_DATA.USER_1_UPDATED.first_name,
       'Failed to up update record.'
     );
-    let user2 = Object.values(users)[1];
+    let user2: any = Object.values(users)[1];
     let user2_record = await db.getRecord('user', { user_id: user2.user_id });
     for (let key in user2) {
       chai.assert.strictEqual(
@@ -215,7 +215,7 @@ describe('All Tests', () => {
 
   //Delete
   it('Delete Records', async () => {
-    let user1 = Object.values(users)[0];
+    let user1: any = Object.values(users)[0];
     await db.deleteRecords('user', { user_id: user1.user_id });
     let found = await db.getRecords('user', { user_id: user1.user_id });
     assert.equal(found.length, 0, 'Failed to delete users');
@@ -224,7 +224,7 @@ describe('All Tests', () => {
 
 describe('Automatic reconnect', () => {
   let users = {};
-  let db = package.connect(config);
+  let db = MySQLDriverPackage.connect(config);
   let testData = getTestData();
   before(async () => {
     let sqls = [
