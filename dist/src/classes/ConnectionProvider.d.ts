@@ -4,6 +4,7 @@ export declare class ConnectionProvider {
     private cfg;
     private connection;
     constructor(cfg: DatabaseConfig);
+    private createConnection;
     private handleConnectionError;
     getConnection(): Promise<DatabaseConnection>;
 }

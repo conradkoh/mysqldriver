@@ -22,11 +22,13 @@ function connect(config: ConnectionConfig) {
       throw new MissingConfigParamException('ssl ca', '<secret>');
     }
   }
+  const { debug, ...connectionConfig } = config;
   let dbCfg: DatabaseConfig = {
     database: config.database,
+    debug,
     createConnection: () => {
       let conn = serverlessMySQL({
-        config,
+        config: connectionConfig,
       });
       return {
         destroy: () => conn.quit(),

@@ -24,7 +24,7 @@ function makeDBConfig() {
                 destroy: function () {
                     conn.destroy();
                 },
-                on: function (ev, cb) { return conn.on(ev, cb); },
+                on: function (ev, cb) { return conn.on(ev || '', cb); },
                 query: function (q, v, cb) { return conn.query(q, v, cb); },
                 end: function (cb) {
                     return conn.end(cb);

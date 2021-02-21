@@ -5,16 +5,22 @@ export class ConnectionProvider {
   private connection: DatabaseConnection;
   constructor(cfg: DatabaseConfig) {
     this.cfg = cfg;
-    this.connection = cfg.createConnection();
+    this.connection = this.createConnection();
     this.connection.on('error', this.handleConnectionError.bind(this));
   }
+  private createConnection() {
+    if (this.cfg.debug?.enabled) {
+      this.cfg.debug?.logger?.('ConnectionProvider: Creating connection');
+    }
+    return this.cfg.createConnection();
+  }
   private handleConnectionError() {
-    this.connection = this.cfg.createConnection();
+    this.connection = this.createConnection();
     this.connection.on('error', this.handleConnectionError.bind(this));
   }
   async getConnection(): Promise<DatabaseConnection> {
     if (this.connection.isDisconnected()) {
-      this.connection = this.cfg.createConnection();
+      this.connection = this.createConnection();
     }
     return this.connection;
   }

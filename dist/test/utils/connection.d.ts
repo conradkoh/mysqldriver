@@ -1,4 +1,4 @@
-import mysql from 'mysql';
+import { DatabaseConfig } from '../../src/interfaces/DatabaseConfig';
 export declare function makeTestConnectionConfig(): {
     host: string;
     database: string;
@@ -6,14 +6,5 @@ export declare function makeTestConnectionConfig(): {
     user: string;
     charset: string;
 };
-export declare function makeDBConfig(): {
-    database: string;
-    createConnection: () => {
-        destroy: () => void;
-        on: (ev: any, cb: any) => mysql.Connection;
-        query: (q: any, v: any, cb: any) => mysql.Query;
-        end: (cb: any) => void;
-        isDisconnected: () => boolean;
-    };
-};
+export declare function makeDBConfig(): DatabaseConfig;
 //# sourceMappingURL=connection.d.ts.map

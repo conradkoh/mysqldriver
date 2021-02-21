@@ -40,18 +40,25 @@ exports.ConnectionProvider = void 0;
 var ConnectionProvider = /** @class */ (function () {
     function ConnectionProvider(cfg) {
         this.cfg = cfg;
-        this.connection = cfg.createConnection();
+        this.connection = this.createConnection();
         this.connection.on('error', this.handleConnectionError.bind(this));
     }
+    ConnectionProvider.prototype.createConnection = function () {
+        var _a, _b, _c;
+        if ((_a = this.cfg.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
+            (_c = (_b = this.cfg.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, 'ConnectionProvider: Creating connection');
+        }
+        return this.cfg.createConnection();
+    };
     ConnectionProvider.prototype.handleConnectionError = function () {
-        this.connection = this.cfg.createConnection();
+        this.connection = this.createConnection();
         this.connection.on('error', this.handleConnectionError.bind(this));
     };
     ConnectionProvider.prototype.getConnection = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 if (this.connection.isDisconnected()) {
-                    this.connection = this.cfg.createConnection();
+                    this.connection = this.createConnection();
                 }
                 return [2 /*return*/, this.connection];
             });

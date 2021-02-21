@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import tls from 'tls';
+import { DebugConfig } from './DebugConfig';
 export interface ConnectionConfig {
     host?: string;
     database?: string;
@@ -12,5 +13,6 @@ export interface ConnectionConfig {
         rejectUnauthorized?: boolean;
     };
     charset?: string;
+    debug?: DebugConfig;
 }
 //# sourceMappingURL=ConnectionConfig.d.ts.map

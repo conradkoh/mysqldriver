@@ -18,12 +18,20 @@ import {
   tableGetJSSchema,
   JSTableSchema,
 } from '../lib/javascript';
+import { formatDate } from '../lib/format/date';
 export class DatabaseDriver {
   private config: DatabaseConfig;
   private provider: ConnectionProvider;
   constructor(cfg: DatabaseConfig) {
     this.config = cfg;
     this.provider = new ConnectionProvider(cfg);
+  }
+  private debugLog(val: string) {
+    if (this.config.debug?.enabled) {
+      this.config.debug?.logger?.(
+        `[${formatDate(new Date())}] DatabaseDriver: ${val}`
+      );
+    }
   }
   generateId() {
     return UUIDv4();
@@ -218,6 +226,7 @@ export class DatabaseDriver {
    */
   async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
     let connection = await this.provider.getConnection();
+    this.debugLog('Executing query');
     return await query(connection, sql, values);
   }
 

@@ -6,6 +6,7 @@ export declare class DatabaseDriver {
     private config;
     private provider;
     constructor(cfg: DatabaseConfig);
+    private debugLog;
     generateId(): string;
     /**
      * Insert records into the database

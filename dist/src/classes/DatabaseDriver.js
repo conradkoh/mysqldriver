@@ -49,11 +49,18 @@ var insert_1 = require("../lib/insert");
 var update_1 = require("../lib/update");
 var delete_1 = require("../lib/delete");
 var javascript_1 = require("../lib/javascript");
+var date_1 = require("../lib/format/date");
 var DatabaseDriver = /** @class */ (function () {
     function DatabaseDriver(cfg) {
         this.config = cfg;
         this.provider = new ConnectionProvider_1.ConnectionProvider(cfg);
     }
+    DatabaseDriver.prototype.debugLog = function (val) {
+        var _a, _b, _c;
+        if ((_a = this.config.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
+            (_c = (_b = this.config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "[" + date_1.formatDate(new Date()) + "] DatabaseDriver: " + val);
+        }
+    };
     DatabaseDriver.prototype.generateId = function () {
         return v4_1.default();
     };
@@ -322,6 +329,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
+                        this.debugLog('Executing query');
                         return [4 /*yield*/, query_1.query(connection, sql, values)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }

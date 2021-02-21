@@ -1,4 +1,5 @@
 import mysql from 'mysql';
+import { DatabaseConfig } from '../../src/interfaces/DatabaseConfig';
 
 export function makeTestConnectionConfig() {
   return {
@@ -11,7 +12,7 @@ export function makeTestConnectionConfig() {
 }
 
 export function makeDBConfig() {
-  let dbConfig = {
+  let dbConfig: DatabaseConfig = {
     database: 'mysqldriver_test',
     createConnection: () => {
       let conn = mysql.createConnection(makeTestConnectionConfig());
@@ -19,7 +20,7 @@ export function makeDBConfig() {
         destroy: () => {
           conn.destroy();
         },
-        on: (ev, cb) => conn.on(ev, cb),
+        on: (ev, cb) => conn.on(ev || '', cb),
         query: (q, v, cb) => conn.query(q, v, cb),
         end: (cb) => {
           return conn.end(cb);
