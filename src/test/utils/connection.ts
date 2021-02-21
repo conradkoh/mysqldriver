@@ -14,6 +14,10 @@ export function makeTestConnectionConfig() {
 export function makeDBConfig() {
   let dbConfig: DatabaseConfig = {
     database: 'mysqldriver_test',
+    // debug: {
+    //   enabled: true,
+    //   logger: (v) => console.log(v),
+    // },
     createConnection: () => {
       let conn = mysql.createConnection(makeTestConnectionConfig());
       return {

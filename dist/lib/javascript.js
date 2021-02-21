@@ -42,66 +42,70 @@ var database_2 = require("./database");
 /**
  * Gets the schema of the database as an array of table schema objects
  */
-function getJSSchema(connection, database_name) {
-    return __awaiter(this, void 0, void 0, function () {
-        var tables, schema;
-        var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, database_2.getTableNames(connection, database_name)];
-                case 1:
-                    tables = _a.sent();
-                    schema = tables.map(function (table_name) { return __awaiter(_this, void 0, void 0, function () {
-                        var table_schema;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, tableGetJSSchema(connection, database_name, table_name)];
-                                case 1:
-                                    table_schema = _a.sent();
-                                    return [2 /*return*/, table_schema];
-                            }
-                        });
-                    }); });
-                    return [4 /*yield*/, Promise.all(schema)];
-                case 2: return [2 /*return*/, _a.sent()];
-            }
+var getJSSchema = function (config) {
+    return function (connection, database_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var tables, schema;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, database_2.getTableNames(config)(connection, database_name)];
+                    case 1:
+                        tables = _a.sent();
+                        schema = tables.map(function (table_name) { return __awaiter(_this, void 0, void 0, function () {
+                            var table_schema;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, exports.tableGetJSSchema(config)(connection, database_name, table_name)];
+                                    case 1:
+                                        table_schema = _a.sent();
+                                        return [2 /*return*/, table_schema];
+                                }
+                            });
+                        }); });
+                        return [4 /*yield*/, Promise.all(schema)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.getJSSchema = getJSSchema;
 /**
  *
  * @param table_name
  */
-function tableGetJSSchema(connection, database_name, table_name) {
-    return __awaiter(this, void 0, void 0, function () {
-        var columns, schema, fields;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, database_2.getTableInfo(connection, database_name, table_name)];
-                case 1:
-                    columns = _a.sent();
-                    schema = {
-                        table_name: table_name,
-                        fields: [],
-                    };
-                    fields = [];
-                    columns.map(function (column) {
-                        var field = {
-                            column_name: column[database_1.ALIAS_COLUMN_NAME],
-                            data_type: column[database_1.ALIAS_DATA_TYPE],
-                            key: column[database_1.ALIAS_COLUMN_KEY],
-                            max_length: column[database_1.ALIAS_CHARACTER_MAXIMUM_LENGTH],
-                            is_nullable: column[database_1.ALIAS_IS_NULLABLE],
-                            default_value: column[database_1.ALIAS_COLUMN_DEFAULT],
+var tableGetJSSchema = function (config) {
+    return function (connection, database_name, table_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var columns, schema, fields;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, database_2.getTableInfo(config)(connection, database_name, table_name)];
+                    case 1:
+                        columns = _a.sent();
+                        schema = {
+                            table_name: table_name,
+                            fields: [],
                         };
-                        fields.push(field);
-                    });
-                    schema.fields = fields;
-                    return [2 /*return*/, schema];
-            }
+                        fields = [];
+                        columns.map(function (column) {
+                            var field = {
+                                column_name: column[database_1.ALIAS_COLUMN_NAME],
+                                data_type: column[database_1.ALIAS_DATA_TYPE],
+                                key: column[database_1.ALIAS_COLUMN_KEY],
+                                max_length: column[database_1.ALIAS_CHARACTER_MAXIMUM_LENGTH],
+                                is_nullable: column[database_1.ALIAS_IS_NULLABLE],
+                                default_value: column[database_1.ALIAS_COLUMN_DEFAULT],
+                            };
+                            fields.push(field);
+                        });
+                        schema.fields = fields;
+                        return [2 /*return*/, schema];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.tableGetJSSchema = tableGetJSSchema;
 //# sourceMappingURL=javascript.js.map

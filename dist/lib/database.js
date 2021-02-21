@@ -51,35 +51,37 @@ exports.ALIAS_TABLE_NAME = 'TABLE_NAME';
  * @param table_name
  * @param record_raw
  */
-function prepareRecord(connection, database_name, table_name, record_raw) {
-    return __awaiter(this, void 0, void 0, function () {
-        var error, prepared_record, table_info;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (!(typeof table_name === 'string')) {
-                        error = new Error("MySQLDriver in function prepareRecord: Provided table name is not a string.");
-                        error.table_name = table_name;
-                        error.record_raw = record_raw;
-                        throw error;
-                    }
-                    prepared_record = {};
-                    return [4 /*yield*/, getTableInfo(connection, database_name, table_name)];
-                case 1:
-                    table_info = _a.sent();
-                    table_info.map(function (field) {
-                        var key = field[exports.ALIAS_COLUMN_NAME];
-                        if (key in record_raw && record_raw[key] !== undefined) {
-                            //Only add items that have been specified in the record, and are not undefined in value
-                            var value = record_raw[key];
-                            prepared_record[key] = value;
+var prepareRecord = function (config) {
+    return function (connection, database_name, table_name, record_raw) {
+        return __awaiter(this, void 0, void 0, function () {
+            var error, prepared_record, table_info;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(typeof table_name === 'string')) {
+                            error = new Error("MySQLDriver in function prepareRecord: Provided table name is not a string.");
+                            error.table_name = table_name;
+                            error.record_raw = record_raw;
+                            throw error;
                         }
-                    });
-                    return [2 /*return*/, prepared_record];
-            }
+                        prepared_record = {};
+                        return [4 /*yield*/, exports.getTableInfo(config)(connection, database_name, table_name)];
+                    case 1:
+                        table_info = _a.sent();
+                        table_info.map(function (field) {
+                            var key = field[exports.ALIAS_COLUMN_NAME];
+                            if (key in record_raw && record_raw[key] !== undefined) {
+                                //Only add items that have been specified in the record, and are not undefined in value
+                                var value = record_raw[key];
+                                prepared_record[key] = value;
+                            }
+                        });
+                        return [2 /*return*/, prepared_record];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.prepareRecord = prepareRecord;
 //INTERNAL FUNCTIONS
 /**
@@ -87,59 +89,65 @@ exports.prepareRecord = prepareRecord;
  * @param database_name
  * @param table_name
  */
-function getTableInfo(connection, database_name, table_name) {
-    return __awaiter(this, void 0, void 0, function () {
-        var result;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT \n    `COLUMN_NAME` as '" + exports.ALIAS_COLUMN_NAME + "', \n    `DATA_TYPE` AS '" + exports.ALIAS_DATA_TYPE + "', \n    `COLUMN_KEY` AS '" + exports.ALIAS_COLUMN_KEY + "', \n    `CHARACTER_MAXIMUM_LENGTH` as '" + exports.ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n    `IS_NULLABLE` as '" + exports.ALIAS_IS_NULLABLE + "',\n    `COLUMN_DEFAULT` as '" + exports.ALIAS_COLUMN_DEFAULT + "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
-                case 1:
-                    result = _a.sent();
-                    if (result.length === 0) {
-                        throw new Error("Table '" + table_name + "' does not exist on database '" + database_name + "'");
-                    }
-                    return [2 /*return*/, result];
-            }
+var getTableInfo = function (config) {
+    return function (connection, database_name, table_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT \n    `COLUMN_NAME` as '" + exports.ALIAS_COLUMN_NAME + "', \n    `DATA_TYPE` AS '" + exports.ALIAS_DATA_TYPE + "', \n    `COLUMN_KEY` AS '" + exports.ALIAS_COLUMN_KEY + "', \n    `CHARACTER_MAXIMUM_LENGTH` as '" + exports.ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n    `IS_NULLABLE` as '" + exports.ALIAS_IS_NULLABLE + "',\n    `COLUMN_DEFAULT` as '" + exports.ALIAS_COLUMN_DEFAULT + "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
+                    case 1:
+                        result = _a.sent();
+                        if (result.length === 0) {
+                            throw new Error("Table '" + table_name + "' does not exist on database '" + database_name + "'");
+                        }
+                        return [2 /*return*/, result];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.getTableInfo = getTableInfo;
 /**
  * Gets all table names in a given database
  * @param database_name
  */
-function getTableNames(connection, database_name) {
-    return __awaiter(this, void 0, void 0, function () {
-        var tables, table_names;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ?", [database_name])];
-                case 1:
-                    tables = _a.sent();
-                    table_names = tables.map(function (table) { return table[exports.ALIAS_TABLE_NAME]; });
-                    return [2 /*return*/, table_names];
-            }
+var getTableNames = function (config) {
+    return function (connection, database_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var tables, table_names;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ?", [database_name])];
+                    case 1:
+                        tables = _a.sent();
+                        table_names = tables.map(function (table) { return table[exports.ALIAS_TABLE_NAME]; });
+                        return [2 /*return*/, table_names];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.getTableNames = getTableNames;
 /**
  * Checks if a table exists
  * @param database_name
  * @param table_name
  */
-function tableExists(connection, database_name, table_name) {
-    return __awaiter(this, void 0, void 0, function () {
-        var rows;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, query_1.query(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?", [database_name, table_name])];
-                case 1:
-                    rows = _a.sent();
-                    return [2 /*return*/, rows.length > 0];
-            }
+var tableExists = function (config) {
+    return function (connection, database_name, table_name) {
+        return __awaiter(this, void 0, void 0, function () {
+            var rows;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?", [database_name, table_name])];
+                    case 1:
+                        rows = _a.sent();
+                        return [2 /*return*/, rows.length > 0];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.tableExists = tableExists;
 //# sourceMappingURL=database.js.map

@@ -43,40 +43,42 @@ var query_1 = require("./query");
  * @param table_name The name of the table to insert the records into
  * @param record The record to be insert into the database
  */
-function insertRecordRaw(connection, table_name, record) {
-    return __awaiter(this, void 0, void 0, function () {
-        var funcName, insert_sql, params, keys_sql, values_sql;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    funcName = '_insertRecordRaw';
-                    insert_sql = "INSERT INTO `" + table_name + "`";
-                    params = [];
-                    keys_sql = Object.keys(record)
-                        .map(function (key) {
-                        if (query_1.containsSpecialChars(key)) {
-                            throw new Error(funcName + ": Special character found in key: '" + key + "'");
-                        }
-                        var escaped_key = "`" + key + "`";
-                        var value = record[key];
-                        params.push(value);
-                        return escaped_key;
-                    })
-                        .reduce(function (last, cur, index) {
-                        return last + ", " + cur;
-                    });
-                    values_sql = Object.keys(record)
-                        .map(function (key) {
-                        return '?';
-                    })
-                        .reduce(function (last, cur, index) {
-                        return last + ", " + cur;
-                    });
-                    return [4 /*yield*/, query_1.query(connection, insert_sql + " (" + keys_sql + ") VALUES (" + values_sql + ")", params)];
-                case 1: return [2 /*return*/, _a.sent()];
-            }
+var insertRecordRaw = function (config) {
+    return function (connection, table_name, record) {
+        return __awaiter(this, void 0, void 0, function () {
+            var funcName, insert_sql, params, keys_sql, values_sql;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        funcName = '_insertRecordRaw';
+                        insert_sql = "INSERT INTO `" + table_name + "`";
+                        params = [];
+                        keys_sql = Object.keys(record)
+                            .map(function (key) {
+                            if (query_1.containsSpecialChars(key)) {
+                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
+                            }
+                            var escaped_key = "`" + key + "`";
+                            var value = record[key];
+                            params.push(value);
+                            return escaped_key;
+                        })
+                            .reduce(function (last, cur, index) {
+                            return last + ", " + cur;
+                        });
+                        values_sql = Object.keys(record)
+                            .map(function (key) {
+                            return '?';
+                        })
+                            .reduce(function (last, cur, index) {
+                            return last + ", " + cur;
+                        });
+                        return [4 /*yield*/, query_1.query(config)(connection, insert_sql + " (" + keys_sql + ") VALUES (" + values_sql + ")", params)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.insertRecordRaw = insertRecordRaw;
 //# sourceMappingURL=insert.js.map

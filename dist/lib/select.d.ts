@@ -1,18 +1,19 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 import { QueryOptions } from './query';
-export declare function selectRecordRaw(connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
+export declare const selectRecordRaw: (config: DatabaseConfig) => (connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
     key: string;
     order: 'ASC' | 'DESC';
-}>, options?: QueryOptions): Promise<any[]>;
+}>, options?: QueryOptions | undefined) => Promise<any[]>;
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
  * @param where
  */
-export declare function selectRecordRawCount(connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
+export declare const selectRecordRawCount: (config: DatabaseConfig) => (connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
     key: string;
     order: 'ASC' | 'DESC';
-}>, options?: QueryOptions): Promise<number>;
+}>, options?: QueryOptions | undefined) => Promise<number>;
 /**
  * INTERNAL: Prepare select statement from options
  * @param table_name

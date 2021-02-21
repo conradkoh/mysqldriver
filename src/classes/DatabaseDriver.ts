@@ -46,13 +46,17 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
-    let clean_record = await prepareRecord(
+    let clean_record = await prepareRecord(this.config)(
       connection,
       database,
       table_name,
       record
     );
-    let res = await insertRecordRaw(connection, table_name, clean_record);
+    let res = await insertRecordRaw(this.config)(
+      connection,
+      table_name,
+      clean_record
+    );
     return res;
   }
   /**
@@ -67,7 +71,7 @@ export class DatabaseDriver {
     options?: QueryOptions
   ): Promise<any[]> {
     let connection = await this.provider.getConnection();
-    return await selectRecordRaw(
+    return await selectRecordRaw(this.config)(
       connection,
       table_name,
       where,
@@ -87,7 +91,7 @@ export class DatabaseDriver {
     options?: QueryOptions
   ): Promise<number> {
     let connection = await this.provider.getConnection();
-    return await selectRecordRawCount(
+    return await selectRecordRawCount(this.config)(
       connection,
       table_name,
       where,
@@ -107,7 +111,7 @@ export class DatabaseDriver {
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = []
   ) {
     let connection = await this.provider.getConnection();
-    const result = await selectRecordRaw(
+    const result = await selectRecordRaw(this.config)(
       connection,
       table_name,
       where,
@@ -134,13 +138,13 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
 
     let { database } = self.config;
-    let clean_properties = await prepareRecord(
+    let clean_properties = await prepareRecord(this.config)(
       connection,
       database,
       table_name,
       properties
     );
-    return await updateRecordsRaw(
+    return await updateRecordsRaw(this.config)(
       connection,
       table_name,
       clean_properties,
@@ -155,7 +159,7 @@ export class DatabaseDriver {
   async deleteRecords(table_name: string, where: any) {
     let self = this;
     let connection = await this.provider.getConnection();
-    return await deleteRecordRaw(connection, table_name, where);
+    return await deleteRecordRaw(this.config)(connection, table_name, where);
   }
 
   /**
@@ -184,7 +188,7 @@ export class DatabaseDriver {
    */
   async getRecordsSql(sql: string, values: Array<any>): Promise<Array<any>> {
     let connection = await this.provider.getConnection();
-    return await query(connection, sql, values);
+    return await query(this.config)(connection, sql, values);
   }
 
   /**
@@ -194,7 +198,7 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
     const self = this;
     let { database } = self.config;
-    const table_names = await getTableNames(connection, database);
+    const table_names = await getTableNames(this.config)(connection, database);
     return table_names;
   }
   /**
@@ -205,7 +209,11 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
-    let info = await getTableInfo(connection, database, table_name);
+    let info = await getTableInfo(this.config)(
+      connection,
+      database,
+      table_name
+    );
     return info;
   }
 
@@ -217,7 +225,11 @@ export class DatabaseDriver {
     let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
-    let info = await getTableInfo(connection, database, table_name);
+    let info = await getTableInfo(this.config)(
+      connection,
+      database,
+      table_name
+    );
     return info.map((field_info) => field_info.COLUMN_NAME);
   }
   /**
@@ -227,17 +239,7 @@ export class DatabaseDriver {
    */
   async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
     let connection = await this.provider.getConnection();
-    //Debugging
-    const timeStart = new Date();
-    const result = await query(connection, sql, values);
-    const timeEnd = new Date();
-    const timeTaken = (timeEnd.getTime() - timeStart.getTime()) / 1000;
-    const debugInfo = {
-      query: sql,
-      timeTaken,
-    };
-    this.debugLog(`Executed query in ${debugInfo.timeTaken}s`, debugInfo);
-    //Result
+    const result = await query(this.config)(connection, sql, values);
     return result;
   }
 
@@ -258,7 +260,7 @@ export class DatabaseDriver {
   async getJSSchema(): Promise<JSTableSchema[]> {
     let connection = await this.provider.getConnection();
     let { database } = this.config;
-    return await getJSSchema(connection, database);
+    return await getJSSchema(this.config)(connection, database);
   }
   /**
    *
@@ -267,7 +269,11 @@ export class DatabaseDriver {
   async tableGetJSSchema(table_name: string): Promise<JSTableSchema> {
     let connection = await this.provider.getConnection();
     let { database } = this.config;
-    return await tableGetJSSchema(connection, database, table_name);
+    return await tableGetJSSchema(this.config)(
+      connection,
+      database,
+      table_name
+    );
   }
   /**
    * Checks if a table already exists
@@ -276,6 +282,6 @@ export class DatabaseDriver {
   async tableExists(table_name: string): Promise<boolean> {
     let connection = await this.provider.getConnection();
     let { database } = this.config;
-    return await tableExists(connection, database, table_name);
+    return await tableExists(this.config)(connection, database, table_name);
   }
 }

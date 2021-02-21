@@ -57,35 +57,48 @@ var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce
  * @param query
  * @param values
  */
-function query(connection, query, values) {
-    if (values === void 0) { values = []; }
-    return __awaiter(this, void 0, void 0, function () {
-        var _a, isValid, errors, data;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _a = checkValues(values), isValid = _a.isValid, errors = _a.errors;
-                    if (!isValid) {
-                        throw new Error("Query error:\n" + query + "\n\nErrors:\n" + errors.join('\n'));
-                    }
-                    return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            connection.query(query, values, function (err, resRaw) {
-                                if (err) {
-                                    reject(err);
-                                }
-                                else {
-                                    var data_1 = JSON.parse(JSON.stringify(resRaw));
-                                    resolve(data_1);
-                                }
-                            });
-                        })];
-                case 1:
-                    data = _b.sent();
-                    return [2 /*return*/, data];
-            }
+var query = function (config) {
+    return function (connection, query, values) {
+        var _a, _b, _c;
+        if (values === void 0) { values = []; }
+        return __awaiter(this, void 0, void 0, function () {
+            var timeStart, _d, isValid, errors, data, timeEnd, timeTaken, debugInfo;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        timeStart = new Date();
+                        _d = checkValues(values), isValid = _d.isValid, errors = _d.errors;
+                        if (!isValid) {
+                            throw new Error("Query error:\n" + query + "\n\nErrors:\n" + errors.join('\n'));
+                        }
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                connection.query(query, values, function (err, resRaw) {
+                                    if (err) {
+                                        reject(err);
+                                    }
+                                    else {
+                                        var data_1 = JSON.parse(JSON.stringify(resRaw));
+                                        resolve(data_1);
+                                    }
+                                });
+                            })];
+                    case 1:
+                        data = _e.sent();
+                        timeEnd = new Date();
+                        timeTaken = (timeEnd.getTime() - timeStart.getTime()) / 1000;
+                        debugInfo = {
+                            query: query,
+                            timeTaken: timeTaken,
+                        };
+                        if ((_a = config === null || config === void 0 ? void 0 : config.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
+                            (_c = (_b = config === null || config === void 0 ? void 0 : config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "Executed query in " + debugInfo.timeTaken + "s", debugInfo);
+                        }
+                        return [2 /*return*/, data];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.query = query;
 /**
  * Checks an array of values and ensures that it is not undefined

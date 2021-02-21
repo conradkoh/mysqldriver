@@ -1,3 +1,4 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 export declare const ALIAS_COLUMN_NAME = "COLUMN_NAME";
 export declare const ALIAS_DATA_TYPE = "DATA_TYPE";
@@ -12,24 +13,24 @@ export declare const ALIAS_TABLE_NAME = "TABLE_NAME";
  * @param table_name
  * @param record_raw
  */
-export declare function prepareRecord(connection: DatabaseConnection, database_name: string, table_name: string, record_raw: any): Promise<any>;
+export declare const prepareRecord: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string, table_name: string, record_raw: any) => Promise<any>;
 /**
  * Get the field
  * @param database_name
  * @param table_name
  */
-export declare function getTableInfo(connection: DatabaseConnection, database_name: string, table_name: string): Promise<SQLTableColumn[]>;
+export declare const getTableInfo: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string, table_name: string) => Promise<SQLTableColumn[]>;
 /**
  * Gets all table names in a given database
  * @param database_name
  */
-export declare function getTableNames(connection: DatabaseConnection, database_name: string): Promise<any[]>;
+export declare const getTableNames: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string) => Promise<any[]>;
 /**
  * Checks if a table exists
  * @param database_name
  * @param table_name
  */
-export declare function tableExists(connection: DatabaseConnection, database_name: string, table_name: string): Promise<boolean>;
+export declare const tableExists: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string, table_name: string) => Promise<boolean>;
 export interface SQLTableColumn {
     COLUMN_NAME: string;
     DATA_TYPE: string;

@@ -1,4 +1,6 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
+import { DebugConfig } from '../interfaces/DebugConfig';
 export const OPERATORS = {
   AND: 'AND',
   OR: 'OR',
@@ -22,27 +24,44 @@ const INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split(
  * @param query
  * @param values
  */
-export async function query(
-  connection: DatabaseConnection,
-  query: string,
-  values: Array<any> = []
-): Promise<any> {
-  let { isValid, errors } = checkValues(values);
-  if (!isValid) {
-    throw new Error(`Query error:\n${query}\n\nErrors:\n${errors.join('\n')}`);
-  }
-  let data = await new Promise((resolve, reject) => {
-    connection.query(query, values, (err, resRaw) => {
-      if (err) {
-        reject(err);
-      } else {
-        let data = JSON.parse(JSON.stringify(resRaw));
-        resolve(data);
-      }
+export const query = (config?: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    query: string,
+    values: Array<any> = []
+  ): Promise<any> {
+    //Debugging
+    const timeStart = new Date();
+    let { isValid, errors } = checkValues(values);
+    if (!isValid) {
+      throw new Error(
+        `Query error:\n${query}\n\nErrors:\n${errors.join('\n')}`
+      );
+    }
+    let data = await new Promise((resolve, reject) => {
+      connection.query(query, values, (err, resRaw) => {
+        if (err) {
+          reject(err);
+        } else {
+          let data = JSON.parse(JSON.stringify(resRaw));
+          resolve(data);
+        }
+      });
     });
-  });
-  return data;
-}
+    const timeEnd = new Date();
+    const timeTaken = (timeEnd.getTime() - timeStart.getTime()) / 1000;
+    const debugInfo = {
+      query: query,
+      timeTaken,
+    };
+    if (config?.debug?.enabled) {
+      config?.debug?.logger?.(
+        `Executed query in ${debugInfo.timeTaken}s`,
+        debugInfo
+      );
+    }
+    return data;
+  };
 
 /**
  * Checks an array of values and ensures that it is not undefined

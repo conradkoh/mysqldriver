@@ -1,3 +1,4 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 import {
   query,
@@ -5,53 +6,55 @@ import {
   containsSpecialChars,
   ALLOWED_OPERATORS,
 } from './query';
-export async function selectRecordRaw(
-  connection: DatabaseConnection,
-  table_name: string,
-  where: any = {},
-  order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
-  options?: QueryOptions
-): Promise<any[]> {
-  const { sql, params, isResultEmpty } = prepareSelectStatement(
-    table_name,
-    where,
-    order_by,
-    options
-  );
-  if (isResultEmpty) {
-    return [];
-  }
-  let data = await query(connection, sql, params);
-  return data;
-}
+export const selectRecordRaw = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    table_name: string,
+    where: any = {},
+    order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
+    options?: QueryOptions
+  ): Promise<any[]> {
+    const { sql, params, isResultEmpty } = prepareSelectStatement(
+      table_name,
+      where,
+      order_by,
+      options
+    );
+    if (isResultEmpty) {
+      return [];
+    }
+    let data = await query(config)(connection, sql, params);
+    return data;
+  };
 
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
  * @param where
  */
-export async function selectRecordRawCount(
-  connection: DatabaseConnection,
-  table_name: string,
-  where: any = {},
-  order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
-  options?: QueryOptions
-): Promise<number> {
-  const funcName = 'selectRecordRawCount';
-  const { sql, params, isResultEmpty } = prepareSelectStatement(
-    table_name,
-    where,
-    order_by,
-    options
-  );
-  if (isResultEmpty) {
-    return 0;
-  }
-  let sql_count = `SELECT COUNT(*) AS count from (
+export const selectRecordRawCount = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    table_name: string,
+    where: any = {},
+    order_by: Array<{ key: string; order: 'ASC' | 'DESC' }>,
+    options?: QueryOptions
+  ): Promise<number> {
+    const funcName = 'selectRecordRawCount';
+    const { sql, params, isResultEmpty } = prepareSelectStatement(
+      table_name,
+      where,
+      order_by,
+      options
+    );
+    if (isResultEmpty) {
+      return 0;
+    }
+    let sql_count = `SELECT COUNT(*) AS count from (
     ${sql}) AS T`;
-  let records = await query(connection, sql_count, params);
-  return records[0].count;
-}
+    let records = await query(config)(connection, sql_count, params);
+    return records[0].count;
+  };
 
 /**
  * INTERNAL: Prepare select statement from options

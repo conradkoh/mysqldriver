@@ -1,3 +1,4 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 export declare const OPERATORS: {
     AND: string;
@@ -12,7 +13,7 @@ export declare const ALLOWED_OPERATORS: {
  * @param query
  * @param values
  */
-export declare function query(connection: DatabaseConnection, query: string, values?: Array<any>): Promise<any>;
+export declare const query: (config?: DatabaseConfig | undefined) => (connection: DatabaseConnection, query: string, values?: Array<any>) => Promise<any>;
 export declare function containsSpecialChars(str_val: string): boolean;
 export declare type QueryOptions = {
     limit?: QueryLimitOptions;

@@ -1,3 +1,4 @@
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 import { query } from './query';
 export const ALIAS_COLUMN_NAME = 'COLUMN_NAME';
@@ -13,32 +14,37 @@ export const ALIAS_TABLE_NAME = 'TABLE_NAME';
  * @param table_name
  * @param record_raw
  */
-export async function prepareRecord(
-  connection: DatabaseConnection,
-  database_name: string,
-  table_name: string,
-  record_raw: any
-) {
-  if (!(typeof table_name === 'string')) {
-    let error: any = new Error(
-      `MySQLDriver in function prepareRecord: Provided table name is not a string.`
-    );
-    error.table_name = table_name;
-    error.record_raw = record_raw;
-    throw error;
-  }
-  let prepared_record: any = {};
-  let table_info = await getTableInfo(connection, database_name, table_name);
-  table_info.map((field) => {
-    let key = field[ALIAS_COLUMN_NAME];
-    if (key in record_raw && record_raw[key] !== undefined) {
-      //Only add items that have been specified in the record, and are not undefined in value
-      let value = record_raw[key];
-      prepared_record[key] = value;
+export const prepareRecord = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    database_name: string,
+    table_name: string,
+    record_raw: any
+  ) {
+    if (!(typeof table_name === 'string')) {
+      let error: any = new Error(
+        `MySQLDriver in function prepareRecord: Provided table name is not a string.`
+      );
+      error.table_name = table_name;
+      error.record_raw = record_raw;
+      throw error;
     }
-  });
-  return prepared_record;
-}
+    let prepared_record: any = {};
+    let table_info = await getTableInfo(config)(
+      connection,
+      database_name,
+      table_name
+    );
+    table_info.map((field) => {
+      let key = field[ALIAS_COLUMN_NAME];
+      if (key in record_raw && record_raw[key] !== undefined) {
+        //Only add items that have been specified in the record, and are not undefined in value
+        let value = record_raw[key];
+        prepared_record[key] = value;
+      }
+    });
+    return prepared_record;
+  };
 
 //INTERNAL FUNCTIONS
 /**
@@ -46,14 +52,15 @@ export async function prepareRecord(
  * @param database_name
  * @param table_name
  */
-export async function getTableInfo(
-  connection: DatabaseConnection,
-  database_name: string,
-  table_name: string
-): Promise<SQLTableColumn[]> {
-  let result: Array<SQLTableColumn> = await query(
-    connection,
-    `SELECT 
+export const getTableInfo = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    database_name: string,
+    table_name: string
+  ): Promise<SQLTableColumn[]> {
+    let result: Array<SQLTableColumn> = await query(config)(
+      connection,
+      `SELECT 
     \`COLUMN_NAME\` as '${ALIAS_COLUMN_NAME}', 
     \`DATA_TYPE\` AS '${ALIAS_DATA_TYPE}', 
     \`COLUMN_KEY\` AS '${ALIAS_COLUMN_KEY}', 
@@ -62,52 +69,54 @@ export async function getTableInfo(
     \`COLUMN_DEFAULT\` as '${ALIAS_COLUMN_DEFAULT}'
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE \`TABLE_NAME\` = ? AND \`TABLE_SCHEMA\` = ?`,
-    [table_name, database_name]
-  );
-  if (result.length === 0) {
-    throw new Error(
-      `Table '${table_name}' does not exist on database '${database_name}'`
+      [table_name, database_name]
     );
-  }
-  return result;
-}
+    if (result.length === 0) {
+      throw new Error(
+        `Table '${table_name}' does not exist on database '${database_name}'`
+      );
+    }
+    return result;
+  };
 
 /**
  * Gets all table names in a given database
  * @param database_name
  */
-export async function getTableNames(
-  connection: DatabaseConnection,
-  database_name: string
-): Promise<any[]> {
-  const tables: Array<any> = await query(
-    connection,
-    `SELECT TABLE_NAME 
+export const getTableNames = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    database_name: string
+  ): Promise<any[]> {
+    const tables: Array<any> = await query(config)(
+      connection,
+      `SELECT TABLE_NAME 
             FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ?`,
-    [database_name]
-  );
-  const table_names = tables.map((table) => table[ALIAS_TABLE_NAME]);
-  return table_names;
-}
+      [database_name]
+    );
+    const table_names = tables.map((table) => table[ALIAS_TABLE_NAME]);
+    return table_names;
+  };
 
 /**
  * Checks if a table exists
  * @param database_name
  * @param table_name
  */
-export async function tableExists(
-  connection: DatabaseConnection,
-  database_name: string,
-  table_name: string
-): Promise<boolean> {
-  const rows: Array<any> = await query(
-    connection,
-    `SELECT TABLE_NAME 
+export const tableExists = (config: DatabaseConfig) =>
+  async function (
+    connection: DatabaseConnection,
+    database_name: string,
+    table_name: string
+  ): Promise<boolean> {
+    const rows: Array<any> = await query(config)(
+      connection,
+      `SELECT TABLE_NAME 
             FROM INFORMATION_SCHEMA.TABLES WHERE \`TABLE_SCHEMA\` = ? AND \`TABLE_NAME\` = ?`,
-    [database_name, table_name]
-  );
-  return rows.length > 0;
-}
+      [database_name, table_name]
+    );
+    return rows.length > 0;
+  };
 
 export interface SQLTableColumn {
   COLUMN_NAME: string;

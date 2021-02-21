@@ -43,34 +43,36 @@ var query_1 = require("./query");
  * @param table_name
  * @param where
  */
-function deleteRecordRaw(connection, table_name, where) {
-    return __awaiter(this, void 0, void 0, function () {
-        var funcName, select_sql, params, conditions, where_sql;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    funcName = 'deleteRecordRaw';
-                    select_sql = "DELETE FROM `" + table_name + "`";
-                    params = [];
-                    conditions = Object.keys(where).map(function (key) {
-                        if (query_1.containsSpecialChars(key)) {
-                            throw new Error(funcName + ": Special character found in key: '" + key + "'");
+var deleteRecordRaw = function (config) {
+    return function (connection, table_name, where) {
+        return __awaiter(this, void 0, void 0, function () {
+            var funcName, select_sql, params, conditions, where_sql;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        funcName = 'deleteRecordRaw';
+                        select_sql = "DELETE FROM `" + table_name + "`";
+                        params = [];
+                        conditions = Object.keys(where).map(function (key) {
+                            if (query_1.containsSpecialChars(key)) {
+                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
+                            }
+                            var value = where[key];
+                            params.push(value);
+                            return "`" + key + "` = ?";
+                        });
+                        if (conditions.length < 1) {
+                            throw new Error(funcName + ": Unable to delete records without conditions");
                         }
-                        var value = where[key];
-                        params.push(value);
-                        return "`" + key + "` = ?";
-                    });
-                    if (conditions.length < 1) {
-                        throw new Error(funcName + ": Unable to delete records without conditions");
-                    }
-                    where_sql = conditions.reduce(function (last, cur, index) {
-                        return last + " AND " + cur;
-                    });
-                    return [4 /*yield*/, query_1.query(connection, select_sql + " WHERE " + where_sql, params)];
-                case 1: return [2 /*return*/, _a.sent()];
-            }
+                        where_sql = conditions.reduce(function (last, cur, index) {
+                            return last + " AND " + cur;
+                        });
+                        return [4 /*yield*/, query_1.query(config)(connection, select_sql + " WHERE " + where_sql, params)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.deleteRecordRaw = deleteRecordRaw;
 //# sourceMappingURL=delete.js.map

@@ -1,13 +1,14 @@
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
+import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 /**
  * Gets the schema of the database as an array of table schema objects
  */
-export declare function getJSSchema(connection: DatabaseConnection, database_name: string): Promise<JSTableSchema[]>;
+export declare const getJSSchema: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string) => Promise<JSTableSchema[]>;
 /**
  *
  * @param table_name
  */
-export declare function tableGetJSSchema(connection: DatabaseConnection, database_name: string, table_name: string): Promise<JSTableSchema>;
+export declare const tableGetJSSchema: (config: DatabaseConfig) => (connection: DatabaseConnection, database_name: string, table_name: string) => Promise<JSTableSchema>;
 export interface JSField {
     column_name: string;
     data_type: string;

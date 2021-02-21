@@ -38,52 +38,56 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareSelectStatement = exports.selectRecordRawCount = exports.selectRecordRaw = void 0;
 var query_1 = require("./query");
-function selectRecordRaw(connection, table_name, where, order_by, options) {
-    if (where === void 0) { where = {}; }
-    return __awaiter(this, void 0, void 0, function () {
-        var _a, sql, params, isResultEmpty, data;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
-                    if (isResultEmpty) {
-                        return [2 /*return*/, []];
-                    }
-                    return [4 /*yield*/, query_1.query(connection, sql, params)];
-                case 1:
-                    data = _b.sent();
-                    return [2 /*return*/, data];
-            }
+var selectRecordRaw = function (config) {
+    return function (connection, table_name, where, order_by, options) {
+        if (where === void 0) { where = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, sql, params, isResultEmpty, data;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
+                        if (isResultEmpty) {
+                            return [2 /*return*/, []];
+                        }
+                        return [4 /*yield*/, query_1.query(config)(connection, sql, params)];
+                    case 1:
+                        data = _b.sent();
+                        return [2 /*return*/, data];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.selectRecordRaw = selectRecordRaw;
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
  * @param where
  */
-function selectRecordRawCount(connection, table_name, where, order_by, options) {
-    if (where === void 0) { where = {}; }
-    return __awaiter(this, void 0, void 0, function () {
-        var funcName, _a, sql, params, isResultEmpty, sql_count, records;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    funcName = 'selectRecordRawCount';
-                    _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
-                    if (isResultEmpty) {
-                        return [2 /*return*/, 0];
-                    }
-                    sql_count = "SELECT COUNT(*) AS count from (\n    " + sql + ") AS T";
-                    return [4 /*yield*/, query_1.query(connection, sql_count, params)];
-                case 1:
-                    records = _b.sent();
-                    return [2 /*return*/, records[0].count];
-            }
+var selectRecordRawCount = function (config) {
+    return function (connection, table_name, where, order_by, options) {
+        if (where === void 0) { where = {}; }
+        return __awaiter(this, void 0, void 0, function () {
+            var funcName, _a, sql, params, isResultEmpty, sql_count, records;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        funcName = 'selectRecordRawCount';
+                        _a = prepareSelectStatement(table_name, where, order_by, options), sql = _a.sql, params = _a.params, isResultEmpty = _a.isResultEmpty;
+                        if (isResultEmpty) {
+                            return [2 /*return*/, 0];
+                        }
+                        sql_count = "SELECT COUNT(*) AS count from (\n    " + sql + ") AS T";
+                        return [4 /*yield*/, query_1.query(config)(connection, sql_count, params)];
+                    case 1:
+                        records = _b.sent();
+                        return [2 /*return*/, records[0].count];
+                }
+            });
         });
-    });
-}
+    };
+};
 exports.selectRecordRawCount = selectRecordRawCount;
 /**
  * INTERNAL: Prepare select statement from options
