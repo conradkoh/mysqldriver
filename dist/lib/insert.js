@@ -43,7 +43,7 @@ var query_1 = require("./query");
  * @param table_name The name of the table to insert the records into
  * @param record The record to be insert into the database
  */
-var insertRecordRaw = function (config) {
+exports.insertRecordRaw = function (config) {
     return function (connection, table_name, record) {
         return __awaiter(this, void 0, void 0, function () {
             var funcName, insert_sql, params, keys_sql, values_sql;
@@ -80,5 +80,4 @@ var insertRecordRaw = function (config) {
         });
     };
 };
-exports.insertRecordRaw = insertRecordRaw;
 //# sourceMappingURL=insert.js.map

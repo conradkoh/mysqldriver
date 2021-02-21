@@ -42,7 +42,7 @@ var database_2 = require("./database");
 /**
  * Gets the schema of the database as an array of table schema objects
  */
-var getJSSchema = function (config) {
+exports.getJSSchema = function (config) {
     return function (connection, database_name) {
         return __awaiter(this, void 0, void 0, function () {
             var tables, schema;
@@ -70,12 +70,11 @@ var getJSSchema = function (config) {
         });
     };
 };
-exports.getJSSchema = getJSSchema;
 /**
  *
  * @param table_name
  */
-var tableGetJSSchema = function (config) {
+exports.tableGetJSSchema = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var columns, schema, fields;
@@ -107,5 +106,4 @@ var tableGetJSSchema = function (config) {
         });
     };
 };
-exports.tableGetJSSchema = tableGetJSSchema;
 //# sourceMappingURL=javascript.js.map

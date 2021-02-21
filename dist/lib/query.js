@@ -57,7 +57,7 @@ var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce
  * @param query
  * @param values
  */
-var query = function (config) {
+exports.query = function (config) {
     return function (connection, query, values) {
         var _a, _b, _c;
         if (values === void 0) { values = []; }
@@ -99,7 +99,6 @@ var query = function (config) {
         });
     };
 };
-exports.query = query;
 /**
  * Checks an array of values and ensures that it is not undefined
  * @param values

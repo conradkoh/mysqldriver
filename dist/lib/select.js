@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareSelectStatement = exports.selectRecordRawCount = exports.selectRecordRaw = void 0;
 var query_1 = require("./query");
-var selectRecordRaw = function (config) {
+exports.selectRecordRaw = function (config) {
     return function (connection, table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -59,13 +59,12 @@ var selectRecordRaw = function (config) {
         });
     };
 };
-exports.selectRecordRaw = selectRecordRaw;
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
  * @param where
  */
-var selectRecordRawCount = function (config) {
+exports.selectRecordRawCount = function (config) {
     return function (connection, table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -88,7 +87,6 @@ var selectRecordRawCount = function (config) {
         });
     };
 };
-exports.selectRecordRawCount = selectRecordRawCount;
 /**
  * INTERNAL: Prepare select statement from options
  * @param table_name

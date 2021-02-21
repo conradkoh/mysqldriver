@@ -51,7 +51,7 @@ exports.ALIAS_TABLE_NAME = 'TABLE_NAME';
  * @param table_name
  * @param record_raw
  */
-var prepareRecord = function (config) {
+exports.prepareRecord = function (config) {
     return function (connection, database_name, table_name, record_raw) {
         return __awaiter(this, void 0, void 0, function () {
             var error, prepared_record, table_info;
@@ -82,14 +82,13 @@ var prepareRecord = function (config) {
         });
     };
 };
-exports.prepareRecord = prepareRecord;
 //INTERNAL FUNCTIONS
 /**
  * Get the field
  * @param database_name
  * @param table_name
  */
-var getTableInfo = function (config) {
+exports.getTableInfo = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var result;
@@ -107,12 +106,11 @@ var getTableInfo = function (config) {
         });
     };
 };
-exports.getTableInfo = getTableInfo;
 /**
  * Gets all table names in a given database
  * @param database_name
  */
-var getTableNames = function (config) {
+exports.getTableNames = function (config) {
     return function (connection, database_name) {
         return __awaiter(this, void 0, void 0, function () {
             var tables, table_names;
@@ -128,13 +126,12 @@ var getTableNames = function (config) {
         });
     };
 };
-exports.getTableNames = getTableNames;
 /**
  * Checks if a table exists
  * @param database_name
  * @param table_name
  */
-var tableExists = function (config) {
+exports.tableExists = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var rows;
@@ -149,5 +146,4 @@ var tableExists = function (config) {
         });
     };
 };
-exports.tableExists = tableExists;
 //# sourceMappingURL=database.js.map

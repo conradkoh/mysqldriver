@@ -43,7 +43,7 @@ var query_1 = require("./query");
  * @param table_name
  * @param where
  */
-var deleteRecordRaw = function (config) {
+exports.deleteRecordRaw = function (config) {
     return function (connection, table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
             var funcName, select_sql, params, conditions, where_sql;
@@ -74,5 +74,4 @@ var deleteRecordRaw = function (config) {
         });
     };
 };
-exports.deleteRecordRaw = deleteRecordRaw;
 //# sourceMappingURL=delete.js.map

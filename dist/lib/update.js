@@ -45,7 +45,7 @@ import { DatabaseConnection } from '../interfaces/DatabaseConnection';
    * @param properties The properties to be updated
    * @param where THe criteria to search
    */
-var updateRecordsRaw = function (config) {
+exports.updateRecordsRaw = function (config) {
     return function (connection, table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
             var funcName, error, update_sql, params, properties_sql, where_sql;
@@ -90,5 +90,4 @@ var updateRecordsRaw = function (config) {
         });
     };
 };
-exports.updateRecordsRaw = updateRecordsRaw;
 //# sourceMappingURL=update.js.map
