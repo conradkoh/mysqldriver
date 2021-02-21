@@ -2,7 +2,6 @@ import chai, { assert } from 'chai';
 import * as MySQLDriverPackage from '../src/index';
 import { makeTestConnectionConfig } from './utils/connection';
 let TEST_DATA = getTestData();
-let mysql = require('serverless-mysql');
 let config = makeTestConnectionConfig();
 describe('All Tests', () => {
   let users = {};
@@ -257,6 +256,7 @@ describe('Automatic reconnect', () => {
   it('Can query after disconnect', async () => {
     db.closeConnection();
     let d = await db.getRecords('user', { email: testData.USER_1.email });
+    assert(d[0].email === testData.USER_1.email, 'Failed to get correct data');
     assert(d.length > 0, 'Failed to get records');
   });
 });

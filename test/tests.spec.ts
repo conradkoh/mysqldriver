@@ -1,4 +1,4 @@
-import chai, { assert } from 'chai';
+import chai, { assert, expect } from 'chai';
 import * as MySQLDriverPackage from '../src/index';
 let TEST_DATA = getTestData();
 import { makeDBConfig, makeTestConnectionConfig } from './utils/connection';
@@ -230,7 +230,6 @@ describe('All Tests', () => {
 });
 
 describe('Automatic reconnect', () => {
-  let users = {};
   let db = new MySQLDriverPackage.DatabaseDriver(makeDBConfig());
   let testData = getTestData();
   before(async () => {
@@ -268,8 +267,9 @@ describe('Automatic reconnect', () => {
     await db.closeConnection();
   });
   it('Can query after disconnect', async () => {
-    db.closeConnection();
+    await db.closeConnection();
     let d = await db.getRecords('user', { email: testData.USER_1.email });
+    assert(d[0].email === testData.USER_1.email, 'Failed to get correct data');
     assert(d.length > 0, 'Failed to get records');
   });
 });

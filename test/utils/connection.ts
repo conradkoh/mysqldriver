@@ -16,11 +16,15 @@ export function makeDBConfig() {
     createConnection: () => {
       let conn = mysql.createConnection(makeTestConnectionConfig());
       return {
-        destroy: () => conn.destroy(),
+        destroy: () => {
+          conn.destroy();
+        },
         on: (ev, cb) => conn.on(ev, cb),
         query: (q, v, cb) => conn.query(q, v, cb),
-        end: (cb) => conn.end(cb),
-        isDisconnected:
+        end: (cb) => {
+          return conn.end(cb);
+        },
+        isDisconnected: () =>
           conn.state == 'disconnected' || conn.state == 'protocol_error',
       };
     },

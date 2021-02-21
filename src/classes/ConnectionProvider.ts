@@ -2,19 +2,18 @@ import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { DatabaseConnection } from '../interfaces/DatabaseConnection';
 export class ConnectionProvider {
   private cfg: DatabaseConfig;
-  private timeoutDelay = 500;
   private connection: DatabaseConnection;
   constructor(cfg: DatabaseConfig) {
     this.cfg = cfg;
     this.connection = cfg.createConnection();
-    this.connection.on('error', this.handleDisconnect.bind(this));
+    this.connection.on('error', this.handleConnectionError.bind(this));
   }
-  private handleDisconnect() {
+  private handleConnectionError() {
     this.connection = this.cfg.createConnection();
-    this.connection.on('error', this.handleDisconnect.bind(this));
+    this.connection.on('error', this.handleConnectionError.bind(this));
   }
   async getConnection(): Promise<DatabaseConnection> {
-    if (this.connection.isDisconnected) {
+    if (this.connection.isDisconnected()) {
       this.connection = this.cfg.createConnection();
     }
     return this.connection;

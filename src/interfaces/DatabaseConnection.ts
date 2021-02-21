@@ -7,6 +7,6 @@ export interface DatabaseConnection {
     callback: (err: Error | null, rows: any[] | null) => void
   ): void;
   end(callback: (err: Error | null) => void): void;
-  isDisconnected: boolean;
+  isDisconnected: () => boolean;
 }
 export type ConnectionEvent = 'error' | null;

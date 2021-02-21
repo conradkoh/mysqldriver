@@ -44,8 +44,16 @@ function connect(config: ConnectionConfig) {
               cb(err, data);
             });
         },
-        end: (cb) => conn.end().then(() => cb(null)),
-        isDisconnected: false,
+        end: (cb) => {
+          const terminateConnection = async () => {
+            await conn.end();
+            await conn.quit();
+          };
+          return terminateConnection().then(() => cb(null));
+        },
+        isDisconnected: () => {
+          return false;
+        },
       };
     },
   };
