@@ -125,7 +125,7 @@ var MigrationController = /** @class */ (function () {
     return MigrationController;
 }());
 exports.MigrationController = MigrationController;
-var createDefaultMigrationProcessor = function (db) { return __awaiter(void 0, void 0, void 0, function () {
+exports.createDefaultMigrationProcessor = function (db) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, db.tableExists('migrations')];
@@ -194,5 +194,4 @@ var createDefaultMigrationProcessor = function (db) { return __awaiter(void 0, v
         }
     });
 }); };
-exports.createDefaultMigrationProcessor = createDefaultMigrationProcessor;
 //# sourceMappingURL=migration.js.map
