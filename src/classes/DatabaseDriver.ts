@@ -26,10 +26,11 @@ export class DatabaseDriver {
     this.config = cfg;
     this.provider = new ConnectionProvider(cfg);
   }
-  private debugLog(val: string) {
+  private debugLog(val: string, debugInfo: any) {
     if (this.config.debug?.enabled) {
       this.config.debug?.logger?.(
-        `[${formatDate(new Date())}] DatabaseDriver: ${val}`
+        `[${formatDate(new Date())}] DatabaseDriver: ${val}`,
+        debugInfo
       );
     }
   }
@@ -226,8 +227,18 @@ export class DatabaseDriver {
    */
   async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
     let connection = await this.provider.getConnection();
-    this.debugLog('Executing query');
-    return await query(connection, sql, values);
+    //Debugging
+    const timeStart = new Date();
+    const result = await query(connection, sql, values);
+    const timeEnd = new Date();
+    const timeTaken = (timeEnd.getTime() - timeStart.getTime()) / 1000;
+    const debugInfo = {
+      query: sql,
+      timeTaken,
+    };
+    this.debugLog(`Executed query in ${debugInfo.timeTaken}s`, debugInfo);
+    //Result
+    return result;
   }
 
   async closeConnection() {

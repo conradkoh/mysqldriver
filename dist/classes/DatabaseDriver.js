@@ -55,10 +55,10 @@ var DatabaseDriver = /** @class */ (function () {
         this.config = cfg;
         this.provider = new ConnectionProvider_1.ConnectionProvider(cfg);
     }
-    DatabaseDriver.prototype.debugLog = function (val) {
+    DatabaseDriver.prototype.debugLog = function (val, debugInfo) {
         var _a, _b, _c;
         if ((_a = this.config.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
-            (_c = (_b = this.config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "[" + date_1.formatDate(new Date()) + "] DatabaseDriver: " + val);
+            (_c = (_b = this.config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "[" + date_1.formatDate(new Date()) + "] DatabaseDriver: " + val, debugInfo);
         }
     };
     DatabaseDriver.prototype.generateId = function () {
@@ -323,15 +323,25 @@ var DatabaseDriver = /** @class */ (function () {
     DatabaseDriver.prototype.query = function (sql, values) {
         if (values === void 0) { values = []; }
         return __awaiter(this, void 0, void 0, function () {
-            var connection;
+            var connection, timeStart, result, timeEnd, timeTaken, debugInfo;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        this.debugLog('Executing query');
+                        timeStart = new Date();
                         return [4 /*yield*/, query_1.query(connection, sql, values)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        result = _a.sent();
+                        timeEnd = new Date();
+                        timeTaken = (timeEnd.getTime() - timeStart.getTime()) / 1000;
+                        debugInfo = {
+                            query: sql,
+                            timeTaken: timeTaken,
+                        };
+                        this.debugLog("Executed query in " + debugInfo.timeTaken + "s", debugInfo);
+                        //Result
+                        return [2 /*return*/, result];
                 }
             });
         });
