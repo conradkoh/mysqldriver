@@ -67,7 +67,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = __importStar(require("chai"));
-var MySQLDriverPackage = __importStar(require("../src/index"));
+var MySQLDriverPackage = __importStar(require("../index"));
 var TEST_DATA = getTestData();
 var connection_1 = require("./utils/connection");
 describe('All Tests', function () {

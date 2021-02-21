@@ -1,4 +1,4 @@
-import { DatabaseConfig } from '../../src/interfaces/DatabaseConfig';
+import { DatabaseConfig } from '../../interfaces/DatabaseConfig';
 export declare function makeTestConnectionConfig(): {
     host: string;
     database: string;
