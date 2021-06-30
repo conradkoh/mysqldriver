@@ -30,8 +30,16 @@ function connect(config: ConnectionConfig) {
       let conn = serverlessMySQL({
         config: connectionConfig,
       });
+      if (connectionConfig.autoClose) {
+        conn = withAutoCloseConnection(
+          conn,
+          connectionConfig.autoClose.intervalMs
+        );
+      }
       return {
-        destroy: () => conn.quit(),
+        destroy: () => {
+          conn.quit();
+        },
         on: (ev, cb) => {},
         query: (q, v, cb) => {
           conn
@@ -61,6 +69,45 @@ function connect(config: ConnectionConfig) {
   };
   return new DatabaseDriver(dbCfg);
 }
+
+/**
+ * Automatically close the database connection after the given timeout
+ * @param conn
+ * @param timeoutMs
+ * @returns
+ */
+const withAutoCloseConnection = (
+  conn: serverlessMySQL.ServerlessMysql,
+  timeoutMs: number
+): serverlessMySQL.ServerlessMysql => {
+  let timeout;
+  const start = () => {
+    timeout = setTimeout(() => {
+      (async () => {
+        await conn.end();
+        await conn.quit();
+      })();
+    }, timeoutMs);
+  };
+  const stop = () => clearTimeout(timeout);
+  const reset = () => {
+    clearTimeout(timeout);
+    start();
+  };
+  start();
+  return {
+    ...conn,
+    end: () => {
+      stop();
+      return conn.end();
+    },
+    query: (...p) => {
+      reset();
+      return conn.query(...p);
+    },
+  };
+};
+
 export { ConnectionProvider, DatabaseDriver, connect, ConnectionConfig };
 
 class MissingConfigParamException extends Error {

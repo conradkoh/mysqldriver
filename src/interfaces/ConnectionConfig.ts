@@ -11,4 +11,10 @@ export interface ConnectionConfig {
   ssl?: tls.SecureContextOptions & { rejectUnauthorized?: boolean };
   charset?: string;
   debug?: DebugConfig;
+  /**
+   * Automatically close the db connection after a number of seconds of inactivity
+   */
+  autoClose?: {
+    intervalMs: number;
+  };
 }

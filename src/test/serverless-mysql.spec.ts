@@ -3,9 +3,14 @@ import * as MySQLDriverPackage from '../index';
 import { makeTestConnectionConfig } from './utils/connection';
 let TEST_DATA = getTestData();
 let config = makeTestConnectionConfig();
-describe('All Tests', () => {
+describe('All Tests (serverless)', () => {
   let users = {};
-  let db = MySQLDriverPackage.connect(config);
+  let db = MySQLDriverPackage.connect({
+    ...config,
+    autoClose: {
+      intervalMs: 20,
+    },
+  });
   before(async () => {
     let sqls = [
       `CREATE TABLE \`user\` (
