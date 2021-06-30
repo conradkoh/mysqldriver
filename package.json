@@ -12,12 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/chai": "^4.2.12",
-    "@types/mkdirp": "^1.0.1",
-    "@types/mocha": "^7.0.2",
-    "@types/mysql": "^2.15.15",
-    "@types/uuid": "^3.4.9",
     "chai": "^4.2.0",
+    "dayjs": "^1.10.5",
     "fs-extra": "^7.0.1",
     "mkdirp": "^1.0.4",
     "mocha": "^8.1.1",
@@ -31,6 +27,12 @@
     "url": "https://github.com/conradkoh/mysqldriver"
   },
   "devDependencies": {
+    "@types/node": "^15.12.5",
+    "@types/chai": "^4.2.12",
+    "@types/mkdirp": "^1.0.1",
+    "@types/mocha": "^7.0.2",
+    "@types/mysql": "^2.15.15",
+    "@types/uuid": "^3.4.9",
     "typescript": "^4.0.2"
   },
   "bin": {

@@ -71,9 +71,11 @@ var MySQLDriverPackage = __importStar(require("../index"));
 var connection_1 = require("./utils/connection");
 var TEST_DATA = getTestData();
 var config = connection_1.makeTestConnectionConfig();
-describe('All Tests', function () {
+describe('All Tests (serverless)', function () {
     var users = {};
-    var db = MySQLDriverPackage.connect(config);
+    var db = MySQLDriverPackage.connect(__assign(__assign({}, config), { autoClose: {
+            intervalMs: 20,
+        } }));
     before(function () { return __awaiter(void 0, void 0, void 0, function () {
         var sqls, _i, sqls_1, sql;
         return __generator(this, function (_a) {

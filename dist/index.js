@@ -12,6 +12,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -97,8 +108,13 @@ function connect(config) {
             var conn = serverless_mysql_1.default({
                 config: connectionConfig,
             });
+            if (connectionConfig.autoClose) {
+                conn = withAutoCloseConnection(conn, connectionConfig.autoClose.intervalMs);
+            }
             return {
-                destroy: function () { return conn.quit(); },
+                destroy: function () {
+                    conn.quit();
+                },
                 on: function (ev, cb) { },
                 query: function (q, v, cb) {
                     conn
@@ -138,6 +154,49 @@ function connect(config) {
     return new DatabaseDriver_1.DatabaseDriver(dbCfg);
 }
 exports.connect = connect;
+/**
+ * Automatically close the database connection after the given timeout
+ * @param conn
+ * @param timeoutMs
+ * @returns
+ */
+var withAutoCloseConnection = function (conn, timeoutMs) {
+    var timeout;
+    var start = function () {
+        timeout = setTimeout(function () {
+            (function () { return __awaiter(void 0, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, conn.end()];
+                        case 1:
+                            _a.sent();
+                            return [4 /*yield*/, conn.quit()];
+                        case 2:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            }); })();
+        }, timeoutMs);
+    };
+    var stop = function () { return clearTimeout(timeout); };
+    var reset = function () {
+        clearTimeout(timeout);
+        start();
+    };
+    start();
+    return __assign(__assign({}, conn), { end: function () {
+            stop();
+            return conn.end();
+        }, query: function () {
+            var p = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                p[_i] = arguments[_i];
+            }
+            reset();
+            return conn.query.apply(conn, p);
+        } });
+};
 var MissingConfigParamException = /** @class */ (function (_super) {
     __extends(MissingConfigParamException, _super);
     function MissingConfigParamException(key, value) {
