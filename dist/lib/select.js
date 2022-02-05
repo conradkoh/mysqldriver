@@ -189,6 +189,9 @@ function prepareSelectStatement(table_name, where, order_by, options) {
     var limit_clause = '';
     if (limit) {
         var offset = limit.offset, page_size = limit.page_size;
+        if (offset == undefined) {
+            offset = 0;
+        }
         if (typeof offset !== 'number') {
             throw new Error(funcName + ": offset in limit option must be a number.");
         }

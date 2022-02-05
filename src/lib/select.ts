@@ -174,6 +174,9 @@ export function prepareSelectStatement(
   let limit_clause = '';
   if (limit) {
     let { offset, page_size } = limit;
+    if (offset == undefined) {
+      offset = 0;
+    }
     if (typeof offset !== 'number') {
       throw new Error(`${funcName}: offset in limit option must be a number.`);
     }
