@@ -386,6 +386,32 @@ describe('All Tests', function () {
             }
         });
     }); });
+    it('Throws errors when attempting to update with invalid properties', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var user1, invalidFieldName, err_1, errorMessage;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    user1 = Object.values(users)[0];
+                    invalidFieldName = 'someInvalidKey';
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, db.updateRecords('user', (_a = {}, _a[invalidFieldName] = '1', _a), {
+                            user_id: user1.user_id,
+                        })];
+                case 2:
+                    _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    err_1 = _b.sent();
+                    errorMessage = err_1.message;
+                    chai_1.expect(errorMessage.indexOf(invalidFieldName)).to.be.greaterThan(-1);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
     //Delete
     it('Delete Records', function () { return __awaiter(void 0, void 0, void 0, function () {
         var user1, found;

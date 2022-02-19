@@ -54,7 +54,7 @@ exports.ALIAS_TABLE_NAME = 'TABLE_NAME';
 exports.prepareRecord = function (config) {
     return function (connection, database_name, table_name, record_raw) {
         return __awaiter(this, void 0, void 0, function () {
-            var error, prepared_record, table_info;
+            var error, allowed_columns, allowed_column_index, user_input_column_names, _i, user_input_column_names_1, column_name, prepared_record;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -64,11 +64,22 @@ exports.prepareRecord = function (config) {
                             error.record_raw = record_raw;
                             throw error;
                         }
-                        prepared_record = {};
                         return [4 /*yield*/, exports.getTableInfo(config)(connection, database_name, table_name)];
                     case 1:
-                        table_info = _a.sent();
-                        table_info.map(function (field) {
+                        allowed_columns = _a.sent();
+                        allowed_column_index = allowed_columns.reduce(function (state, column) {
+                            state[column.COLUMN_NAME] = column;
+                            return state;
+                        }, {});
+                        user_input_column_names = Object.keys(record_raw);
+                        for (_i = 0, user_input_column_names_1 = user_input_column_names; _i < user_input_column_names_1.length; _i++) {
+                            column_name = user_input_column_names_1[_i];
+                            if (!allowed_column_index[column_name]) {
+                                throw new Error("MySQLDriver in function prepareRecord: Invalid column: " + column_name + ".");
+                            }
+                        }
+                        prepared_record = {};
+                        allowed_columns.map(function (field) {
                             var key = field[exports.ALIAS_COLUMN_NAME];
                             if (key in record_raw && record_raw[key] !== undefined) {
                                 //Only add items that have been specified in the record, and are not undefined in value

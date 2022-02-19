@@ -219,6 +219,22 @@ describe('All Tests', () => {
       );
     }
   });
+  it('Throws errors when attempting to update with invalid properties', async () => {
+    let user1: any = Object.values(users)[0];
+    const invalidFieldName = 'someInvalidKey';
+    try {
+      await db.updateRecords(
+        'user',
+        { [invalidFieldName]: '1' },
+        {
+          user_id: user1.user_id,
+        }
+      );
+    } catch (err) {
+      const errorMessage = (err as Error).message;
+      expect(errorMessage.indexOf(invalidFieldName)).to.be.greaterThan(-1);
+    }
+  });
 
   //Delete
   it('Delete Records', async () => {

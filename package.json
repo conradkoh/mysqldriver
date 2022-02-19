@@ -1,13 +1,14 @@
 {
   "name": "mysqldriver",
-  "version": "4.4.1",
+  "version": "5.0.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "ts-mocha src/test/**/*.spec.ts",
     "prepublish": "rm -rf dist && tsc --build --clean && tsc --build",
-    "test:watch": "ts-mocha src/test/**/*.spec.ts --reporter min -w --recursive"
+    "test:watch": "ts-mocha src/test/**/*.spec.ts --reporter min -w --recursive",
+    "build": "tsc ."
   },
   "author": "",
   "license": "ISC",

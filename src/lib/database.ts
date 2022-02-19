@@ -29,13 +29,29 @@ export const prepareRecord = (config: DatabaseConfig) =>
       error.record_raw = record_raw;
       throw error;
     }
-    let prepared_record: any = {};
-    let table_info = await getTableInfo(config)(
+    let allowed_columns = await getTableInfo(config)(
       connection,
       database_name,
       table_name
     );
-    table_info.map((field) => {
+    const allowed_column_index = allowed_columns.reduce((state, column) => {
+      state[column.COLUMN_NAME] = column;
+      return state;
+    }, {});
+
+    //check for invalid properties
+    const user_input_column_names = Object.keys(record_raw);
+    for (let column_name of user_input_column_names) {
+      if (!allowed_column_index[column_name]) {
+        throw new Error(
+          `MySQLDriver in function prepareRecord: Invalid column: ${column_name}.`
+        );
+      }
+    }
+
+    //start preparing the record
+    let prepared_record: any = {};
+    allowed_columns.map((field) => {
       let key = field[ALIAS_COLUMN_NAME];
       if (key in record_raw && record_raw[key] !== undefined) {
         //Only add items that have been specified in the record, and are not undefined in value
