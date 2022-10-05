@@ -19,12 +19,16 @@ import {
   JSTableSchema,
 } from '../lib/javascript';
 import { formatDate } from '../lib/format/date';
+import { makeQueryBuilder, QueryBuilder } from './QueryBuilder';
 export class DatabaseDriver {
   private config: DatabaseConfig;
   private provider: ConnectionProvider;
+  public readonly builder: QueryBuilder;
   constructor(cfg: DatabaseConfig) {
     this.config = cfg;
     this.provider = new ConnectionProvider(cfg);
+    this.builder = makeQueryBuilder();
+    Object.freeze(this);
   }
   private debugLog(val: string, debugInfo: any) {
     if (this.config.debug?.enabled) {
@@ -64,12 +68,12 @@ export class DatabaseDriver {
    * @param table_name
    * @param where The search criteria to do a match
    */
-  async getRecords(
+  async getRecords<T = any>(
     table_name: string,
     where: any,
     order_by: Array<{ key: string; order: 'ASC' | 'DESC' }> = [],
     options?: QueryOptions
-  ): Promise<any[]> {
+  ): Promise<T[]> {
     let connection = await this.provider.getConnection();
     return await selectRecordRaw(this.config)(
       connection,
@@ -167,7 +171,10 @@ export class DatabaseDriver {
    * @param sql
    * @param values
    */
-  async getRecordSql(sql: string, values: Array<any>): Promise<any> {
+  async getRecordSql<T = any>(
+    sql: string,
+    values: Array<any>
+  ): Promise<T | null> {
     let self = this;
     let records = await self.getRecordsSql(sql, values);
     if (records.length > 1) {
@@ -221,7 +228,7 @@ export class DatabaseDriver {
    * Get the field names for a given table
    * @param table_name
    */
-  async getTableFieldNames(table_name: string): Promise<any[]> {
+  async getTableFieldNames(table_name: string): Promise<string[]> {
     let connection = await this.provider.getConnection();
     let self = this;
     let { database } = self.config;
@@ -237,7 +244,10 @@ export class DatabaseDriver {
    * @param sql
    * @param values
    */
-  async query(sql: string, values: Array<any> = []): Promise<Array<any>> {
+  async query<T = any>(
+    sql: string,
+    values: Array<any> = []
+  ): Promise<Array<T>> {
     let connection = await this.provider.getConnection();
     const result = await query(this.config)(connection, sql, values);
     return result;

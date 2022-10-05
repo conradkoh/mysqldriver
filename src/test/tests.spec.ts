@@ -290,6 +290,55 @@ describe('Automatic reconnect', () => {
   });
 });
 
+describe('Has a working query builder', () => {
+  let db = new MySQLDriverPackage.DatabaseDriver(makeDBConfig());
+  let testData = getTestData();
+  before(async () => {
+    let sqls = [
+      `CREATE TABLE \`user\` (
+            \`user_id\` VARCHAR(50) NOT NULL DEFAULT '',
+            \`first_name\` VARCHAR(255) DEFAULT NULL,
+            \`last_name\` VARCHAR(255) DEFAULT NULL,
+            \`email\` VARCHAR(255) DEFAULT NULL,
+            \`index_number\` INT DEFAULT NULL,
+            \`created_by\` VARCHAR(50) DEFAULT NULL,
+            \`created_date\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            \`updated_by\` VARCHAR(50) DEFAULT NULL,
+            \`updated_date\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+            PRIMARY KEY (\`user_id\`),
+            INDEX \`IX_USE_use_id\` (\`user_id\`),
+            INDEX \`IX_USE_fir_nam\` (\`first_name\`),
+            INDEX \`IX_USE_las_nam\` (\`last_name\`),
+            INDEX \`IX_USE_ema\` (\`email\`),
+            INDEX \`IX_USE_ind_num\` (\`index_number\`)
+
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`,
+    ];
+    for (let sql of sqls) {
+      await db.query(sql, []);
+    }
+    await db.insertRecord('user', testData.USER_1);
+  });
+  after(async () => {
+    let sqls = [`DROP TABLE user;`];
+    for (let sql of sqls) {
+      await db.query(sql, []);
+    }
+    await db.closeConnection();
+  });
+  it('gets records successfully', async () => {
+    const query = db.builder
+      .select('*')
+      .from('user')
+      .where('email', testData.USER_1.email)
+      .toQuery();
+    const d = await db.query(query);
+    assert(d[0].email === testData.USER_1.email, 'Failed to get correct data');
+    assert(d.length > 0, 'Failed to get records');
+  });
+});
+
 function getTestData() {
   return {
     USER_1: {
