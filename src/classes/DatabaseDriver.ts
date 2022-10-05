@@ -193,7 +193,10 @@ export class DatabaseDriver {
    * @param sql
    * @param values
    */
-  async getRecordsSql(sql: string, values: Array<any>): Promise<Array<any>> {
+  async getRecordsSql<T = any>(
+    sql: string,
+    values: Array<any>
+  ): Promise<Array<T>> {
     let connection = await this.provider.getConnection();
     return await query(this.config)(connection, sql, values);
   }
