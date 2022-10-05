@@ -57,7 +57,7 @@ var INVALID_COLUMN_NAME_CHARS_INDEX = INVALID_COLUMN_NAME_CHARS.split('').reduce
  * @param query
  * @param values
  */
-exports.query = function (config) {
+var query = function (config) {
     return function (connection, query, values) {
         var _a, _b, _c;
         if (values === void 0) { values = []; }
@@ -69,7 +69,7 @@ exports.query = function (config) {
                         timeStart = new Date();
                         _d = checkValues(values), isValid = _d.isValid, errors = _d.errors;
                         if (!isValid) {
-                            throw new Error("Query error:\n" + query + "\n\nErrors:\n" + errors.join('\n'));
+                            throw new Error("Query error:\n".concat(query, "\n\nErrors:\n").concat(errors.join('\n')));
                         }
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
                                 connection.query(query, values, function (err, resRaw) {
@@ -91,7 +91,7 @@ exports.query = function (config) {
                             timeTaken: timeTaken,
                         };
                         if ((_a = config === null || config === void 0 ? void 0 : config.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
-                            (_c = (_b = config === null || config === void 0 ? void 0 : config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "Executed query in " + debugInfo.timeTaken + "s", debugInfo);
+                            (_c = (_b = config === null || config === void 0 ? void 0 : config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "Executed query in ".concat(debugInfo.timeTaken, "s"), debugInfo);
                         }
                         return [2 /*return*/, data];
                 }
@@ -99,6 +99,7 @@ exports.query = function (config) {
         });
     };
 };
+exports.query = query;
 /**
  * Checks an array of values and ensures that it is not undefined
  * @param values
@@ -108,7 +109,7 @@ function checkValues(values) {
     for (var idx in values) {
         var value = values[idx];
         if (value === undefined) {
-            errors.push("Prepared value at index " + idx + " is undefined");
+            errors.push("Prepared value at index ".concat(idx, " is undefined"));
         }
     }
     return { isValid: errors.length === 0, errors: errors };

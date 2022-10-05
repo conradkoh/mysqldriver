@@ -43,7 +43,7 @@ var query_1 = require("./query");
  * @param table_name
  * @param where
  */
-exports.deleteRecordRaw = function (config) {
+var deleteRecordRaw = function (config) {
     return function (connection, table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
             var funcName, select_sql, params, conditions, where_sql;
@@ -51,27 +51,28 @@ exports.deleteRecordRaw = function (config) {
                 switch (_a.label) {
                     case 0:
                         funcName = 'deleteRecordRaw';
-                        select_sql = "DELETE FROM `" + table_name + "`";
+                        select_sql = "DELETE FROM `".concat(table_name, "`");
                         params = [];
                         conditions = Object.keys(where).map(function (key) {
-                            if (query_1.containsSpecialChars(key)) {
-                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
+                            if ((0, query_1.containsSpecialChars)(key)) {
+                                throw new Error("".concat(funcName, ": Special character found in key: '").concat(key, "'"));
                             }
                             var value = where[key];
                             params.push(value);
-                            return "`" + key + "` = ?";
+                            return "`".concat(key, "` = ?");
                         });
                         if (conditions.length < 1) {
-                            throw new Error(funcName + ": Unable to delete records without conditions");
+                            throw new Error("".concat(funcName, ": Unable to delete records without conditions"));
                         }
                         where_sql = conditions.reduce(function (last, cur, index) {
-                            return last + " AND " + cur;
+                            return "".concat(last, " AND ").concat(cur);
                         });
-                        return [4 /*yield*/, query_1.query(config)(connection, select_sql + " WHERE " + where_sql, params)];
+                        return [4 /*yield*/, (0, query_1.query)(config)(connection, "".concat(select_sql, " WHERE ").concat(where_sql), params)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
 };
+exports.deleteRecordRaw = deleteRecordRaw;
 //# sourceMappingURL=delete.js.map

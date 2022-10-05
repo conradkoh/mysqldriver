@@ -11,8 +11,8 @@ describe('Migrate Upgrade Usecase', function () {
         var scriptName = 'createUserTable';
         var actionRaw = 'up';
         var ext = 'sql';
-        var name = createdTime + "-" + scriptName;
-        var fileName = name + "." + actionRaw + "." + ext;
+        var name = "".concat(createdTime, "-").concat(scriptName);
+        var fileName = "".concat(name, ".").concat(actionRaw, ".").concat(ext);
         var filePath = createTestPath(fileName);
         var expected = {
             name: name,
@@ -24,15 +24,15 @@ describe('Migrate Upgrade Usecase', function () {
             scriptName: scriptName,
             ext: MigrationFileExtensions_1.MigrationFileExtensions.SQL,
         };
-        var actual = migrateUpgrade_1.parseFilepath(filePath);
+        var actual = (0, migrateUpgrade_1.parseFilepath)(filePath);
         var keys = Object.keys(expected);
         if (actual !== null) {
             for (var key in keys) {
-                chai_1.expect(actual[key]).to.be.equal(expected[key], key + " values are not equal");
+                (0, chai_1.expect)(actual[key]).to.be.equal(expected[key], "".concat(key, " values are not equal"));
             }
         }
         else {
-            chai_1.expect(actual).not.equal(null, "Migration file cannot be null");
+            (0, chai_1.expect)(actual).not.equal(null, "Migration file cannot be null");
         }
     });
     it('Parse Filepath (SQL, down)', function () {
@@ -40,8 +40,8 @@ describe('Migrate Upgrade Usecase', function () {
         var scriptName = 'createUserTable';
         var actionRaw = 'down';
         var ext = 'sql';
-        var name = createdTime + "-" + scriptName;
-        var fileName = name + "." + actionRaw + "." + ext;
+        var name = "".concat(createdTime, "-").concat(scriptName);
+        var fileName = "".concat(name, ".").concat(actionRaw, ".").concat(ext);
         var filePath = createTestPath(fileName);
         var expected = {
             name: name,
@@ -53,19 +53,19 @@ describe('Migrate Upgrade Usecase', function () {
             scriptName: scriptName,
             ext: MigrationFileExtensions_1.MigrationFileExtensions.SQL,
         };
-        var actual = migrateUpgrade_1.parseFilepath(filePath);
+        var actual = (0, migrateUpgrade_1.parseFilepath)(filePath);
         var keys = Object.keys(expected);
         if (actual !== null) {
             for (var key in keys) {
-                chai_1.expect(actual[key]).to.be.equal(expected[key], key + " values are not equal");
+                (0, chai_1.expect)(actual[key]).to.be.equal(expected[key], "".concat(key, " values are not equal"));
             }
         }
         else {
-            chai_1.expect(actual).not.equal(null, "Migration file cannot be null");
+            (0, chai_1.expect)(actual).not.equal(null, "Migration file cannot be null");
         }
     });
 });
 function createTestPath(fileName) {
-    return "path/to/dir/" + fileName;
+    return "path/to/dir/".concat(fileName);
 }
 //# sourceMappingURL=migrateUpgrade.spec.js.map

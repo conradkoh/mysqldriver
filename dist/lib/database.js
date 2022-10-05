@@ -51,7 +51,7 @@ exports.ALIAS_TABLE_NAME = 'TABLE_NAME';
  * @param table_name
  * @param record_raw
  */
-exports.prepareRecord = function (config) {
+var prepareRecord = function (config) {
     return function (connection, database_name, table_name, record_raw) {
         return __awaiter(this, void 0, void 0, function () {
             var error, allowed_columns, allowed_column_index, user_input_column_names, _i, user_input_column_names_1, column_name, prepared_record;
@@ -64,7 +64,7 @@ exports.prepareRecord = function (config) {
                             error.record_raw = record_raw;
                             throw error;
                         }
-                        return [4 /*yield*/, exports.getTableInfo(config)(connection, database_name, table_name)];
+                        return [4 /*yield*/, (0, exports.getTableInfo)(config)(connection, database_name, table_name)];
                     case 1:
                         allowed_columns = _a.sent();
                         allowed_column_index = allowed_columns.reduce(function (state, column) {
@@ -75,7 +75,7 @@ exports.prepareRecord = function (config) {
                         for (_i = 0, user_input_column_names_1 = user_input_column_names; _i < user_input_column_names_1.length; _i++) {
                             column_name = user_input_column_names_1[_i];
                             if (!allowed_column_index[column_name]) {
-                                throw new Error("MySQLDriver in function prepareRecord: Invalid column: " + column_name + ".");
+                                throw new Error("MySQLDriver in function prepareRecord: Invalid column: ".concat(column_name, "."));
                             }
                         }
                         prepared_record = {};
@@ -93,23 +93,24 @@ exports.prepareRecord = function (config) {
         });
     };
 };
+exports.prepareRecord = prepareRecord;
 //INTERNAL FUNCTIONS
 /**
  * Get the field
  * @param database_name
  * @param table_name
  */
-exports.getTableInfo = function (config) {
+var getTableInfo = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT \n    `COLUMN_NAME` as '" + exports.ALIAS_COLUMN_NAME + "', \n    `DATA_TYPE` AS '" + exports.ALIAS_DATA_TYPE + "', \n    `COLUMN_KEY` AS '" + exports.ALIAS_COLUMN_KEY + "', \n    `CHARACTER_MAXIMUM_LENGTH` as '" + exports.ALIAS_CHARACTER_MAXIMUM_LENGTH + "',\n    `IS_NULLABLE` as '" + exports.ALIAS_IS_NULLABLE + "',\n    `COLUMN_DEFAULT` as '" + exports.ALIAS_COLUMN_DEFAULT + "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?", [table_name, database_name])];
+                    case 0: return [4 /*yield*/, (0, query_1.query)(config)(connection, "SELECT \n    `COLUMN_NAME` as '".concat(exports.ALIAS_COLUMN_NAME, "', \n    `DATA_TYPE` AS '").concat(exports.ALIAS_DATA_TYPE, "', \n    `COLUMN_KEY` AS '").concat(exports.ALIAS_COLUMN_KEY, "', \n    `CHARACTER_MAXIMUM_LENGTH` as '").concat(exports.ALIAS_CHARACTER_MAXIMUM_LENGTH, "',\n    `IS_NULLABLE` as '").concat(exports.ALIAS_IS_NULLABLE, "',\n    `COLUMN_DEFAULT` as '").concat(exports.ALIAS_COLUMN_DEFAULT, "'\n    FROM INFORMATION_SCHEMA.COLUMNS\n    WHERE `TABLE_NAME` = ? AND `TABLE_SCHEMA` = ?"), [table_name, database_name])];
                     case 1:
                         result = _a.sent();
                         if (result.length === 0) {
-                            throw new Error("Table '" + table_name + "' does not exist on database '" + database_name + "'");
+                            throw new Error("Table '".concat(table_name, "' does not exist on database '").concat(database_name, "'"));
                         }
                         return [2 /*return*/, result];
                 }
@@ -117,17 +118,18 @@ exports.getTableInfo = function (config) {
         });
     };
 };
+exports.getTableInfo = getTableInfo;
 /**
  * Gets all table names in a given database
  * @param database_name
  */
-exports.getTableNames = function (config) {
+var getTableNames = function (config) {
     return function (connection, database_name) {
         return __awaiter(this, void 0, void 0, function () {
             var tables, table_names;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ?", [database_name])];
+                    case 0: return [4 /*yield*/, (0, query_1.query)(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ?", [database_name])];
                     case 1:
                         tables = _a.sent();
                         table_names = tables.map(function (table) { return table[exports.ALIAS_TABLE_NAME]; });
@@ -137,18 +139,19 @@ exports.getTableNames = function (config) {
         });
     };
 };
+exports.getTableNames = getTableNames;
 /**
  * Checks if a table exists
  * @param database_name
  * @param table_name
  */
-exports.tableExists = function (config) {
+var tableExists = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var rows;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, query_1.query(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?", [database_name, table_name])];
+                    case 0: return [4 /*yield*/, (0, query_1.query)(config)(connection, "SELECT TABLE_NAME \n            FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ?", [database_name, table_name])];
                     case 1:
                         rows = _a.sent();
                         return [2 /*return*/, rows.length > 0];
@@ -157,4 +160,5 @@ exports.tableExists = function (config) {
         });
     };
 };
+exports.tableExists = tableExists;
 //# sourceMappingURL=database.js.map

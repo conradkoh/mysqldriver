@@ -4,7 +4,7 @@ import { QueryOptions } from './query';
 export declare const selectRecordRaw: (config: DatabaseConfig) => (connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
     key: string;
     order: 'ASC' | 'DESC';
-}>, options?: QueryOptions | undefined) => Promise<any[]>;
+}>, options?: QueryOptions) => Promise<any[]>;
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
@@ -13,7 +13,7 @@ export declare const selectRecordRaw: (config: DatabaseConfig) => (connection: D
 export declare const selectRecordRawCount: (config: DatabaseConfig) => (connection: DatabaseConnection, table_name: string, where: any, order_by: Array<{
     key: string;
     order: 'ASC' | 'DESC';
-}>, options?: QueryOptions | undefined) => Promise<number>;
+}>, options?: QueryOptions) => Promise<number>;
 /**
  * INTERNAL: Prepare select statement from options
  * @param table_name

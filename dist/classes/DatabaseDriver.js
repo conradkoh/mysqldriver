@@ -50,19 +50,22 @@ var update_1 = require("../lib/update");
 var delete_1 = require("../lib/delete");
 var javascript_1 = require("../lib/javascript");
 var date_1 = require("../lib/format/date");
+var QueryBuilder_1 = require("./QueryBuilder");
 var DatabaseDriver = /** @class */ (function () {
     function DatabaseDriver(cfg) {
         this.config = cfg;
         this.provider = new ConnectionProvider_1.ConnectionProvider(cfg);
+        this.builder = (0, QueryBuilder_1.makeQueryBuilder)();
+        Object.freeze(this);
     }
     DatabaseDriver.prototype.debugLog = function (val, debugInfo) {
         var _a, _b, _c;
         if ((_a = this.config.debug) === null || _a === void 0 ? void 0 : _a.enabled) {
-            (_c = (_b = this.config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "[" + date_1.formatDate(new Date()) + "] DatabaseDriver: " + val, debugInfo);
+            (_c = (_b = this.config.debug) === null || _b === void 0 ? void 0 : _b.logger) === null || _c === void 0 ? void 0 : _c.call(_b, "[".concat((0, date_1.formatDate)(new Date()), "] DatabaseDriver: ").concat(val), debugInfo);
         }
     };
     DatabaseDriver.prototype.generateId = function () {
-        return v4_1.default();
+        return (0, v4_1.default)();
     };
     /**
      * Insert records into the database
@@ -79,10 +82,10 @@ var DatabaseDriver = /** @class */ (function () {
                         connection = _a.sent();
                         self = this;
                         database = self.config.database;
-                        return [4 /*yield*/, database_1.prepareRecord(this.config)(connection, database, table_name, record)];
+                        return [4 /*yield*/, (0, database_1.prepareRecord)(this.config)(connection, database, table_name, record)];
                     case 2:
                         clean_record = _a.sent();
-                        return [4 /*yield*/, insert_1.insertRecordRaw(this.config)(connection, table_name, clean_record)];
+                        return [4 /*yield*/, (0, insert_1.insertRecordRaw)(this.config)(connection, table_name, clean_record)];
                     case 3:
                         res = _a.sent();
                         return [2 /*return*/, res];
@@ -104,7 +107,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, select_1.selectRecordRaw(this.config)(connection, table_name, where, order_by, options)];
+                        return [4 /*yield*/, (0, select_1.selectRecordRaw)(this.config)(connection, table_name, where, order_by, options)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -124,7 +127,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, select_1.selectRecordRawCount(this.config)(connection, table_name, where, order_by, options)];
+                        return [4 /*yield*/, (0, select_1.selectRecordRawCount)(this.config)(connection, table_name, where, order_by, options)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -144,7 +147,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, select_1.selectRecordRaw(this.config)(connection, table_name, where, order_by, { limit: { offset: 0, page_size: 1 } })];
+                        return [4 /*yield*/, (0, select_1.selectRecordRaw)(this.config)(connection, table_name, where, order_by, { limit: { offset: 0, page_size: 1 } })];
                     case 2:
                         result = _a.sent();
                         if (result.length > 1) {
@@ -175,10 +178,10 @@ var DatabaseDriver = /** @class */ (function () {
                     case 1:
                         connection = _a.sent();
                         database = self.config.database;
-                        return [4 /*yield*/, database_1.prepareRecord(this.config)(connection, database, table_name, properties)];
+                        return [4 /*yield*/, (0, database_1.prepareRecord)(this.config)(connection, database, table_name, properties)];
                     case 2:
                         clean_properties = _a.sent();
-                        return [4 /*yield*/, update_1.updateRecordsRaw(this.config)(connection, table_name, clean_properties, where)];
+                        return [4 /*yield*/, (0, update_1.updateRecordsRaw)(this.config)(connection, table_name, clean_properties, where)];
                     case 3: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -199,7 +202,7 @@ var DatabaseDriver = /** @class */ (function () {
                         return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, delete_1.deleteRecordRaw(this.config)(connection, table_name, where)];
+                        return [4 /*yield*/, (0, delete_1.deleteRecordRaw)(this.config)(connection, table_name, where)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -244,7 +247,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, query_1.query(this.config)(connection, sql, values)];
+                        return [4 /*yield*/, (0, query_1.query)(this.config)(connection, sql, values)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -263,7 +266,7 @@ var DatabaseDriver = /** @class */ (function () {
                         connection = _a.sent();
                         self = this;
                         database = self.config.database;
-                        return [4 /*yield*/, database_1.getTableNames(this.config)(connection, database)];
+                        return [4 /*yield*/, (0, database_1.getTableNames)(this.config)(connection, database)];
                     case 2:
                         table_names = _a.sent();
                         return [2 /*return*/, table_names];
@@ -285,7 +288,7 @@ var DatabaseDriver = /** @class */ (function () {
                         connection = _a.sent();
                         self = this;
                         database = self.config.database;
-                        return [4 /*yield*/, database_1.getTableInfo(this.config)(connection, database, table_name)];
+                        return [4 /*yield*/, (0, database_1.getTableInfo)(this.config)(connection, database, table_name)];
                     case 2:
                         info = _a.sent();
                         return [2 /*return*/, info];
@@ -307,7 +310,7 @@ var DatabaseDriver = /** @class */ (function () {
                         connection = _a.sent();
                         self = this;
                         database = self.config.database;
-                        return [4 /*yield*/, database_1.getTableInfo(this.config)(connection, database, table_name)];
+                        return [4 /*yield*/, (0, database_1.getTableInfo)(this.config)(connection, database, table_name)];
                     case 2:
                         info = _a.sent();
                         return [2 /*return*/, info.map(function (field_info) { return field_info.COLUMN_NAME; })];
@@ -329,7 +332,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
-                        return [4 /*yield*/, query_1.query(this.config)(connection, sql, values)];
+                        return [4 /*yield*/, (0, query_1.query)(this.config)(connection, sql, values)];
                     case 2:
                         result = _a.sent();
                         return [2 /*return*/, result];
@@ -371,7 +374,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 1:
                         connection = _a.sent();
                         database = this.config.database;
-                        return [4 /*yield*/, javascript_1.getJSSchema(this.config)(connection, database)];
+                        return [4 /*yield*/, (0, javascript_1.getJSSchema)(this.config)(connection, database)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -390,7 +393,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 1:
                         connection = _a.sent();
                         database = this.config.database;
-                        return [4 /*yield*/, javascript_1.tableGetJSSchema(this.config)(connection, database, table_name)];
+                        return [4 /*yield*/, (0, javascript_1.tableGetJSSchema)(this.config)(connection, database, table_name)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -409,7 +412,7 @@ var DatabaseDriver = /** @class */ (function () {
                     case 1:
                         connection = _a.sent();
                         database = this.config.database;
-                        return [4 /*yield*/, database_1.tableExists(this.config)(connection, database, table_name)];
+                        return [4 /*yield*/, (0, database_1.tableExists)(this.config)(connection, database, table_name)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });

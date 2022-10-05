@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -105,7 +107,7 @@ function connect(config) {
         database: config.database,
         debug: debug,
         createConnection: function () {
-            var conn = serverless_mysql_1.default({
+            var conn = (0, serverless_mysql_1.default)({
                 config: connectionConfig,
             });
             if (connectionConfig.autoClose) {
@@ -200,7 +202,7 @@ var withAutoCloseConnection = function (conn, timeoutMs) {
 var MissingConfigParamException = /** @class */ (function (_super) {
     __extends(MissingConfigParamException, _super);
     function MissingConfigParamException(key, value) {
-        return _super.call(this, "MySQLDriver: Missing config: " + key + " has value " + value) || this;
+        return _super.call(this, "MySQLDriver: Missing config: ".concat(key, " has value ").concat(value)) || this;
     }
     return MissingConfigParamException;
 }(Error));

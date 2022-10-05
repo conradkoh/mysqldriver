@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -114,7 +116,7 @@ function performAction(action, options) {
                     }
                     caCertContent = process.env['DB_SSL_CA_CERTIFICATE'];
                     defaultSslOption = caCertContent ? 1 : 0;
-                    requireSsl = parseInt("" + process.env['DB_REQUIRE_SSL'])
+                    requireSsl = parseInt("".concat(process.env['DB_REQUIRE_SSL']))
                         ? true
                         : defaultSslOption;
                     if (requireSsl && !caCertContent) {
@@ -132,8 +134,8 @@ function performAction(action, options) {
                             }
                         }
                     }
-                    db = __1.connect(config);
-                    return [4 /*yield*/, migration_1.createDefaultMigrationProcessor(db)];
+                    db = (0, __1.connect)(config);
+                    return [4 /*yield*/, (0, migration_1.createDefaultMigrationProcessor)(db)];
                 case 1:
                     defaultMigrationProcessor = _b.sent();
                     controller = new migration_1.MigrationController(db, defaultMigrationProcessor);
@@ -148,7 +150,7 @@ function performAction(action, options) {
                     count = options.count !== null && options.count !== undefined
                         ? options.count
                         : 1;
-                    console.log("Applying migrations with count: " + count);
+                    console.log("Applying migrations with count: ".concat(count));
                     return [4 /*yield*/, controller.upgrade('/migrations', count)];
                 case 3:
                     _b.sent();
@@ -157,7 +159,7 @@ function performAction(action, options) {
                     count = options.count !== null && options.count !== undefined
                         ? options.count
                         : 1;
-                    console.log("Rolling back migrations with count: " + count);
+                    console.log("Rolling back migrations with count: ".concat(count));
                     return [4 /*yield*/, controller.rollback('/migrations', count)];
                 case 5:
                     _b.sent();
@@ -233,21 +235,21 @@ function processOptions(cliOptions) {
 var InvalidActionException = /** @class */ (function (_super) {
     __extends(InvalidActionException, _super);
     function InvalidActionException(action) {
-        return _super.call(this, "Invalid action " + action) || this;
+        return _super.call(this, "Invalid action ".concat(action)) || this;
     }
     return InvalidActionException;
 }(Error));
 var InvalidOptionException = /** @class */ (function (_super) {
     __extends(InvalidOptionException, _super);
     function InvalidOptionException(option) {
-        return _super.call(this, "Invalid option " + option) || this;
+        return _super.call(this, "Invalid option ".concat(option)) || this;
     }
     return InvalidOptionException;
 }(Error));
 var InvalidActionTypeException = /** @class */ (function (_super) {
     __extends(InvalidActionTypeException, _super);
     function InvalidActionTypeException(actionType) {
-        return _super.call(this, "Invalid action type " + actionType) || this;
+        return _super.call(this, "Invalid action type ".concat(actionType)) || this;
     }
     return InvalidActionTypeException;
 }(Error));

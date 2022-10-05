@@ -42,21 +42,21 @@ var database_2 = require("./database");
 /**
  * Gets the schema of the database as an array of table schema objects
  */
-exports.getJSSchema = function (config) {
+var getJSSchema = function (config) {
     return function (connection, database_name) {
         return __awaiter(this, void 0, void 0, function () {
             var tables, schema;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, database_2.getTableNames(config)(connection, database_name)];
+                    case 0: return [4 /*yield*/, (0, database_2.getTableNames)(config)(connection, database_name)];
                     case 1:
                         tables = _a.sent();
                         schema = tables.map(function (table_name) { return __awaiter(_this, void 0, void 0, function () {
                             var table_schema;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0: return [4 /*yield*/, exports.tableGetJSSchema(config)(connection, database_name, table_name)];
+                                    case 0: return [4 /*yield*/, (0, exports.tableGetJSSchema)(config)(connection, database_name, table_name)];
                                     case 1:
                                         table_schema = _a.sent();
                                         return [2 /*return*/, table_schema];
@@ -70,17 +70,18 @@ exports.getJSSchema = function (config) {
         });
     };
 };
+exports.getJSSchema = getJSSchema;
 /**
  *
  * @param table_name
  */
-exports.tableGetJSSchema = function (config) {
+var tableGetJSSchema = function (config) {
     return function (connection, database_name, table_name) {
         return __awaiter(this, void 0, void 0, function () {
             var columns, schema, fields;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, database_2.getTableInfo(config)(connection, database_name, table_name)];
+                    case 0: return [4 /*yield*/, (0, database_2.getTableInfo)(config)(connection, database_name, table_name)];
                     case 1:
                         columns = _a.sent();
                         schema = {
@@ -106,4 +107,5 @@ exports.tableGetJSSchema = function (config) {
         });
     };
 };
+exports.tableGetJSSchema = tableGetJSSchema;
 //# sourceMappingURL=javascript.js.map

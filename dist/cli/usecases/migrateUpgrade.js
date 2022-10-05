@@ -7,6 +7,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -198,7 +200,7 @@ function migrate(db, processor, action, count, migrationPath) {
                 case 5:
                     result = _b.sent();
                     if (!!result.success) return [3 /*break*/, 6];
-                    console.log("[\u2A2F] Failed to apply migration " + migration.name + " with action " + migration.action);
+                    console.log("[\u2A2F] Failed to apply migration ".concat(migration.name, " with action ").concat(migration.action));
                     throw new MigrationFailedError(migration);
                 case 6:
                     _a = migration.action;
@@ -213,14 +215,14 @@ function migrate(db, processor, action, count, migrationPath) {
                     })];
                 case 8:
                     _b.sent();
-                    console.log("[\u2714\uFE0F] Applied migration " + migration.name + " (" + migration.ext + ") with action " + migration.action);
+                    console.log("[\u2714\uFE0F] Applied migration ".concat(migration.name, " (").concat(migration.ext, ") with action ").concat(migration.action));
                     return [3 /*break*/, 11];
                 case 9: return [4 /*yield*/, db.deleteRecords('migrations', {
                         name: migration.name,
                     })];
                 case 10:
                     _b.sent();
-                    console.log("[\u2714\uFE0F] Rolled back migration " + migration.name + " (" + migration.ext + ") with action " + migration.action);
+                    console.log("[\u2714\uFE0F] Rolled back migration ".concat(migration.name, " (").concat(migration.ext, ") with action ").concat(migration.action));
                     return [3 /*break*/, 11];
                 case 11:
                     i++;
@@ -239,7 +241,7 @@ function parseFilepath(filePath) {
         var type = getFileTypeFromExt(extension);
         var action = getActionFromActionRaw(actionRaw);
         var ext = getExtensionFromExtensionRaw(extension);
-        var name = timestamp + "-" + scriptName;
+        var name = "".concat(timestamp, "-").concat(scriptName);
         return {
             name: name,
             filePath: filePath,
@@ -300,35 +302,35 @@ function getExtensionFromExtensionRaw(extRaw) {
 var NotDirectoryException = /** @class */ (function (_super) {
     __extends(NotDirectoryException, _super);
     function NotDirectoryException(migrationPath) {
-        return _super.call(this, "Migration path is not a directory: " + migrationPath) || this;
+        return _super.call(this, "Migration path is not a directory: ".concat(migrationPath)) || this;
     }
     return NotDirectoryException;
 }(Error));
 var UnsupportedFileExtensionException = /** @class */ (function (_super) {
     __extends(UnsupportedFileExtensionException, _super);
     function UnsupportedFileExtensionException(fileExt) {
-        return _super.call(this, "Unsupported file extension: " + fileExt) || this;
+        return _super.call(this, "Unsupported file extension: ".concat(fileExt)) || this;
     }
     return UnsupportedFileExtensionException;
 }(Error));
 var UnsupportedMigrationAction = /** @class */ (function (_super) {
     __extends(UnsupportedMigrationAction, _super);
     function UnsupportedMigrationAction(action) {
-        return _super.call(this, "Unsupported migration action: " + action) || this;
+        return _super.call(this, "Unsupported migration action: ".concat(action)) || this;
     }
     return UnsupportedMigrationAction;
 }(Error));
 var UnsupportedFileExtensionProcessorException = /** @class */ (function (_super) {
     __extends(UnsupportedFileExtensionProcessorException, _super);
     function UnsupportedFileExtensionProcessorException(fileExt) {
-        return _super.call(this, "Unsupported file extenion: " + fileExt + " ") || this;
+        return _super.call(this, "Unsupported file extenion: ".concat(fileExt, " ")) || this;
     }
     return UnsupportedFileExtensionProcessorException;
 }(Error));
 var MigrationFailedError = /** @class */ (function (_super) {
     __extends(MigrationFailedError, _super);
     function MigrationFailedError(migrationFile) {
-        var _this = _super.call(this, "Migration " + migrationFile.fileName + " failed to process") || this;
+        var _this = _super.call(this, "Migration ".concat(migrationFile.fileName, " failed to process")) || this;
         _this.migrationFile = migrationFile;
         return _this;
     }
@@ -337,7 +339,7 @@ var MigrationFailedError = /** @class */ (function (_super) {
 var DuplicateMigrationNameError = /** @class */ (function (_super) {
     __extends(DuplicateMigrationNameError, _super);
     function DuplicateMigrationNameError(migrationFile) {
-        var _this = _super.call(this, "Duplicate migration found: " + migrationFile.fileName) || this;
+        var _this = _super.call(this, "Duplicate migration found: ".concat(migrationFile.fileName)) || this;
         _this.migrationFile = migrationFile;
         return _this;
     }

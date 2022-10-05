@@ -12,7 +12,11 @@ var __assign = (this && this.__assign) || function () {
 };
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -70,7 +74,7 @@ var chai_1 = __importStar(require("chai"));
 var MySQLDriverPackage = __importStar(require("../index"));
 var connection_1 = require("./utils/connection");
 var TEST_DATA = getTestData();
-var config = connection_1.makeTestConnectionConfig();
+var config = (0, connection_1.makeTestConnectionConfig)();
 describe('All Tests (serverless)', function () {
     var users = {};
     var db = MySQLDriverPackage.connect(__assign(__assign({}, config), { autoClose: {
@@ -447,8 +451,8 @@ describe('Automatic reconnect', function () {
                     return [4 /*yield*/, db.getRecords('user', { email: testData.USER_1.email })];
                 case 1:
                     d = _a.sent();
-                    chai_1.assert(d[0].email === testData.USER_1.email, 'Failed to get correct data');
-                    chai_1.assert(d.length > 0, 'Failed to get records');
+                    (0, chai_1.assert)(d[0].email === testData.USER_1.email, 'Failed to get correct data');
+                    (0, chai_1.assert)(d.length > 0, 'Failed to get records');
                     return [2 /*return*/];
             }
         });

@@ -13,7 +13,7 @@ export declare const ALLOWED_OPERATORS: {
  * @param query
  * @param values
  */
-export declare const query: (config?: DatabaseConfig | undefined) => (connection: DatabaseConnection, query: string, values?: Array<any>) => Promise<any>;
+export declare const query: (config?: DatabaseConfig) => (connection: DatabaseConnection, query: string, values?: Array<any>) => Promise<any>;
 export declare function containsSpecialChars(str_val: string): boolean;
 export declare type QueryOptions = {
     limit?: QueryLimitOptions;

@@ -12,7 +12,11 @@ var __assign = (this && this.__assign) || function () {
 };
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -72,7 +76,7 @@ var TEST_DATA = getTestData();
 var connection_1 = require("./utils/connection");
 describe('All Tests', function () {
     var users = {};
-    var db = MySQLDriverPackage.connect(connection_1.makeTestConnectionConfig());
+    var db = MySQLDriverPackage.connect((0, connection_1.makeTestConnectionConfig)());
     before(function () { return __awaiter(void 0, void 0, void 0, function () {
         var sqls, _i, sqls_1, sql;
         return __generator(this, function (_a) {
@@ -406,7 +410,7 @@ describe('All Tests', function () {
                 case 3:
                     err_1 = _b.sent();
                     errorMessage = err_1.message;
-                    chai_1.expect(errorMessage.indexOf(invalidFieldName)).to.be.greaterThan(-1);
+                    (0, chai_1.expect)(errorMessage.indexOf(invalidFieldName)).to.be.greaterThan(-1);
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
             }
@@ -432,7 +436,7 @@ describe('All Tests', function () {
     }); });
 });
 describe('Automatic reconnect', function () {
-    var db = new MySQLDriverPackage.DatabaseDriver(connection_1.makeDBConfig());
+    var db = new MySQLDriverPackage.DatabaseDriver((0, connection_1.makeDBConfig)());
     var testData = getTestData();
     before(function () { return __awaiter(void 0, void 0, void 0, function () {
         var sqls, _i, sqls_3, sql;
@@ -496,8 +500,83 @@ describe('Automatic reconnect', function () {
                     return [4 /*yield*/, db.getRecords('user', { email: testData.USER_1.email })];
                 case 2:
                     d = _a.sent();
-                    chai_1.assert(d[0].email === testData.USER_1.email, 'Failed to get correct data');
-                    chai_1.assert(d.length > 0, 'Failed to get records');
+                    (0, chai_1.assert)(d[0].email === testData.USER_1.email, 'Failed to get correct data');
+                    (0, chai_1.assert)(d.length > 0, 'Failed to get records');
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+});
+describe('Has a working query builder', function () {
+    var db = new MySQLDriverPackage.DatabaseDriver((0, connection_1.makeDBConfig)());
+    var testData = getTestData();
+    before(function () { return __awaiter(void 0, void 0, void 0, function () {
+        var sqls, _i, sqls_5, sql;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    sqls = [
+                        "CREATE TABLE `user` (\n            `user_id` VARCHAR(50) NOT NULL DEFAULT '',\n            `first_name` VARCHAR(255) DEFAULT NULL,\n            `last_name` VARCHAR(255) DEFAULT NULL,\n            `email` VARCHAR(255) DEFAULT NULL,\n            `index_number` INT DEFAULT NULL,\n            `created_by` VARCHAR(50) DEFAULT NULL,\n            `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n            `updated_by` VARCHAR(50) DEFAULT NULL,\n            `updated_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n\n            PRIMARY KEY (`user_id`),\n            INDEX `IX_USE_use_id` (`user_id`),\n            INDEX `IX_USE_fir_nam` (`first_name`),\n            INDEX `IX_USE_las_nam` (`last_name`),\n            INDEX `IX_USE_ema` (`email`),\n            INDEX `IX_USE_ind_num` (`index_number`)\n\n            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;",
+                    ];
+                    _i = 0, sqls_5 = sqls;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < sqls_5.length)) return [3 /*break*/, 4];
+                    sql = sqls_5[_i];
+                    return [4 /*yield*/, db.query(sql, [])];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4: return [4 /*yield*/, db.insertRecord('user', testData.USER_1)];
+                case 5:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    after(function () { return __awaiter(void 0, void 0, void 0, function () {
+        var sqls, _i, sqls_6, sql;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    sqls = ["DROP TABLE user;"];
+                    _i = 0, sqls_6 = sqls;
+                    _a.label = 1;
+                case 1:
+                    if (!(_i < sqls_6.length)) return [3 /*break*/, 4];
+                    sql = sqls_6[_i];
+                    return [4 /*yield*/, db.query(sql, [])];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4: return [4 /*yield*/, db.closeConnection()];
+                case 5:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    it('gets records successfully', function () { return __awaiter(void 0, void 0, void 0, function () {
+        var query, d;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    query = db.builder
+                        .select('*')
+                        .from('user')
+                        .where('email', testData.USER_1.email)
+                        .toQuery();
+                    return [4 /*yield*/, db.query(query)];
+                case 1:
+                    d = _a.sent();
+                    (0, chai_1.assert)(d[0].email === testData.USER_1.email, 'Failed to get correct data');
+                    (0, chai_1.assert)(d.length > 0, 'Failed to get records');
                     return [2 /*return*/];
             }
         });

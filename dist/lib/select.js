@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepareSelectStatement = exports.selectRecordRawCount = exports.selectRecordRaw = void 0;
 var query_1 = require("./query");
-exports.selectRecordRaw = function (config) {
+var selectRecordRaw = function (config) {
     return function (connection, table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -50,7 +50,7 @@ exports.selectRecordRaw = function (config) {
                         if (isResultEmpty) {
                             return [2 /*return*/, []];
                         }
-                        return [4 /*yield*/, query_1.query(config)(connection, sql, params)];
+                        return [4 /*yield*/, (0, query_1.query)(config)(connection, sql, params)];
                     case 1:
                         data = _b.sent();
                         return [2 /*return*/, data];
@@ -59,12 +59,13 @@ exports.selectRecordRaw = function (config) {
         });
     };
 };
+exports.selectRecordRaw = selectRecordRaw;
 /**
  * INTERNAL: Select count of records from a given table without any data processing
  * @param table_name
  * @param where
  */
-exports.selectRecordRawCount = function (config) {
+var selectRecordRawCount = function (config) {
     return function (connection, table_name, where, order_by, options) {
         if (where === void 0) { where = {}; }
         return __awaiter(this, void 0, void 0, function () {
@@ -77,8 +78,8 @@ exports.selectRecordRawCount = function (config) {
                         if (isResultEmpty) {
                             return [2 /*return*/, 0];
                         }
-                        sql_count = "SELECT COUNT(*) AS count from (\n    " + sql + ") AS T";
-                        return [4 /*yield*/, query_1.query(config)(connection, sql_count, params)];
+                        sql_count = "SELECT COUNT(*) AS count from (\n    ".concat(sql, ") AS T");
+                        return [4 /*yield*/, (0, query_1.query)(config)(connection, sql_count, params)];
                     case 1:
                         records = _b.sent();
                         return [2 /*return*/, records[0].count];
@@ -87,6 +88,7 @@ exports.selectRecordRawCount = function (config) {
         });
     };
 };
+exports.selectRecordRawCount = selectRecordRawCount;
 /**
  * INTERNAL: Prepare select statement from options
  * @param table_name
@@ -95,7 +97,7 @@ exports.selectRecordRawCount = function (config) {
 function prepareSelectStatement(table_name, where, order_by, options) {
     if (where === void 0) { where = {}; }
     var funcName = '_prepareSelectStatement';
-    var select_sql = "SELECT * FROM `" + table_name + "`";
+    var select_sql = "SELECT * FROM `".concat(table_name, "`");
     var isResultEmpty = false;
     var params = [];
     //Validations
@@ -103,37 +105,37 @@ function prepareSelectStatement(table_name, where, order_by, options) {
     var where_operator = (where_options === null || where_options === void 0 ? void 0 : where_options.operator) || 'AND';
     if (where_operator) {
         if (!query_1.ALLOWED_OPERATORS[where_operator]) {
-            throw new Error(funcName + ": Invalid operator '" + where_operator + "'");
+            throw new Error("".concat(funcName, ": Invalid operator '").concat(where_operator, "'"));
         }
     }
     //Construction
     var where_clause = Object.keys(where ? where : {})
         .map(function (key) {
-        if (query_1.containsSpecialChars(key)) {
-            throw new Error(funcName + ": Special character found in key: '" + key + "'");
+        if ((0, query_1.containsSpecialChars)(key)) {
+            throw new Error("".concat(funcName, ": Special character found in key: '").concat(key, "'"));
         }
         var value = where[key];
         if ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcard) ||
             ((where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) && where_options.wildcardAfter)) {
             if (Array.isArray(value)) {
-                throw new Error(funcName + ": Wildcard search not supported for arrays.");
+                throw new Error("".concat(funcName, ": Wildcard search not supported for arrays."));
             }
-            params.push("%" + value + "%");
-            return key + " LIKE ?";
+            params.push("%".concat(value, "%"));
+            return "".concat(key, " LIKE ?");
         }
         else if (where_options === null || where_options === void 0 ? void 0 : where_options.wildcardBefore) {
             if (Array.isArray(value)) {
-                throw new Error(funcName + ": Wildcard search not supported for arrays.");
+                throw new Error("".concat(funcName, ": Wildcard search not supported for arrays."));
             }
-            params.push("%" + value);
-            return key + " LIKE ?";
+            params.push("%".concat(value));
+            return "".concat(key, " LIKE ?");
         }
         else if (where_options === null || where_options === void 0 ? void 0 : where_options.wildcardAfter) {
             if (Array.isArray(value)) {
-                throw new Error(funcName + ": Wildcard search not supported for arrays.");
+                throw new Error("".concat(funcName, ": Wildcard search not supported for arrays."));
             }
-            params.push(value + "%");
-            return key + " LIKE ?";
+            params.push("".concat(value, "%"));
+            return "".concat(key, " LIKE ?");
         }
         else {
             params.push(value);
@@ -141,19 +143,19 @@ function prepareSelectStatement(table_name, where, order_by, options) {
                 if (value.length === 0) {
                     isResultEmpty = true;
                 }
-                return "`" + key + "` IN (?)";
+                return "`".concat(key, "` IN (?)");
             }
             else {
-                return "`" + key + "` = ?";
+                return "`".concat(key, "` = ?");
             }
         }
     })
         .reduce(function (state, cur, idx) {
         if (idx === 0) {
-            state = "WHERE " + cur;
+            state = "WHERE ".concat(cur);
         }
         else {
-            state += " " + where_operator + " " + cur;
+            state += " ".concat(where_operator, " ").concat(cur);
         }
         return state;
     }, '');
@@ -161,26 +163,26 @@ function prepareSelectStatement(table_name, where, order_by, options) {
     var order_by_clause = (order_by ? order_by : [])
         .map(function (rule) {
         var _a = rule || {}, _b = _a.key, key = _b === void 0 ? '' : _b, _c = _a.order, order = _c === void 0 ? '' : _c;
-        if (query_1.containsSpecialChars(key)) {
-            throw new Error(funcName + ": Special character found in key: '" + key + "'");
+        if ((0, query_1.containsSpecialChars)(key)) {
+            throw new Error("".concat(funcName, ": Special character found in key: '").concat(key, "'"));
         }
         if (!key || !order || !(typeof order === 'string')) {
-            throw new Error(funcName + ": Invalid order by config provided [" + key + " : " + order + "]");
+            throw new Error("".concat(funcName, ": Invalid order by config provided [").concat(key, " : ").concat(order, "]"));
         }
         var property_name = key;
         var sort_order = order.trim().toUpperCase();
         //Check that sort_order is either ASC or DESC
         if (['ASC', 'DESC'].indexOf(sort_order) === -1) {
-            throw new Error(funcName + ": Invalid sort order provided - '" + sort_order);
+            throw new Error("".concat(funcName, ": Invalid sort order provided - '").concat(sort_order));
         }
-        return "`" + property_name + "` " + sort_order;
+        return "`".concat(property_name, "` ").concat(sort_order);
     })
         .reduce(function (state, cur, idx) {
         if (idx === 0) {
-            state += "ORDER BY " + cur;
+            state += "ORDER BY ".concat(cur);
         }
         else {
-            state += ",\n" + cur;
+            state += ",\n".concat(cur);
         }
         return state;
     }, '');
@@ -193,16 +195,16 @@ function prepareSelectStatement(table_name, where, order_by, options) {
             offset = 0;
         }
         if (typeof offset !== 'number') {
-            throw new Error(funcName + ": offset in limit option must be a number.");
+            throw new Error("".concat(funcName, ": offset in limit option must be a number."));
         }
         if (typeof page_size !== 'number') {
-            throw new Error(funcName + ": page_size in limit option must be a number.");
+            throw new Error("".concat(funcName, ": page_size in limit option must be a number."));
         }
         limit_clause += " LIMIT ?, ?";
         params.push(offset);
         params.push(page_size);
     }
-    var sql = select_sql + " " + where_clause + " " + order_by_clause + " " + limit_clause;
+    var sql = "".concat(select_sql, " ").concat(where_clause, " ").concat(order_by_clause, " ").concat(limit_clause);
     return {
         sql: sql,
         params: params,

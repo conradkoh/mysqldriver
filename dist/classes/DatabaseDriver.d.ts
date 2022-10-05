@@ -2,9 +2,11 @@ import { DatabaseConfig } from '../interfaces/DatabaseConfig';
 import { QueryOptions } from '../lib/query';
 import { SQLTableColumn } from '../lib/database';
 import { JSTableSchema } from '../lib/javascript';
+import { QueryBuilder } from './QueryBuilder';
 export declare class DatabaseDriver {
     private config;
     private provider;
+    readonly builder: QueryBuilder;
     constructor(cfg: DatabaseConfig);
     private debugLog;
     generateId(): string;
@@ -19,10 +21,10 @@ export declare class DatabaseDriver {
      * @param table_name
      * @param where The search criteria to do a match
      */
-    getRecords(table_name: string, where: any, order_by?: Array<{
+    getRecords<T = any>(table_name: string, where: any, order_by?: Array<{
         key: string;
         order: 'ASC' | 'DESC';
-    }>, options?: QueryOptions): Promise<any[]>;
+    }>, options?: QueryOptions): Promise<T[]>;
     /**
      * Get records count from a table that match the where criteria
      * @param table_name
@@ -59,7 +61,7 @@ export declare class DatabaseDriver {
      * @param sql
      * @param values
      */
-    getRecordSql(sql: string, values: Array<any>): Promise<any>;
+    getRecordSql<T = any>(sql: string, values: Array<any>): Promise<T | null>;
     /**
      * Gets records from the database via a provided sql statement
      * @param sql
@@ -79,13 +81,13 @@ export declare class DatabaseDriver {
      * Get the field names for a given table
      * @param table_name
      */
-    getTableFieldNames(table_name: string): Promise<any[]>;
+    getTableFieldNames(table_name: string): Promise<string[]>;
     /**
      * Query the database connection asynchronously
      * @param sql
      * @param values
      */
-    query(sql: string, values?: Array<any>): Promise<Array<any>>;
+    query<T = any>(sql: string, values?: Array<any>): Promise<Array<T>>;
     closeConnection(): Promise<void>;
     /**
      * Gets the schema of the database as an array of table schema objects

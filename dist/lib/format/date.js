@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatDate = void 0;
 var dayjs_1 = __importDefault(require("dayjs"));
 function formatDate(d) {
-    return dayjs_1.default(d).format('YYYY-MM-DD hh:mm:ss');
+    return (0, dayjs_1.default)(d).format('YYYY-MM-DD hh:mm:ss');
 }
 exports.formatDate = formatDate;
 //# sourceMappingURL=date.js.map

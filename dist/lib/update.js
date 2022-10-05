@@ -45,7 +45,7 @@ import { DatabaseConnection } from '../interfaces/DatabaseConnection';
    * @param properties The properties to be updated
    * @param where THe criteria to search
    */
-exports.updateRecordsRaw = function (config) {
+var updateRecordsRaw = function (config) {
     return function (connection, table_name, properties, where) {
         return __awaiter(this, void 0, void 0, function () {
             var funcName, error, update_sql, params, properties_sql, where_sql;
@@ -57,37 +57,38 @@ exports.updateRecordsRaw = function (config) {
                             error = new Error("DatabaseHelper: Cannot update record without where clause.");
                             throw error;
                         }
-                        update_sql = "UPDATE `" + table_name + "`";
+                        update_sql = "UPDATE `".concat(table_name, "`");
                         params = [];
                         properties_sql = Object.keys(properties)
                             .map(function (key) {
-                            if (query_1.containsSpecialChars(key)) {
-                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
+                            if ((0, query_1.containsSpecialChars)(key)) {
+                                throw new Error("".concat(funcName, ": Special character found in key: '").concat(key, "'"));
                             }
                             var property = properties[key];
                             params.push(property);
-                            return "`" + key + "` = ?";
+                            return "`".concat(key, "` = ?");
                         })
                             .reduce(function (last, cur, index) {
-                            return last + ", " + cur;
+                            return "".concat(last, ", ").concat(cur);
                         });
                         where_sql = Object.keys(where)
                             .map(function (key) {
-                            if (query_1.containsSpecialChars(key)) {
-                                throw new Error(funcName + ": Special character found in key: '" + key + "'");
+                            if ((0, query_1.containsSpecialChars)(key)) {
+                                throw new Error("".concat(funcName, ": Special character found in key: '").concat(key, "'"));
                             }
                             var value = where[key];
                             params.push(value);
-                            return "`" + key + "` = ?";
+                            return "`".concat(key, "` = ?");
                         })
                             .reduce(function (last, cur, index) {
-                            return last + " AND " + cur;
+                            return "".concat(last, " AND ").concat(cur);
                         });
-                        return [4 /*yield*/, query_1.query(config)(connection, update_sql + " SET " + properties_sql + " WHERE " + where_sql, params)];
+                        return [4 /*yield*/, (0, query_1.query)(config)(connection, "".concat(update_sql, " SET ").concat(properties_sql, " WHERE ").concat(where_sql), params)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
 };
+exports.updateRecordsRaw = updateRecordsRaw;
 //# sourceMappingURL=update.js.map

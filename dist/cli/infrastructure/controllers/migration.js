@@ -55,7 +55,7 @@ var MigrationController = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, migrateUpgrade_1.default(this.db, this.processor, MigrationAction_1.MigrationAction.Up, count, path_1.default.resolve(path_1.default.join(process.cwd(), folderName)))];
+                    case 0: return [4 /*yield*/, (0, migrateUpgrade_1.default)(this.db, this.processor, MigrationAction_1.MigrationAction.Up, count, path_1.default.resolve(path_1.default.join(process.cwd(), folderName)))];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -68,7 +68,7 @@ var MigrationController = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, migrateUpgrade_1.default(this.db, this.processor, MigrationAction_1.MigrationAction.Down, count, path_1.default.resolve(path_1.default.join(process.cwd(), folderName)))];
+                    case 0: return [4 /*yield*/, (0, migrateUpgrade_1.default)(this.db, this.processor, MigrationAction_1.MigrationAction.Down, count, path_1.default.resolve(path_1.default.join(process.cwd(), folderName)))];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -96,22 +96,22 @@ var MigrationController = /** @class */ (function () {
                     case 1:
                         exists = _a.sent();
                         if (!!exists) return [3 /*break*/, 3];
-                        return [4 /*yield*/, mkdirp_1.default(folderPath)];
+                        return [4 /*yield*/, (0, mkdirp_1.default)(folderPath)];
                     case 2:
                         _a.sent();
                         _a.label = 3;
                     case 3:
                         timestamp = new Date().getTime();
-                        name = timestamp + "-" + scriptName;
+                        name = "".concat(timestamp, "-").concat(scriptName);
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                fs_1.default.writeFile(path_1.default.join(folderPath, name + ".up.sql"), '', function (err) {
+                                fs_1.default.writeFile(path_1.default.join(folderPath, "".concat(name, ".up.sql")), '', function (err) {
                                     err ? reject(err) : resolve();
                                 });
                             })];
                     case 4:
                         _a.sent();
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                fs_1.default.writeFile(path_1.default.join(folderPath, name + ".down.sql"), '', function (err) {
+                                fs_1.default.writeFile(path_1.default.join(folderPath, "".concat(name, ".down.sql")), '', function (err) {
                                     err ? reject(err) : resolve();
                                 });
                             })];
@@ -125,7 +125,7 @@ var MigrationController = /** @class */ (function () {
     return MigrationController;
 }());
 exports.MigrationController = MigrationController;
-exports.createDefaultMigrationProcessor = function (db) { return __awaiter(void 0, void 0, void 0, function () {
+var createDefaultMigrationProcessor = function (db) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, db.tableExists('migrations')];
@@ -194,4 +194,5 @@ exports.createDefaultMigrationProcessor = function (db) { return __awaiter(void 
         }
     });
 }); };
+exports.createDefaultMigrationProcessor = createDefaultMigrationProcessor;
 //# sourceMappingURL=migration.js.map
