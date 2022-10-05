@@ -161,7 +161,6 @@ export class DatabaseDriver {
    * @param where
    */
   async deleteRecords(table_name: string, where: any) {
-    let self = this;
     let connection = await this.provider.getConnection();
     return await deleteRecordRaw(this.config)(connection, table_name, where);
   }
@@ -173,7 +172,7 @@ export class DatabaseDriver {
    */
   async getRecordSql<T = any>(
     sql: string,
-    values: Array<any>
+    values?: Array<any>
   ): Promise<T | null> {
     let self = this;
     let records = await self.getRecordsSql(sql, values);
@@ -195,7 +194,7 @@ export class DatabaseDriver {
    */
   async getRecordsSql<T = any>(
     sql: string,
-    values: Array<any>
+    values?: Array<any>
   ): Promise<Array<T>> {
     let connection = await this.provider.getConnection();
     return await query(this.config)(connection, sql, values);

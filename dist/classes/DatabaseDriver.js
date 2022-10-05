@@ -194,12 +194,10 @@ var DatabaseDriver = /** @class */ (function () {
      */
     DatabaseDriver.prototype.deleteRecords = function (table_name, where) {
         return __awaiter(this, void 0, void 0, function () {
-            var self, connection;
+            var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        self = this;
-                        return [4 /*yield*/, this.provider.getConnection()];
+                    case 0: return [4 /*yield*/, this.provider.getConnection()];
                     case 1:
                         connection = _a.sent();
                         return [4 /*yield*/, (0, delete_1.deleteRecordRaw)(this.config)(connection, table_name, where)];

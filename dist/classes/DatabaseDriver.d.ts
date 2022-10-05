@@ -61,13 +61,13 @@ export declare class DatabaseDriver {
      * @param sql
      * @param values
      */
-    getRecordSql<T = any>(sql: string, values: Array<any>): Promise<T | null>;
+    getRecordSql<T = any>(sql: string, values?: Array<any>): Promise<T | null>;
     /**
      * Gets records from the database via a provided sql statement
      * @param sql
      * @param values
      */
-    getRecordsSql<T = any>(sql: string, values: Array<any>): Promise<Array<T>>;
+    getRecordsSql<T = any>(sql: string, values?: Array<any>): Promise<Array<T>>;
     /**
      * Gets all tables in the current database
      */
